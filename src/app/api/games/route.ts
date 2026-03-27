@@ -11,7 +11,8 @@ export async function GET() {
     return Response.json(games);
   } catch (error) {
     console.error("GET /api/games", error);
-    return apiError("Erro ao buscar jogos");
+    const msg = error instanceof Error ? error.message : "Erro desconhecido";
+    return apiError(`Erro ao buscar jogos: ${msg}`);
   }
 }
 
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
     return Response.json(game, { status: 201 });
   } catch (error) {
     console.error("POST /api/games", error);
-    return apiError("Erro ao criar jogo");
+    const msg = error instanceof Error ? error.message : "Erro desconhecido";
+    return apiError(`Erro ao criar jogo: ${msg}`);
   }
 }

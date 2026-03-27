@@ -11,7 +11,8 @@ export async function GET() {
     return Response.json(users);
   } catch (error) {
     console.error("GET /api/users", error);
-    return apiError("Erro ao buscar usuários");
+    const msg = error instanceof Error ? error.message : "Erro desconhecido";
+    return apiError(`Erro ao buscar usuários: ${msg}`);
   }
 }
 
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
     return Response.json(user, { status: 201 });
   } catch (error) {
     console.error("POST /api/users", error);
-    return apiError("Erro ao criar usuário");
+    const msg = error instanceof Error ? error.message : "Erro desconhecido";
+    return apiError(`Erro ao criar usuário: ${msg}`);
   }
 }
