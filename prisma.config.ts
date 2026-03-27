@@ -2,7 +2,7 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import dotenv from "dotenv";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 // Next.js usa .env.local; o Prisma CLI precisa carregá-lo explicitamente
 dotenv.config({ path: ".env.local", override: true });
@@ -12,9 +12,8 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  engine: "classic",
   datasource: {
-    url: env("DATABASE_URL"),
-    directUrl: env("DATABASE_URL_UNPOOLED"),
+    url: process.env.DATABASE_URL!,
+    directUrl: process.env.DATABASE_URL_UNPOOLED,
   },
 });
