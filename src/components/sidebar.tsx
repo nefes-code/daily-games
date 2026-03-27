@@ -6,11 +6,20 @@ import {
   Button,
   Circle,
   Flex,
+  HStack,
   Image,
+  Square,
   Text,
   VStack,
 } from "@chakra-ui/react";
+import {
+  Ranking,
+  User,
+  UsersGroupRounded,
+  AddCircle,
+} from "@solar-icons/react";
 import Link from "next/link";
+import { FaGoogle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGames } from "@/services/games/hooks";
@@ -19,41 +28,38 @@ import { useLoginModal } from "@/lib/login-modal-context";
 import type { Game } from "@/services/types";
 
 import pkg from "@/../package.json";
+import { NefesLogo } from "./nefes-logo";
+import { Icon } from "@solar-icons/react/lib/types";
 
 function NavItem({
   href,
-  icon,
+  Icon,
   label,
   active,
 }: {
   href: string;
-  icon: string;
+  Icon: Icon;
   label: string;
   active: boolean;
 }) {
   return (
     <Box asChild w="full">
       <Link href={href}>
-        <Flex
-          align="center"
-          gap={3}
-          px={4}
-          py={3}
-          rounded="xl"
-          fontWeight="bold"
-          fontSize="md"
-          transition="all 0.15s"
-          bg={active ? "brand.subtle" : "transparent"}
-          color={active ? "brand.fg" : "gray.600"}
-          borderWidth={2}
-          borderColor={active ? "brand.solid" : "transparent"}
+        <Button
           _hover={{
-            bg: active ? "brand.subtle" : "gray.100",
+            bgColor: "brand.solid",
+            color: "white",
           }}
+          bgColor={active ? "brand.solid/10" : "transparent"}
+          borderRadius={"lg"}
+          width={"100%"}
+          height={10}
+          justifyContent={"start"}
+          variant={"ghost"}
+          color={active ? "brand.solid" : undefined}
         >
-          <Text fontSize="xl">{icon}</Text>
           <Text>{label}</Text>
-        </Flex>
+        </Button>
       </Link>
     </Box>
   );
@@ -62,8 +68,8 @@ function NavItem({
 function GameNavItem({ game, active }: { game: Game; active: boolean }) {
   return (
     <NavItem
-      href={`/games/${game.id}`}
-      icon={game.type === "COOPERATIVE" ? "🤝" : "⚔️"}
+      href={`/games/${game.slug ?? game.id}`}
+      Icon={game.type === "COOPERATIVE" ? UsersGroupRounded : User}
       label={game.name}
       active={active}
     />
@@ -83,30 +89,38 @@ export function Sidebar() {
   return (
     <Box
       as="aside"
-      w="260px"
+      w="240px"
       minH="100vh"
       bg="white"
-      borderRightWidth={2}
-      borderColor="gray.200"
-      py={6}
-      px={4}
+      borderRightWidth={1}
+      borderColor="gray.100"
       position="fixed"
       left={0}
       top={0}
       display="flex"
       flexDirection="column"
     >
-      <VStack gap={2} align="stretch">
-        {/* Logo */}
-        <Flex align="center" gap={2} px={4} mb={4}>
-          <Text fontSize="2xl">🎮</Text>
-          <Text fontSize="lg" fontWeight="800" color="brand.fg">
-            Daily Games
-          </Text>
-        </Flex>
-
+      <HStack p={5} borderBottomWidth={1}>
+        <Square
+          borderRadius={"lg"}
+          bgColor={"brand.solid"}
+          size={9}
+          color={"black"}
+        >
+          <NefesLogo />
+        </Square>
+        <Text fontSize={"lg"} fontWeight={"bold"}>
+          Jogos diários
+        </Text>
+      </HStack>
+      <VStack mt={4} px={2} gap={2} align="stretch">
         {/* Home */}
-        <NavItem href="/" icon="🏠" label="Home" active={pathname === "/"} />
+        <NavItem
+          href="/"
+          Icon={Ranking}
+          label="Home"
+          active={pathname === "/"}
+        />
 
         {/* Competitivos */}
         {competitive.length > 0 && (
@@ -116,11 +130,12 @@ export function Sidebar() {
               fontWeight="800"
               textTransform="uppercase"
               color="gray.400"
-              px={4}
-              mt={4}
+              mt={6}
+              px={2}
               letterSpacing="wider"
+              fontFamily={"mono"}
             >
-              ⚔️ Competitivos
+              Competitivos
             </Text>
             {competitive.map((g) => (
               <GameNavItem
@@ -140,11 +155,11 @@ export function Sidebar() {
               fontWeight="800"
               textTransform="uppercase"
               color="gray.400"
-              px={4}
               mt={4}
               letterSpacing="wider"
+              fontFamily={"mono"}
             >
-              🤝 Cooperativos
+              Cooperativos
             </Text>
             {cooperative.map((g) => (
               <GameNavItem
@@ -166,28 +181,26 @@ export function Sidebar() {
 
       {/* Botão Novo Jogo fixo na parte inferior */}
       <Box mt="auto" pt={4}>
-        <Button
-          w="full"
-          bg="brand.solid"
-          color="white"
-          rounded="xl"
-          fontWeight="800"
-          fontSize="md"
-          py={6}
-          _hover={{ bg: "brand.emphasized" }}
-          onClick={() => setCreateOpen(true)}
-          boxShadow="0 4px 0 0 var(--chakra-colors-brand-emphasized)"
-          _active={{
-            boxShadow: "none",
-            transform: "translateY(4px)",
-          }}
-          transition="all 0.1s"
-        >
-          ➕ Novo Jogo
-        </Button>
+        <Flex px={2}>
+          <Button
+            _hover={{
+              bgColor: "brand.solid",
+              color: "white",
+            }}
+            borderRadius={"lg"}
+            width={"100%"}
+            justifyContent={"start"}
+            variant={"ghost"}
+            color="brand.solid"
+            onClick={() => setCreateOpen(true)}
+          >
+            <AddCircle weight="BoldDuotone" />
+            Novo Jogo
+          </Button>
+        </Flex>
 
         {/* User section */}
-        <Box mt={4} pt={4} borderTopWidth={1} borderColor="gray.200">
+        <Box mt={4} p={4} borderTopWidth={1} borderColor="gray.100">
           {session?.user ? (
             <Flex align="center" gap={3}>
               {session.user.image ? (
@@ -231,27 +244,26 @@ export function Sidebar() {
             </Flex>
           ) : (
             <Button
-              w="full"
-              variant="outline"
-              rounded="xl"
-              fontWeight="700"
-              borderWidth={2}
-              borderColor="gray.200"
-              color="gray.600"
-              _hover={{ bg: "gray.50", borderColor: "gray.300" }}
+              _hover={{
+                bgColor: "brand.emphasized",
+              }}
+              borderRadius={"lg"}
+              width={"100%"}
+              variant={"solid"}
+              bgColor={"brand.solid"}
+              color="white"
               onClick={openLogin}
             >
-              🔑 Entrar
+              <FaGoogle />
+              Entrar com Google
             </Button>
           )}
+          <Text fontSize="2xs" color="gray.400" textAlign="center" mt={3}>
+            v{pkg.version}
+          </Text>
         </Box>
       </Box>
-
       <CreateGameModal open={createOpen} onClose={() => setCreateOpen(false)} />
-
-      <Text fontSize="2xs" color="gray.400" textAlign="center" mt={3}>
-        v{pkg.version}
-      </Text>
     </Box>
   );
 }

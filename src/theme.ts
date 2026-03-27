@@ -7,19 +7,19 @@ const config = defineConfig({
     "html, body": {
       bg: "gray.50",
       color: "gray.800",
-      fontFamily: "system-ui, sans-serif",
+      fontFamily: "var(--font-roboto), system-ui, sans-serif",
     },
   },
   theme: {
     semanticTokens: {
       colors: {
         brand: {
-          solid: { value: "#58CC02" },
+          solid: { value: "#F5A605" },
           contrast: { value: "#FFFFFF" },
-          fg: { value: "#58CC02" },
-          muted: { value: "#89E219" },
-          subtle: { value: "#E5F8D0" },
-          emphasized: { value: "#4CAD00" },
+          fg: { value: "#92400E" },
+          muted: { value: "#FBBF24" },
+          subtle: { value: "#FEF3C7" },
+          emphasized: { value: "#D97706" },
         },
       },
     },

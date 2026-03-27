@@ -7,6 +7,7 @@ import {
   Dialog,
   Field,
   Flex,
+  HStack,
   Input,
   NativeSelect,
   Portal,
@@ -16,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useCreateGame } from "@/services/games/hooks";
 import type { CreateGameInput } from "@/services/types";
+import { Gamepad } from "@solar-icons/react";
 
 const initialForm: CreateGameInput = {
   name: "",
@@ -26,6 +28,15 @@ const initialForm: CreateGameInput = {
   resultSuffix: "",
   resultMax: undefined,
 };
+
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export function CreateGameModal({
   open,
@@ -49,6 +60,7 @@ export function CreateGameModal({
 
     const payload: CreateGameInput = {
       ...form,
+      slug: toSlug(form.name.trim()),
       name: form.name.trim(),
       url: form.url.trim(),
       resultSuffix: form.resultSuffix?.trim() || undefined,
@@ -66,6 +78,7 @@ export function CreateGameModal({
       onOpenChange={(e) => {
         if (!e.open) onClose();
       }}
+      placement={"center"}
     >
       <Portal>
         <Dialog.Backdrop bg="blackAlpha.600" />
@@ -85,7 +98,10 @@ export function CreateGameModal({
               py={4}
             >
               <Dialog.Title fontSize="lg" fontWeight="800" color="brand.fg">
-                🎮 Novo Jogo
+                <HStack>
+                  <Gamepad size={24} weight="BoldDuotone" />
+                  <Text>Novo Jogo</Text>
+                </HStack>
               </Dialog.Title>
             </Dialog.Header>
 
@@ -97,12 +113,14 @@ export function CreateGameModal({
                     Nome do jogo
                   </Field.Label>
                   <Input
-                    placeholder="ex: Wordle"
+                    placeholder="Wordle"
                     value={form.name}
-                    onChange={(e) => set("name", e.target.value)}
-                    rounded="xl"
-                    borderWidth={2}
-                    borderColor="gray.200"
+                    onChange={(e) => {
+                      set("name", e.target.value);
+                    }}
+                    rounded="lg"
+                    borderWidth={1}
+                    borderColor="gray.100"
                     _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                   />
                 </Field.Root>
@@ -116,9 +134,9 @@ export function CreateGameModal({
                     placeholder="https://www.nytimes.com/games/wordle"
                     value={form.url}
                     onChange={(e) => set("url", e.target.value)}
-                    rounded="xl"
-                    borderWidth={2}
-                    borderColor="gray.200"
+                    rounded="lg"
+                    borderWidth={1}
+                    borderColor="gray.100"
                     _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                   />
                 </Field.Root>
@@ -135,12 +153,12 @@ export function CreateGameModal({
                         onChange={(e) =>
                           set("type", e.target.value as CreateGameInput["type"])
                         }
-                        rounded="xl"
-                        borderWidth={2}
-                        borderColor="gray.200"
+                        rounded="lg"
+                        borderWidth={1}
+                        borderColor="gray.100"
                       >
-                        <option value="COMPETITIVE">⚔️ Competitivo</option>
-                        <option value="COOPERATIVE">🤝 Cooperativo</option>
+                        <option value="COMPETITIVE">Competitivo</option>
+                        <option value="COOPERATIVE">Cooperativo</option>
                       </NativeSelect.Field>
                       <NativeSelect.Indicator />
                     </NativeSelect.Root>
@@ -159,12 +177,12 @@ export function CreateGameModal({
                             e.target.value as CreateGameInput["resultType"],
                           )
                         }
-                        rounded="xl"
-                        borderWidth={2}
-                        borderColor="gray.200"
+                        rounded="lg"
+                        borderWidth={1}
+                        borderColor="gray.100"
                       >
-                        <option value="SCORE">🏆 Pontuação</option>
-                        <option value="TIME">⏱️ Tempo</option>
+                        <option value="SCORE">Pontuação</option>
+                        <option value="TIME">Tempo</option>
                       </NativeSelect.Field>
                       <NativeSelect.Indicator />
                     </NativeSelect.Root>
@@ -178,12 +196,12 @@ export function CreateGameModal({
                       Sufixo (opcional)
                     </Field.Label>
                     <Input
-                      placeholder="ex: pts, ⭐"
+                      placeholder="pts, quadrados, etc."
                       value={form.resultSuffix ?? ""}
                       onChange={(e) => set("resultSuffix", e.target.value)}
-                      rounded="xl"
-                      borderWidth={2}
-                      borderColor="gray.200"
+                      rounded="lg"
+                      borderWidth={1}
+                      borderColor="gray.100"
                       _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                     />
                   </Field.Root>
@@ -194,7 +212,7 @@ export function CreateGameModal({
                     </Field.Label>
                     <Input
                       type="number"
-                      placeholder="ex: 6"
+                      placeholder="6"
                       value={form.resultMax ?? ""}
                       onChange={(e) =>
                         set(
@@ -202,9 +220,9 @@ export function CreateGameModal({
                           e.target.value ? Number(e.target.value) : undefined,
                         )
                       }
-                      rounded="xl"
-                      borderWidth={2}
-                      borderColor="gray.200"
+                      rounded="lg"
+                      borderWidth={1}
+                      borderColor="gray.100"
                       _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                     />
                   </Field.Root>
@@ -212,12 +230,11 @@ export function CreateGameModal({
 
                 {/* Menor é melhor */}
                 <Box
-                  bg="gray.50"
-                  rounded="xl"
+                  rounded="lg"
                   px={4}
                   py={3}
                   borderWidth={1}
-                  borderColor="gray.200"
+                  borderColor="gray.100"
                 >
                   <Flex align="center" justify="space-between">
                     <Box>
@@ -225,13 +242,13 @@ export function CreateGameModal({
                         Menor é melhor?
                       </Text>
                       <Text fontSize="xs" color="gray.500">
-                        Ex: Wordle (menos tentativas = melhor)
+                        Ex.: Wordle (menos tentativas = melhor)
                       </Text>
                     </Box>
                     <Switch.Root
                       checked={form.lowerIsBetter}
                       onCheckedChange={(e) => set("lowerIsBetter", e.checked)}
-                      colorPalette="green"
+                      colorPalette="brand"
                     >
                       <Switch.HiddenInput />
                       <Switch.Control>
@@ -253,7 +270,7 @@ export function CreateGameModal({
               <Dialog.ActionTrigger asChild>
                 <Button
                   variant="ghost"
-                  rounded="xl"
+                  rounded="lg"
                   fontWeight="700"
                   color="gray.500"
                 >
@@ -263,7 +280,7 @@ export function CreateGameModal({
               <Button
                 bg="brand.solid"
                 color="white"
-                rounded="xl"
+                rounded="lg"
                 fontWeight="800"
                 px={6}
                 _hover={{ bg: "brand.emphasized" }}
@@ -271,7 +288,7 @@ export function CreateGameModal({
                 disabled={!form.name.trim() || !form.url.trim()}
                 loading={createGame.isPending}
               >
-                Criar Jogo 🎯
+                Criar Jogo
               </Button>
             </Dialog.Footer>
 

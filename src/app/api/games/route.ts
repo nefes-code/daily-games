@@ -4,6 +4,15 @@ import { apiError } from "@/lib/api-helpers";
 import { eq, asc } from "drizzle-orm";
 import type { CreateGameInput } from "@/services/types";
 
+function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export async function GET() {
   try {
     const result = await db
@@ -35,6 +44,7 @@ export async function POST(request: Request) {
     const [game] = await db
       .insert(games)
       .values({
+        slug: body.slug?.trim() ? body.slug.trim() : toSlug(body.name.trim()),
         name: body.name.trim(),
         url: body.url.trim(),
         type: body.type,

@@ -4,9 +4,11 @@ import type { ResultsFilter } from "@/services/types";
 import { getResults, submitResult } from "./api";
 
 export function useResults(filters: ResultsFilter = {}) {
+  const hasGameIdFilter = "gameId" in filters;
   return useQuery({
     queryKey: queryKeys.results.filtered(filters),
     queryFn: () => getResults(filters),
+    enabled: !hasGameIdFilter || !!filters.gameId,
   });
 }
 

@@ -72,6 +72,7 @@ export const verificationTokens = pgTable(
 
 export const games = pgTable("Game", {
   id: text("id").primaryKey().$defaultFn(createId),
+  slug: text("slug").unique(),
   name: text("name").notNull(),
   url: text("url").notNull(),
   type: gameTypeEnum("type").notNull(),

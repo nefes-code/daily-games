@@ -1,6 +1,6 @@
 {
   "name": "daily-games",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
@@ -17,6 +17,7 @@
     "@chakra-ui/react": "^3.34.0",
     "@emotion/react": "^11.14.0",
     "@floating-ui/react": "^0.27.19",
+    "@solar-icons/react": "^1.1.0",
     "@tanstack/react-query": "^5.95.2",
     "@tiptap/pm": "^3.21.0",
     "@tiptap/react": "^3.21.0",

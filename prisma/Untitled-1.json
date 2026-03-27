@@ -1,0 +1,3 @@
+{
+  "error": "Erro ao criar jogo: Failed query: insert into \"Game\" (\"id\", \"slug\", \"name\", \"url\", \"icon\", \"type\", \"resultType\", \"resultSuffix\", \"resultMax\", \"lowerIsBetter\", \"active\", \"createdAt\") values ($1, $2, $3, $4, default, $5, $6, $7, $8, $9, default, default) returning \"id\", \"slug\", \"name\", \"url\", \"icon\", \"type\", \"resultType\", \"resultSuffix\", \"resultMax\", \"lowerIsBetter\", \"active\", \"createdAt\"\nparams: cmn9iyw9pk781hfjd1,whentaken,WhenTaken,https://whentaken.com/,COMPETITIVE,SCORE,,,false"
+}

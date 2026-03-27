@@ -16,6 +16,7 @@ export type User = {
 
 export type Game = {
   id: string;
+  slug: string | null;
   name: string;
   url: string;
   type: GameType;
@@ -50,6 +51,7 @@ export type CreateUserInput = {
 export type UpdateUserInput = Partial<Pick<User, "name" | "email" | "active">>;
 
 export type CreateGameInput = {
+  slug?: string;
   name: string;
   url: string;
   type: GameType;

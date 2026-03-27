@@ -41,9 +41,11 @@ function getToday() {
   return new Date().toISOString().split("T")[0];
 }
 
-export function GamePage({ gameId }: { gameId: string }) {
-  const { data: game, isLoading: gameLoading } = useGame(gameId);
-  const { data: results, isLoading: resultsLoading } = useResults({ gameId });
+export function GamePage({ slug }: { slug: string }) {
+  const { data: game, isLoading: gameLoading } = useGame(slug);
+  const { data: results, isLoading: resultsLoading } = useResults({
+    gameId: game?.id,
+  });
   const { data: session } = useSession();
   const { openLogin } = useLoginModal();
   const [playOpen, setPlayOpen] = useState(false);
