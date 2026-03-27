@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum GameType {
+  COMPETITIVE
+  COOPERATIVE
+}
+
+enum ResultType {
+  SCORE
+  TIME
+}
+
+model User {
+  id               String       @id @default(cuid())
+  name             String?
+  email            String       @unique
+  emailVerified    DateTime?
+  image            String?
+  active           Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+
+  accounts         Account[]
+  sessions         Session[]
+  results          GameResult[] @relation("UserResults")
+  registeredResults GameResult[] @relation("RegisteredBy")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Game {
+  id             String       @id @default(cuid())
+  name           String
+  url            String
+  type           GameType
+  resultType     ResultType
+  resultSuffix   String?
+  resultMax      Int?
+  lowerIsBetter  Boolean      @default(false)
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  results        GameResult[]
+}
+
+model GameResult {
+  id             String   @id @default(cuid())
+  value          Int
+  playedAt       DateTime @db.Date
+  createdAt      DateTime @default(now())
+  gameId         String
+  userId         String?
+  registeredById String
+  game           Game     @relation(fields: [gameId], references: [id])
+  user           User?    @relation("UserResults", fields: [userId], references: [id])
+  registeredBy   User     @relation("RegisteredBy", fields: [registeredById], references: [id])
+
+  // Competitivo: 1 resultado por jogador/jogo/dia
+  @@unique([userId, gameId, playedAt])
+  @@index([gameId, playedAt])
+}
