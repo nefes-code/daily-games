@@ -1,14 +1,17 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { games } from "@/lib/schema";
 import { apiError } from "@/lib/api-helpers";
+import { eq, asc } from "drizzle-orm";
 import type { CreateGameInput } from "@/services/types";
 
 export async function GET() {
   try {
-    const games = await prisma.game.findMany({
-      where: { active: true },
-      orderBy: { name: "asc" },
-    });
-    return Response.json(games);
+    const result = await db
+      .select()
+      .from(games)
+      .where(eq(games.active, true))
+      .orderBy(asc(games.name));
+    return Response.json(result);
   } catch (error) {
     console.error("GET /api/games", error);
     const msg = error instanceof Error ? error.message : "Erro desconhecido";
@@ -29,8 +32,9 @@ export async function POST(request: Request) {
       return apiError("name, url, type e resultType são obrigatórios", 400);
     }
 
-    const game = await prisma.game.create({
-      data: {
+    const [game] = await db
+      .insert(games)
+      .values({
         name: body.name.trim(),
         url: body.url.trim(),
         type: body.type,
@@ -38,8 +42,8 @@ export async function POST(request: Request) {
         resultSuffix: body.resultSuffix ?? null,
         resultMax: body.resultMax ?? null,
         lowerIsBetter: body.lowerIsBetter ?? false,
-      },
-    });
+      })
+      .returning();
     return Response.json(game, { status: 201 });
   } catch (error) {
     console.error("POST /api/games", error);

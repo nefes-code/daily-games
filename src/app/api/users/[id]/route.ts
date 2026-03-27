@@ -1,5 +1,7 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { users } from "@/lib/schema";
 import { apiError } from "@/lib/api-helpers";
+import { eq } from "drizzle-orm";
 import type { UpdateUserInput } from "@/services/types";
 
 type Params = { params: Promise<{ id: string }> };
@@ -7,7 +9,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_req: Request, { params }: Params) {
   try {
     const { id } = await params;
-    const user = await prisma.user.findUnique({ where: { id } });
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     if (!user) return apiError("Usuário não encontrado", 404);
     return Response.json(user);
   } catch (error) {
@@ -21,13 +23,14 @@ export async function PATCH(request: Request, { params }: Params) {
     const { id } = await params;
     const body: UpdateUserInput = await request.json();
 
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (!user) return apiError("Usuário não encontrado", 404);
+    const [existing] = await db.select().from(users).where(eq(users.id, id));
+    if (!existing) return apiError("Usuário não encontrado", 404);
 
-    const updated = await prisma.user.update({
-      where: { id },
-      data: body,
-    });
+    const [updated] = await db
+      .update(users)
+      .set(body)
+      .where(eq(users.id, id))
+      .returning();
     return Response.json(updated);
   } catch (error) {
     console.error("PATCH /api/users/[id]", error);

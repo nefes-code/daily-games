@@ -1,4 +1,7 @@
-import type { GameType, ResultType } from "@/generated/prisma/enums";
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+export type GameType = "COMPETITIVE" | "COOPERATIVE";
+export type ResultType = "SCORE" | "TIME";
 
 // ─── Entidades (shape das respostas da API) ───────────────────────────────────
 
