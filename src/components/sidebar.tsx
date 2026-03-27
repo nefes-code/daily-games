@@ -18,6 +18,8 @@ import { CreateGameModal } from "@/components/create-game-modal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import type { Game } from "@/services/types";
 
+import pkg from "@/../package.json";
+
 function NavItem({
   href,
   icon,
@@ -246,6 +248,10 @@ export function Sidebar() {
       </Box>
 
       <CreateGameModal open={createOpen} onClose={() => setCreateOpen(false)} />
+
+      <Text fontSize="2xs" color="gray.400" textAlign="center" mt={3}>
+        v{pkg.version}
+      </Text>
     </Box>
   );
 }
