@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Provider } from "@/components/ui/provider";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Daily Games",
@@ -14,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
