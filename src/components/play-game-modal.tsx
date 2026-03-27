@@ -55,7 +55,7 @@ export function PlayGameModal({
 
   function getNumericValue(): number {
     if (isTime) {
-      return (parseInt(minutes || "0") * 60) + parseInt(seconds || "0");
+      return parseInt(minutes || "0") * 60 + parseInt(seconds || "0");
     }
     return parseInt(value);
   }
@@ -122,15 +122,21 @@ export function PlayGameModal({
                     </Text>
                     <Flex justify="center" gap={2} mt={2} flexWrap="wrap">
                       <Box
-                        bg={game.type === "COOPERATIVE" ? "purple.100" : "red.100"}
-                        color={game.type === "COOPERATIVE" ? "purple.700" : "red.700"}
+                        bg={
+                          game.type === "COOPERATIVE" ? "purple.100" : "red.100"
+                        }
+                        color={
+                          game.type === "COOPERATIVE" ? "purple.700" : "red.700"
+                        }
                         px={3}
                         py={0.5}
                         rounded="full"
                         fontSize="xs"
                         fontWeight="800"
                       >
-                        {game.type === "COOPERATIVE" ? "Cooperativo" : "Competitivo"}
+                        {game.type === "COOPERATIVE"
+                          ? "Cooperativo"
+                          : "Competitivo"}
                       </Box>
                       <Box
                         bg="blue.100"
@@ -155,7 +161,12 @@ export function PlayGameModal({
                       borderWidth={1}
                       borderColor="orange.200"
                     >
-                      <Text fontSize="sm" fontWeight="700" color="orange.600" textAlign="center">
+                      <Text
+                        fontSize="sm"
+                        fontWeight="700"
+                        color="orange.600"
+                        textAlign="center"
+                      >
                         ⬇ Menor é melhor nesse jogo!
                       </Text>
                     </Box>
@@ -223,10 +234,18 @@ export function PlayGameModal({
                           fontSize="2xl"
                           fontWeight="800"
                           py={6}
-                          _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
+                          _focus={{
+                            borderColor: "brand.solid",
+                            boxShadow: "none",
+                          }}
                         />
                       </Field.Root>
-                      <Text fontSize="2xl" fontWeight="800" color="gray.400" pb={2}>
+                      <Text
+                        fontSize="2xl"
+                        fontWeight="800"
+                        color="gray.400"
+                        pb={2}
+                      >
                         :
                       </Text>
                       <Field.Root flex={1}>
@@ -247,7 +266,10 @@ export function PlayGameModal({
                           fontSize="2xl"
                           fontWeight="800"
                           py={6}
-                          _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
+                          _focus={{
+                            borderColor: "brand.solid",
+                            boxShadow: "none",
+                          }}
                         />
                       </Field.Root>
                     </Flex>
@@ -262,7 +284,9 @@ export function PlayGameModal({
                         type="number"
                         min={0}
                         max={game.resultMax ?? undefined}
-                        placeholder={game.resultMax ? `0 - ${game.resultMax}` : "0"}
+                        placeholder={
+                          game.resultMax ? `0 - ${game.resultMax}` : "0"
+                        }
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         rounded="xl"
@@ -272,10 +296,18 @@ export function PlayGameModal({
                         fontSize="3xl"
                         fontWeight="800"
                         py={7}
-                        _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
+                        _focus={{
+                          borderColor: "brand.solid",
+                          boxShadow: "none",
+                        }}
                       />
                       {game.resultMax && (
-                        <Text fontSize="xs" color="gray.400" mt={1} textAlign="center">
+                        <Text
+                          fontSize="xs"
+                          color="gray.400"
+                          mt={1}
+                          textAlign="center"
+                        >
                           Máximo: {game.resultMax}
                         </Text>
                       )}
@@ -306,8 +338,14 @@ export function PlayGameModal({
                   </Button>
 
                   {submitResult.isError && (
-                    <Text fontSize="sm" color="red.500" fontWeight="600" textAlign="center">
-                      {(submitResult.error as Error).message ?? "Erro ao salvar resultado"}
+                    <Text
+                      fontSize="sm"
+                      color="red.500"
+                      fontWeight="600"
+                      textAlign="center"
+                    >
+                      {(submitResult.error as Error).message ??
+                        "Erro ao salvar resultado"}
                     </Text>
                   )}
                 </VStack>
