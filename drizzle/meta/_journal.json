@@ -15,6 +15,13 @@
       "when": 1774654097400,
       "tag": "0001_opposite_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774794407842,
+      "tag": "0002_legal_cyclops",
+      "breakpoints": true
     }
   ]
 }

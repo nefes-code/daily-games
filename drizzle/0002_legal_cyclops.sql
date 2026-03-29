@@ -1,0 +1,2 @@
+CREATE TYPE "public"."GameIcon" AS ENUM('GAMEPAD', 'CROWN', 'STAR', 'FIRE', 'CUP', 'MEDAL', 'BOLT', 'CONFETTI');--> statement-breakpoint
+ALTER TABLE "Game" ALTER COLUMN "icon" SET DATA TYPE "public"."GameIcon" USING "icon"::"public"."GameIcon";

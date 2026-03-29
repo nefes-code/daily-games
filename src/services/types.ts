@@ -2,6 +2,15 @@
 
 export type GameType = "COMPETITIVE" | "COOPERATIVE";
 export type ResultType = "SCORE" | "TIME";
+export type GameIcon =
+  | "GAMEPAD"
+  | "CROWN"
+  | "STAR"
+  | "FIRE"
+  | "CUP"
+  | "MEDAL"
+  | "BOLT"
+  | "CONFETTI";
 
 // ─── Entidades (shape das respostas da API) ───────────────────────────────────
 
@@ -24,6 +33,7 @@ export type Game = {
   resultSuffix: string | null;
   resultMax: number | null;
   lowerIsBetter: boolean;
+  icon: GameIcon | null;
   active: boolean;
   createdAt: string;
 };
@@ -59,6 +69,7 @@ export type CreateGameInput = {
   resultSuffix?: string;
   resultMax?: number;
   lowerIsBetter?: boolean;
+  icon?: GameIcon;
 };
 
 export type UpdateGameInput = Partial<

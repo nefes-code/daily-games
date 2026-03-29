@@ -16,6 +16,16 @@ import { createId } from "./cuid";
 
 export const gameTypeEnum = pgEnum("GameType", ["COMPETITIVE", "COOPERATIVE"]);
 export const resultTypeEnum = pgEnum("ResultType", ["SCORE", "TIME"]);
+export const gameIconEnum = pgEnum("GameIcon", [
+  "GAMEPAD",
+  "CROWN",
+  "STAR",
+  "FIRE",
+  "CUP",
+  "MEDAL",
+  "BOLT",
+  "CONFETTI",
+]);
 
 // ─── Auth tables (NextAuth / Auth.js) ────────────────────────────────────────
 
@@ -80,6 +90,7 @@ export const games = pgTable("Game", {
   resultSuffix: text("resultSuffix"),
   resultMax: integer("resultMax"),
   lowerIsBetter: boolean("lowerIsBetter").notNull().default(false),
+  icon: gameIconEnum("icon"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });

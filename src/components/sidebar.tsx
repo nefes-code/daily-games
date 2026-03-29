@@ -12,12 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import {
-  Ranking,
-  User,
-  UsersGroupRounded,
-  AddCircle,
-} from "@solar-icons/react";
+import { Ranking, AddCircle } from "@solar-icons/react";
 import Link from "next/link";
 import { FaGoogle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
@@ -29,7 +24,8 @@ import type { Game } from "@/services/types";
 
 import pkg from "@/../package.json";
 import { NefesLogo } from "./nefes-logo";
-import { Icon } from "@solar-icons/react/lib/types";
+import { getGameIcon, type Icon as SolarIcon } from "@/utils/game-icon";
+import { Gamepad } from "@solar-icons/react/ssr";
 
 function NavItem({
   href,
@@ -38,7 +34,7 @@ function NavItem({
   active,
 }: {
   href: string;
-  Icon: Icon;
+  Icon: SolarIcon;
   label: string;
   active: boolean;
 }) {
@@ -58,6 +54,7 @@ function NavItem({
           variant={"ghost"}
           color={active ? "brand.solid" : undefined}
         >
+          <Icon weight="BoldDuotone" />
           <Text>{label}</Text>
         </Button>
       </Link>
@@ -69,7 +66,7 @@ function GameNavItem({ game, active }: { game: Game; active: boolean }) {
   return (
     <NavItem
       href={`/games/${game.slug ?? game.id}`}
-      Icon={game.type === "COOPERATIVE" ? UsersGroupRounded : User}
+      Icon={game.icon ? getGameIcon(game.icon) : Gamepad}
       label={game.name}
       active={active}
     />

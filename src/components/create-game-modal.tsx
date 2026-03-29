@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useCreateGame } from "@/services/games/hooks";
 import type { CreateGameInput } from "@/services/types";
+import { GAME_ICON_OPTIONS, getGameIcon } from "@/utils/game-icon";
 import { Gamepad } from "@solar-icons/react";
 
 const initialForm: CreateGameInput = {
@@ -27,6 +28,7 @@ const initialForm: CreateGameInput = {
   lowerIsBetter: false,
   resultSuffix: "",
   resultMax: undefined,
+  icon: undefined,
 };
 
 function toSlug(name: string): string {
@@ -65,6 +67,7 @@ export function CreateGameModal({
       url: form.url.trim(),
       resultSuffix: form.resultSuffix?.trim() || undefined,
       resultMax: form.resultMax || undefined,
+      icon: form.icon ?? undefined,
     };
 
     await createGame.mutateAsync(payload);
@@ -123,6 +126,50 @@ export function CreateGameModal({
                     borderColor="gray.100"
                     _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                   />
+                </Field.Root>
+
+                {/* Ícone */}
+                <Field.Root>
+                  <Field.Label fontWeight="700" fontSize="sm">
+                    Ícone (opcional)
+                  </Field.Label>
+                  <Flex gap={2} flexWrap="wrap">
+                    {GAME_ICON_OPTIONS.map(({ value, label }) => {
+                      const Icon = getGameIcon(value);
+                      const selected = form.icon === value;
+                      return (
+                        <Box
+                          key={value}
+                          as="button"
+                          type="button"
+                          onClick={() =>
+                            set("icon", selected ? undefined : value)
+                          }
+                          rounded="lg"
+                          borderWidth={1}
+                          borderColor={selected ? "brand.solid" : "gray.100"}
+                          bg={selected ? "brand.subtle" : "white"}
+                          color={selected ? "brand.solid" : "gray.500"}
+                          p={2}
+                          display="flex"
+                          flexDir="column"
+                          alignItems="center"
+                          gap={1}
+                          cursor="pointer"
+                          _hover={{
+                            borderColor: "brand.solid",
+                            color: "brand.solid",
+                          }}
+                          title={label}
+                        >
+                          <Icon size={22} weight="BoldDuotone" />
+                          <Text fontSize="9px" fontWeight="600" lineHeight="1">
+                            {label}
+                          </Text>
+                        </Box>
+                      );
+                    })}
+                  </Flex>
                 </Field.Root>
 
                 {/* URL */}
