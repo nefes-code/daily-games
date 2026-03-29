@@ -1,4 +1,4 @@
-import { GamePage } from "./game-page";
+import { GamePage } from "@/components/GamePage";
 
 export default async function GameRoute({
   params,

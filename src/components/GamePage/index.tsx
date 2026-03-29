@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Box,
   Button,
-  Circle,
   Flex,
   Grid,
   HStack,
@@ -15,249 +14,13 @@ import {
 import { useSession } from "next-auth/react";
 import { useGame } from "@/services/games/hooks";
 import { useResults } from "@/services/results/hooks";
-import { PlayGameModal } from "@/components/play-game-modal";
+import { PlayGameModal } from "@/components/PlayGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { GameIconDisplay } from "@/utils/game-icon";
+import { PodiumCard } from "./components/PodiumCard";
+import { ResultRow } from "./components/ResultRow";
+import { formatValue, getToday } from "./helpers";
 import type { GameResult } from "@/services/types";
-
-// ─── helpers ──────────────────────────────────────────────────────────────────
-
-function formatValue(
-  value: number,
-  game: {
-    resultType: string;
-    resultSuffix: string | null;
-    resultMax: number | null;
-  },
-) {
-  if (game.resultType === "TIME") {
-    const mins = Math.floor(value / 60);
-    const secs = value % 60;
-    return mins > 0 ? `${mins}:${String(secs).padStart(2, "0")}` : `${secs}s`;
-  }
-  const suffix = game.resultSuffix ?? "";
-  if (game.resultMax) return `${value}/${game.resultMax}${suffix}`;
-  return `${value}${suffix}`;
-}
-
-function getToday() {
-  return new Date().toISOString().split("T")[0];
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
-const AVATAR_PALETTE = [
-  "#6366f1",
-  "#8b5cf6",
-  "#ec4899",
-  "#f59e0b",
-  "#10b981",
-  "#3b82f6",
-  "#ef4444",
-];
-
-function avatarColor(name: string) {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
-  return AVATAR_PALETTE[Math.abs(h) % AVATAR_PALETTE.length];
-}
-
-// ─── PodiumCard ───────────────────────────────────────────────────────────────
-
-const RANK_GRADIENT = [
-  "linear-gradient(135deg, #fef9c3 0%, #fde68a 45%, #d9f99d 100%)",
-  "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 45%, #ddd6fe 100%)",
-  "linear-gradient(135deg, #ffedd5 0%, #fed7aa 45%, #fef9c3 100%)",
-];
-const RANK_BADGE_BG = ["#78350f", "#1e293b", "#7c2d12"];
-const RANK_SUBTITLE = ["#d97706", "#6366f1", "#ea580c"];
-const RANK_LABEL = ["1º", "2º", "3º"];
-
-function PodiumCard({
-  rank,
-  name,
-  value,
-  elevated,
-  isCurrentUser,
-}: {
-  rank: number;
-  name: string;
-  value: string;
-  elevated?: boolean;
-  isCurrentUser?: boolean;
-}) {
-  const gradient = RANK_GRADIENT[rank - 1];
-  const badgeBg = RANK_BADGE_BG[rank - 1];
-  const subtitleColor = RANK_SUBTITLE[rank - 1];
-  const label = RANK_LABEL[rank - 1];
-
-  return (
-    <Box
-      bg="white"
-      rounded="2xl"
-      overflow="hidden"
-      borderWidth={1}
-      borderColor={isCurrentUser ? "brand.solid" : "gray.100"}
-      transform={elevated ? "translateY(-14px)" : undefined}
-      boxShadow={
-        elevated ? "0 16px 48px rgba(0,0,0,0.11)" : "0 1px 4px rgba(0,0,0,0.05)"
-      }
-    >
-      {/* Gradient header */}
-      <Box style={{ background: gradient }} position="relative" p={4} pb={7}>
-        {/* Rank watermark */}
-        <Text
-          position="absolute"
-          right={3}
-          top={1}
-          fontSize="6xl"
-          fontWeight="900"
-          lineHeight="1"
-          fontFamily="mono"
-          userSelect="none"
-          pointerEvents="none"
-          style={{ color: "rgba(0,0,0,0.10)" }}
-        >
-          {label}
-        </Text>
-
-        {/* Avatar */}
-        <Circle
-          size="52px"
-          bg={avatarColor(name)}
-          color="white"
-          fontWeight="800"
-          fontSize="sm"
-          borderWidth={2}
-          borderColor="white"
-          style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.15)" }}
-        >
-          {getInitials(name)}
-        </Circle>
-      </Box>
-
-      {/* Score badge — overlaps gradient border */}
-      <Flex px={4} mt={-3.5} mb={2} justify="flex-end">
-        <Box
-          style={{
-            background: badgeBg,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-          }}
-          color="white"
-          px={3}
-          py={1}
-          rounded="full"
-          fontSize="xs"
-          fontWeight="800"
-          fontFamily="mono"
-          letterSpacing="0.02em"
-        >
-          {value}
-        </Box>
-      </Flex>
-
-      {/* Content */}
-      <Box px={4} pb={4}>
-        <Text
-          fontSize="sm"
-          fontWeight="800"
-          color="gray.900"
-          lineClamp={1}
-          letterSpacing="-0.01em"
-        >
-          {name}
-        </Text>
-        <Text
-          fontSize="xs"
-          fontWeight="600"
-          mt={0.5}
-          style={{ color: subtitleColor }}
-        >
-          {label} lugar
-        </Text>
-      </Box>
-    </Box>
-  );
-}
-
-// ─── ResultRow ────────────────────────────────────────────────────────────────
-
-function ResultRow({
-  rank,
-  name,
-  value,
-  date,
-  isLast,
-}: {
-  rank?: number;
-  name: string;
-  value: string;
-  date?: string;
-  isLast?: boolean;
-}) {
-  return (
-    <Flex
-      align="center"
-      px={4}
-      py={3}
-      gap={3}
-      borderBottomWidth={isLast ? 0 : 1}
-      borderColor="gray.50"
-      _hover={{ bg: "gray.50" }}
-      transition="background 0.1s"
-    >
-      {rank !== undefined && (
-        <Text
-          fontSize="xs"
-          fontWeight="700"
-          color="gray.300"
-          w={5}
-          textAlign="center"
-          fontFamily="mono"
-          flexShrink={0}
-        >
-          {rank}
-        </Text>
-      )}
-      <Circle
-        size="30px"
-        bg={avatarColor(name)}
-        color="white"
-        fontWeight="700"
-        fontSize="xs"
-        flexShrink={0}
-      >
-        {getInitials(name)}
-      </Circle>
-      <Text fontSize="sm" fontWeight="600" flex={1} truncate color="gray.700">
-        {name}
-      </Text>
-      {date && (
-        <Text fontSize="xs" color="gray.300" fontWeight="500" flexShrink={0}>
-          {date}
-        </Text>
-      )}
-      <Text
-        fontSize="sm"
-        fontWeight="800"
-        color="gray.600"
-        fontFamily="mono"
-        flexShrink={0}
-      >
-        {value}
-      </Text>
-    </Flex>
-  );
-}
-
-// ─── GamePage ─────────────────────────────────────────────────────────────────
 
 export function GamePage({ slug }: { slug: string }) {
   const { data: game, isLoading: gameLoading } = useGame(slug);
@@ -377,25 +140,28 @@ export function GamePage({ slug }: { slug: string }) {
         </Button>
       </Flex>
 
-      <Grid
-        templateColumns={`repeat(${Math.min(top3.length, 3)}, 1fr)`}
-        gap={3}
-        alignItems="end"
-      >
-        {podiumOrder.map((r) => (
-          <PodiumCard
-            key={r.id}
-            rank={r._rank}
-            name={playerName(r)}
-            value={formatValue(r.value, game)}
-            elevated={r._rank === 1}
-            isCurrentUser={
-              !!session?.user?.email &&
-              session.user.email === (r.user?.email ?? r.registeredBy.email)
-            }
-          />
-        ))}
-      </Grid>
+      {/* ── Pódio ── */}
+      {top3.length > 0 && (
+        <Grid
+          templateColumns={`repeat(${Math.min(top3.length, 3)}, 1fr)`}
+          gap={3}
+          alignItems="end"
+        >
+          {podiumOrder.map((r) => (
+            <PodiumCard
+              key={r.id}
+              rank={r._rank}
+              name={playerName(r)}
+              value={formatValue(r.value, game)}
+              elevated={r._rank === 1}
+              isCurrentUser={
+                !!session?.user?.email &&
+                session.user.email === (r.user?.email ?? r.registeredBy.email)
+              }
+            />
+          ))}
+        </Grid>
+      )}
 
       {/* ── Stats ── */}
       <Grid templateColumns="repeat(3, 1fr)" gap={3}>
@@ -474,7 +240,6 @@ export function GamePage({ slug }: { slug: string }) {
           </Box>
         ) : (
           <VStack gap={3} align="stretch">
-            {/* 4º em diante */}
             {rest.length > 0 && (
               <Box
                 borderWidth={1}

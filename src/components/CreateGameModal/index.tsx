@@ -141,7 +141,6 @@ export function CreateGameModal({
                         <Box
                           key={value}
                           as="button"
-                          type="button"
                           onClick={() =>
                             set("icon", selected ? undefined : value)
                           }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { Providers } from "./providers";
-import { DashboardShell } from "@/components/dashboard-shell";
+import { DashboardShell } from "@/components/DashboardShell";
 
 const roboto = Roboto({
   subsets: ["latin"],

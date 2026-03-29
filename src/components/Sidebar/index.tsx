@@ -13,65 +13,17 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Ranking, AddCircle } from "@solar-icons/react";
-import Link from "next/link";
 import { FaGoogle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGames } from "@/services/games/hooks";
-import { CreateGameModal } from "@/components/create-game-modal";
+import { CreateGameModal } from "@/components/CreateGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
-import type { Game } from "@/services/types";
+import { NefesLogo } from "@/components/NefesLogo";
+import { NavItem } from "./components/NavItem";
+import { GameNavItem } from "./components/GameNavItem";
 
 import pkg from "@/../package.json";
-import { NefesLogo } from "./nefes-logo";
-import { getGameIcon, type Icon as SolarIcon } from "@/utils/game-icon";
-import { Gamepad } from "@solar-icons/react/ssr";
-
-function NavItem({
-  href,
-  Icon,
-  label,
-  active,
-}: {
-  href: string;
-  Icon: SolarIcon;
-  label: string;
-  active: boolean;
-}) {
-  return (
-    <Box asChild w="full">
-      <Link href={href}>
-        <Button
-          _hover={{
-            bgColor: "brand.solid",
-            color: "white",
-          }}
-          bgColor={active ? "brand.solid/10" : "transparent"}
-          borderRadius={"lg"}
-          width={"100%"}
-          height={10}
-          justifyContent={"start"}
-          variant={"ghost"}
-          color={active ? "brand.solid" : undefined}
-        >
-          <Icon weight="BoldDuotone" />
-          <Text>{label}</Text>
-        </Button>
-      </Link>
-    </Box>
-  );
-}
-
-function GameNavItem({ game, active }: { game: Game; active: boolean }) {
-  return (
-    <NavItem
-      href={`/games/${game.slug ?? game.id}`}
-      Icon={game.icon ? getGameIcon(game.icon) : Gamepad}
-      label={game.name}
-      active={active}
-    />
-  );
-}
 
 export function Sidebar() {
   const pathname = usePathname();

@@ -2,7 +2,7 @@
 
 import { Box, Flex } from "@chakra-ui/react";
 import { usePathname } from "next/navigation";
-import { Sidebar } from "./sidebar";
+import { Sidebar } from "@/components/Sidebar";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

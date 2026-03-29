@@ -14,9 +14,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useLoginModal } from "@/lib/login-modal-context";
-import { NefesLogo } from "./nefes-logo";
+import { NefesLogo } from "@/components/NefesLogo";
 import { Ranking } from "@solar-icons/react";
-import GoogleIcon from "./google-icon";
+import GoogleIcon from "@/components/GoogleIcon";
 
 export function LoginModal() {
   const { open, closeLogin } = useLoginModal();
