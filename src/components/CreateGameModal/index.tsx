@@ -18,7 +18,7 @@ import {
 import { useCreateGame } from "@/services/games/hooks";
 import type { CreateGameInput } from "@/services/types";
 import { GAME_ICON_OPTIONS, getGameIcon } from "@/utils/game-icon";
-import { Gamepad } from "@solar-icons/react";
+import { CloseCircle, Gamepad } from "@solar-icons/react";
 
 const initialForm: CreateGameInput = {
   name: "",
@@ -29,6 +29,7 @@ const initialForm: CreateGameInput = {
   resultSuffix: "",
   resultMax: undefined,
   icon: undefined,
+  resultRounds: 1,
 };
 
 function toSlug(name: string): string {
@@ -68,6 +69,7 @@ export function CreateGameModal({
       resultSuffix: form.resultSuffix?.trim() || undefined,
       resultMax: form.resultMax || undefined,
       icon: form.icon ?? undefined,
+      resultRounds: form.resultRounds ?? 1,
     };
 
     await createGame.mutateAsync(payload);
@@ -94,6 +96,9 @@ export function CreateGameModal({
             w="full"
             boxShadow="xl"
           >
+            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+              <CloseCircle size={24} weight="BoldDuotone" />
+            </Dialog.CloseTrigger>
             <Dialog.Header
               borderBottomWidth={1}
               borderColor="gray.100"
@@ -235,7 +240,7 @@ export function CreateGameModal({
                   </Field.Root>
                 </Flex>
 
-                {/* Sufixo + Máximo */}
+                {/* Sufixo + Máximo + Rodadas */}
                 <Flex gap={4}>
                   <Field.Root flex={1}>
                     <Field.Label fontWeight="700" fontSize="sm">
@@ -264,6 +269,28 @@ export function CreateGameModal({
                         set(
                           "resultMax",
                           e.target.value ? Number(e.target.value) : undefined,
+                        )
+                      }
+                      rounded="lg"
+                      borderWidth={1}
+                      borderColor="gray.100"
+                      _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
+                    />
+                  </Field.Root>
+
+                  <Field.Root flex={1}>
+                    <Field.Label fontWeight="700" fontSize="sm">
+                      Rodadas por dia
+                    </Field.Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="1"
+                      value={form.resultRounds ?? 1}
+                      onChange={(e) =>
+                        set(
+                          "resultRounds",
+                          e.target.value ? Number(e.target.value) : 1,
                         )
                       }
                       rounded="lg"

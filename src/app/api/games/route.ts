@@ -53,6 +53,7 @@ export async function POST(request: Request) {
         resultMax: body.resultMax ?? null,
         lowerIsBetter: body.lowerIsBetter ?? false,
         icon: body.icon ?? null,
+        resultRounds: body.resultRounds ?? 1,
       })
       .returning();
     return Response.json(game, { status: 201 });

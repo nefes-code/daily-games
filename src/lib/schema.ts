@@ -26,6 +26,7 @@ export const gameIconEnum = pgEnum("GameIcon", [
   "BOLT",
   "CONFETTI",
 ]);
+export const resultStatusEnum = pgEnum("ResultStatus", ["WIN", "LOSS"]);
 
 // ─── Auth tables (NextAuth / Auth.js) ────────────────────────────────────────
 
@@ -91,6 +92,7 @@ export const games = pgTable("Game", {
   resultMax: integer("resultMax"),
   lowerIsBetter: boolean("lowerIsBetter").notNull().default(false),
   icon: gameIconEnum("icon"),
+  resultRounds: integer("resultRounds").notNull().default(1),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
@@ -109,9 +111,11 @@ export const gameResults = pgTable(
     registeredById: text("registeredById")
       .notNull()
       .references(() => users.id),
+    round: integer("round").notNull().default(1),
+    status: resultStatusEnum("status"),
   },
   (t) => [
-    unique().on(t.userId, t.gameId, t.playedAt),
+    unique().on(t.userId, t.gameId, t.playedAt, t.round),
     index("GameResult_gameId_playedAt_idx").on(t.gameId, t.playedAt),
   ],
 );

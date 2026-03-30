@@ -22,12 +22,15 @@ export async function getResults(
 
 export async function submitResult(
   input: SubmitResultInput,
-): Promise<GameResult> {
+): Promise<GameResult | GameResult[]> {
   const res = await fetch(BASE, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("Falha ao cadastrar resultado");
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Falha ao cadastrar resultado");
+  }
   return res.json();
 }

@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { NefesLogo } from "@/components/NefesLogo";
-import { Ranking } from "@solar-icons/react";
+import { CloseCircle, Ranking } from "@solar-icons/react";
 import GoogleIcon from "@/components/GoogleIcon";
 
 export function LoginModal() {
@@ -61,6 +61,9 @@ export function LoginModal() {
             w="full"
             boxShadow="xl"
           >
+            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+              <CloseCircle size={24} weight="BoldDuotone" />
+            </Dialog.CloseTrigger>
             <Dialog.Body px={8} py={10}>
               <VStack gap={6}>
                 <HStack>

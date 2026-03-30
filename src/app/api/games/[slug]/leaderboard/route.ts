@@ -28,17 +28,22 @@ export async function GET(_req: Request, { params }: Params) {
 
     // Cooperativo: um único resultado agregado do time
     if (game.type === "COOPERATIVE") {
+      // Para multi-round: soma rodadas por dia, depois agrega os totais diários
       const [team] = await db
         .select({
           daysPlayed: sql<number>`count(*)::int`,
           bestResult: game.lowerIsBetter
-            ? sql<number>`min(${gameResults.value})`
-            : sql<number>`max(${gameResults.value})`,
-          average: sql<number>`round(avg(${gameResults.value}))::int`,
+            ? sql<number>`min(daily_total)`
+            : sql<number>`max(daily_total)`,
+          average: sql<number>`round(avg(daily_total))::int`,
         })
-        .from(gameResults)
-        .where(
-          sql`${eq(gameResults.gameId, game.id)} and ${gte(gameResults.playedAt, since)}`,
+        .from(
+          sql`(
+            SELECT ${gameResults.playedAt}, sum(${gameResults.value})::int as daily_total
+            FROM ${gameResults}
+            WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+            GROUP BY ${gameResults.playedAt}
+          ) as daily`,
         );
 
       return Response.json(
@@ -59,30 +64,32 @@ export async function GET(_req: Request, { params }: Params) {
     }
 
     // Competitivo: agrupa por userId (últimos 30 dias)
-    const playerCol = gameResults.userId;
+    // Para multi-round: soma rodadas por dia por jogador, depois agrega os totais diários
     const orderDir = game.lowerIsBetter ? asc : desc;
 
     const rows = await db
       .select({
-        playerId: playerCol,
+        playerId: sql<string>`player_id`,
         daysPlayed: sql<number>`count(*)::int`,
         bestResult: game.lowerIsBetter
-          ? sql<number>`min(${gameResults.value})`
-          : sql<number>`max(${gameResults.value})`,
-        average: sql<number>`round(avg(${gameResults.value}))::int`,
+          ? sql<number>`min(daily_total)`
+          : sql<number>`max(daily_total)`,
+        average: sql<number>`round(avg(daily_total))::int`,
       })
-      .from(gameResults)
-      .where(
-        sql`${eq(gameResults.gameId, game.id)} and ${gte(gameResults.playedAt, since)}`,
+      .from(
+        sql`(
+          SELECT ${gameResults.userId} as player_id, ${gameResults.playedAt}, sum(${gameResults.value})::int as daily_total
+          FROM ${gameResults}
+          WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+          GROUP BY ${gameResults.userId}, ${gameResults.playedAt}
+        ) as daily`,
       )
-      .groupBy(playerCol)
+      .groupBy(sql`player_id`)
       .orderBy(
-        orderDir(sql`avg(${gameResults.value})`),
+        orderDir(sql`avg(daily_total)`),
         desc(sql`count(*)`),
         orderDir(
-          game.lowerIsBetter
-            ? sql`min(${gameResults.value})`
-            : sql`max(${gameResults.value})`,
+          game.lowerIsBetter ? sql`min(daily_total)` : sql`max(daily_total)`,
         ),
       )
       .limit(3);

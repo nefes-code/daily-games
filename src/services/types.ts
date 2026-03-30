@@ -12,6 +12,8 @@ export type GameIcon =
   | "BOLT"
   | "CONFETTI";
 
+export type ResultStatus = "WIN" | "LOSS";
+
 // ─── Entidades (shape das respostas da API) ───────────────────────────────────
 
 export type User = {
@@ -34,6 +36,7 @@ export type Game = {
   resultMax: number | null;
   lowerIsBetter: boolean;
   icon: GameIcon | null;
+  resultRounds: number;
   active: boolean;
   createdAt: string;
 };
@@ -55,6 +58,8 @@ export type GameResult = {
   gameId: string;
   userId: string | null;
   registeredById: string;
+  round: number;
+  status: ResultStatus | null;
   user: User | null;
   registeredBy: User;
   game: Game;
@@ -90,6 +95,7 @@ export type CreateGameInput = {
   resultMax?: number;
   lowerIsBetter?: boolean;
   icon?: GameIcon;
+  resultRounds?: number;
 };
 
 export type UpdateGameInput = Partial<
@@ -100,12 +106,16 @@ export type UpdateGameInput = Partial<
 >;
 
 export type SubmitResultInput = {
-  value: number;
   /** ISO date string YYYY-MM-DD */
   playedAt: string;
   gameId: string;
   /** null = resultado cooperativo (do time) */
   userId?: string;
+  /** Para jogos com 1 rodada */
+  value?: number;
+  status?: ResultStatus;
+  /** Para jogos com múltiplas rodadas */
+  rounds?: Array<{ round: number; value: number; status?: ResultStatus }>;
 };
 
 // ─── Filtros ──────────────────────────────────────────────────────────────────

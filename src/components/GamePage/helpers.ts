@@ -4,6 +4,7 @@ export function formatValue(
     resultType: string;
     resultSuffix: string | null;
     resultMax: number | null;
+    resultRounds?: number;
   },
 ) {
   if (game.resultType === "TIME") {
@@ -11,8 +12,28 @@ export function formatValue(
     const secs = value % 60;
     return mins > 0 ? `${mins}:${String(secs).padStart(2, "0")}` : `${secs}s`;
   }
-  const suffix = game.resultSuffix ?? "";
-  if (game.resultMax) return `${value || "0"}/${game.resultMax} ${suffix}`;
+  const suffix = game.resultSuffix ? ` ${game.resultSuffix}` : "";
+  // Para multi-round, o valor é a soma das rodadas — não faz sentido mostrar /max
+  const isMultiRound = (game.resultRounds ?? 1) > 1;
+  if (game.resultMax && !isMultiRound)
+    return `${value || "0"}/${game.resultMax}${suffix}`;
+  return `${value}${suffix}`;
+}
+
+export function formatRoundValue(
+  value: number,
+  status: "WIN" | "LOSS" | null,
+  game: {
+    resultType: string;
+    resultSuffix: string | null;
+    resultMax: number | null;
+  },
+) {
+  if (status === "LOSS") return "✕";
+  // Individual round: sempre mostra /max se existir
+  const suffix = game.resultSuffix ? ` ${game.resultSuffix}` : "";
+  if (game.resultType === "TIME") return formatValue(value, game);
+  if (game.resultMax) return `${value}/${game.resultMax}${suffix}`;
   return `${value}${suffix}`;
 }
 

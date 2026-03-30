@@ -29,14 +29,17 @@ export function useSubmitResult() {
     onSuccess: (result) => {
       // Invalida todas as queries de resultados (qualquer filtro)
       qc.invalidateQueries({ queryKey: queryKeys.results.all() });
+      // Normaliza: pode ser um resultado ou array
+      const first = Array.isArray(result) ? result[0] : result;
+      if (!first) return;
       // Invalida também o ranking do jogo específico
       qc.invalidateQueries({
-        queryKey: queryKeys.results.filtered({ gameId: result.gameId }),
+        queryKey: queryKeys.results.filtered({ gameId: first.gameId }),
       });
       // Invalida a leaderboard do jogo (slug via game relation)
-      if (result.game?.slug) {
+      if (first.game?.slug) {
         qc.invalidateQueries({
-          queryKey: queryKeys.games.leaderboard(result.game.slug),
+          queryKey: queryKeys.games.leaderboard(first.game.slug),
         });
       }
     },

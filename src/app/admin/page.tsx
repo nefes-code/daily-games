@@ -21,7 +21,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { GAME_ICON_OPTIONS, getGameIcon } from "@/utils/game-icon";
-import { Gamepad } from "@solar-icons/react";
+import { CloseCircle, Gamepad } from "@solar-icons/react";
 import type { GameIcon, GameType, ResultType } from "@/services/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -221,6 +221,9 @@ function EditGameModal({
             w="full"
             boxShadow="xl"
           >
+            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+              <CloseCircle size={24} weight="BoldDuotone" />
+            </Dialog.CloseTrigger>
             <Dialog.Header
               borderBottomWidth={1}
               borderColor="gray.100"

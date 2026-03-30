@@ -21,7 +21,7 @@ import { useAddReaction, useRemoveReaction } from "@/services/reactions/hooks";
 import { GameIconDisplay } from "@/utils/game-icon";
 import { PodiumCard } from "./components/PodiumCard";
 import { ResultRow } from "./components/ResultRow";
-import { formatValue, getToday } from "./helpers";
+import { formatValue, formatRoundValue, getToday } from "./helpers";
 import type { GameResult } from "@/services/types";
 import Link from "next/link";
 
@@ -81,21 +81,86 @@ export function GamePage({ slug }: { slug: string }) {
     (r) => r.playedAt.split("T")[0] === todayStr,
   );
 
-  const sortedToday = [...todayResults].sort((a, b) =>
-    game.lowerIsBetter ? a.value - b.value : b.value - a.value,
-  );
+  const isMultiRound = (game.resultRounds ?? 1) > 1;
 
-  function playerName(r: GameResult) {
-    return game!.type === "COOPERATIVE"
-      ? `Time (${r.registeredBy.name})`
-      : (r.user?.name ?? "—");
-  }
+  // Agrupa rodadas por jogador (userId ou registeredById para coop)
+  type GroupedResult = {
+    key: string;
+    playerName: string;
+    image: string | null | undefined;
+    userId: string | null;
+    registeredById: string;
+    totalValue: number;
+    rounds: GameResult[];
+    reactions: GameResult["reactions"];
+    mainResultId: string;
+  };
+
+  const groupedToday: GroupedResult[] = (() => {
+    if (!isMultiRound) {
+      // Single round — retorna como antes, 1 resultado por grupo
+      return todayResults.map((r) => ({
+        key: r.id,
+        playerName:
+          game!.type === "COOPERATIVE"
+            ? `Time (${r.registeredBy.name})`
+            : (r.user?.name ?? "—"),
+        image: r.user?.image,
+        userId: r.userId,
+        registeredById: r.registeredById,
+        totalValue: r.value,
+        rounds: [r],
+        reactions: r.reactions,
+        mainResultId: r.id,
+      }));
+    }
+
+    // Multi-round — agrupa por (userId ou registeredById) + playedAt
+    const groups = new Map<string, GameResult[]>();
+    for (const r of todayResults) {
+      const key =
+        game!.type === "COOPERATIVE"
+          ? r.registeredById
+          : (r.userId ?? r.registeredById);
+      const existing = groups.get(key) ?? [];
+      existing.push(r);
+      groups.set(key, existing);
+    }
+
+    return Array.from(groups.entries()).map(([key, roundResults]) => {
+      const first = roundResults[0];
+      const sorted = [...roundResults].sort((a, b) => a.round - b.round);
+      const totalValue = sorted.reduce((sum, r) => sum + r.value, 0);
+      // Collect all reactions from all rounds
+      const allReactions = sorted.flatMap((r) => r.reactions);
+      return {
+        key,
+        playerName:
+          game!.type === "COOPERATIVE"
+            ? `Time (${first.registeredBy.name})`
+            : (first.user?.name ?? "—"),
+        image: first.user?.image,
+        userId: first.userId,
+        registeredById: first.registeredById,
+        totalValue,
+        rounds: sorted,
+        reactions: allReactions,
+        mainResultId: first.id,
+      };
+    });
+  })();
+
+  const sortedToday = [...groupedToday].sort((a, b) =>
+    game.lowerIsBetter
+      ? a.totalValue - b.totalValue
+      : b.totalValue - a.totalValue,
+  );
 
   const hasPlayedToday =
     !!session?.user &&
-    todayResults.some(
-      (r) =>
-        r.userId === session.user!.id || r.registeredById === session.user!.id,
+    sortedToday.some(
+      (g) =>
+        g.userId === session.user!.id || g.registeredById === session.user!.id,
     );
 
   const todayLabel = new Date(todayStr + "T12:00:00").toLocaleDateString(
@@ -243,19 +308,31 @@ export function GamePage({ slug }: { slug: string }) {
           rounded="xl"
           overflow="hidden"
         >
-          {sortedToday.map((r, i) => (
-            <ResultRow
-              key={r.id}
-              rank={i + 1}
-              name={playerName(r)}
-              value={formatValue(r.value, game)}
-              isLast={i === sortedToday.length - 1 && hasPlayedToday}
-              reactions={r.reactions}
-              image={r.user?.image}
-              currentUserId={session?.user?.id ?? null}
-              onReact={(emoji) => addReaction.mutate({ resultId: r.id, emoji })}
-              onRemoveReaction={() => removeReaction.mutate(r.id)}
-            />
+          {sortedToday.map((g, i) => (
+            <Box key={g.key}>
+              <ResultRow
+                rank={i + 1}
+                name={g.playerName}
+                value={formatValue(g.totalValue, game)}
+                isLast={i === sortedToday.length - 1}
+                isFirst={i === 0}
+                reactions={g.reactions}
+                image={g.image}
+                currentUserId={session?.user?.id ?? null}
+                onReact={(emoji) =>
+                  addReaction.mutate({ resultId: g.mainResultId, emoji })
+                }
+                onRemoveReaction={() => removeReaction.mutate(g.mainResultId)}
+                rounds={
+                  isMultiRound && g.rounds.length > 1
+                    ? g.rounds.map((r) => ({
+                        label: `R${r.round}: ${formatRoundValue(r.value, r.status, game)}`,
+                        isLoss: r.status === "LOSS",
+                      }))
+                    : undefined
+                }
+              />
+            </Box>
           ))}
 
           {/* CTA — aparece quando o usuário ainda não registrou resultado hoje */}
