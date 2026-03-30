@@ -12,7 +12,7 @@ export function formatValue(
     return mins > 0 ? `${mins}:${String(secs).padStart(2, "0")}` : `${secs}s`;
   }
   const suffix = game.resultSuffix ?? "";
-  if (game.resultMax) return `${value}/${game.resultMax}${suffix}`;
+  if (game.resultMax) return `${value || "0"}/${game.resultMax} ${suffix}`;
   return `${value}${suffix}`;
 }
 

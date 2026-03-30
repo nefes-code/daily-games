@@ -5,16 +5,24 @@ import {
   Badge,
   Box,
   Button,
+  Dialog,
+  Field,
   Flex,
   HStack,
   Input,
+  NativeSelect,
+  Portal,
   Separator,
   Spinner,
+  Switch,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useLoginModal } from "@/lib/login-modal-context";
+import { GAME_ICON_OPTIONS, getGameIcon } from "@/utils/game-icon";
+import { Gamepad } from "@solar-icons/react";
+import type { GameIcon, GameType, ResultType } from "@/services/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,8 +30,14 @@ type AdminGame = {
   id: string;
   name: string;
   slug: string | null;
+  url: string;
   active: boolean;
-  type: string;
+  type: GameType;
+  resultType: ResultType;
+  resultSuffix: string | null;
+  resultMax: number | null;
+  lowerIsBetter: boolean;
+  icon: GameIcon | null;
 };
 
 type AdminResult = {
@@ -32,6 +46,18 @@ type AdminResult = {
   playedAt: string;
   game: { name: string } | null;
   user: { name: string | null; email: string } | null;
+};
+
+type EditForm = {
+  name: string;
+  url: string;
+  slug: string;
+  type: GameType;
+  resultType: ResultType;
+  resultSuffix: string;
+  resultMax: string;
+  lowerIsBetter: boolean;
+  icon: GameIcon | undefined;
 };
 
 // ─── PIN Input ────────────────────────────────────────────────────────────────
@@ -115,6 +141,301 @@ function PinScreen({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
+// ─── Edit Game Modal ──────────────────────────────────────────────────────────
+
+function EditGameModal({
+  game,
+  onClose,
+  onSaved,
+}: {
+  game: AdminGame;
+  onClose: () => void;
+  onSaved: (updated: AdminGame) => void;
+}) {
+  const [form, setForm] = useState<EditForm>({
+    name: game.name,
+    url: game.url,
+    slug: game.slug ?? "",
+    type: game.type,
+    resultType: game.resultType,
+    resultSuffix: game.resultSuffix ?? "",
+    resultMax: game.resultMax !== null ? String(game.resultMax) : "",
+    lowerIsBetter: game.lowerIsBetter,
+    icon: game.icon ?? undefined,
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  function set<K extends keyof EditForm>(key: K, value: EditForm[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleSave() {
+    if (!form.name.trim() || !form.url.trim()) return;
+    setSaving(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/admin/games/${game.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          url: form.url.trim(),
+          slug: form.slug.trim() || null,
+          type: form.type,
+          resultType: form.resultType,
+          resultSuffix: form.resultSuffix.trim() || null,
+          resultMax: form.resultMax ? Number(form.resultMax) : null,
+          lowerIsBetter: form.lowerIsBetter,
+          icon: form.icon ?? null,
+        }),
+      });
+      if (res.ok) {
+        onSaved(await res.json());
+        onClose();
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Erro ao salvar");
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog.Root
+      open
+      onOpenChange={(e) => {
+        if (!e.open) onClose();
+      }}
+      placement="center"
+    >
+      <Portal>
+        <Dialog.Backdrop bg="blackAlpha.600" />
+        <Dialog.Positioner>
+          <Dialog.Content
+            bg="white"
+            rounded="2xl"
+            mx={4}
+            maxW="500px"
+            w="full"
+            boxShadow="xl"
+          >
+            <Dialog.Header
+              borderBottomWidth={1}
+              borderColor="gray.100"
+              px={6}
+              py={4}
+            >
+              <Dialog.Title fontSize="lg" fontWeight="800">
+                <HStack>
+                  <Gamepad size={22} weight="BoldDuotone" />
+                  <Text>Editar jogo</Text>
+                </HStack>
+              </Dialog.Title>
+            </Dialog.Header>
+
+            <Dialog.Body px={6} py={5}>
+              <VStack gap={4} align="stretch">
+                {/* Nome */}
+                <Field.Root required>
+                  <Field.Label fontWeight="700" fontSize="sm">
+                    Nome
+                  </Field.Label>
+                  <Input
+                    value={form.name}
+                    onChange={(e) => set("name", e.target.value)}
+                    rounded="lg"
+                  />
+                </Field.Root>
+
+                {/* URL */}
+                <Field.Root required>
+                  <Field.Label fontWeight="700" fontSize="sm">
+                    Link
+                  </Field.Label>
+                  <Input
+                    value={form.url}
+                    onChange={(e) => set("url", e.target.value)}
+                    rounded="lg"
+                  />
+                </Field.Root>
+
+                {/* Slug */}
+                <Field.Root>
+                  <Field.Label fontWeight="700" fontSize="sm">
+                    Slug
+                  </Field.Label>
+                  <Input
+                    value={form.slug}
+                    onChange={(e) => set("slug", e.target.value)}
+                    rounded="lg"
+                    placeholder="gerado automaticamente"
+                  />
+                </Field.Root>
+
+                {/* Ícone */}
+                <Field.Root>
+                  <Field.Label fontWeight="700" fontSize="sm">
+                    Ícone
+                  </Field.Label>
+                  <Flex gap={2} flexWrap="wrap">
+                    {GAME_ICON_OPTIONS.map(({ value, label }) => {
+                      const Icon = getGameIcon(value);
+                      const selected = form.icon === value;
+                      return (
+                        <Box
+                          key={value}
+                          as="button"
+                          onClick={() =>
+                            set("icon", selected ? undefined : value)
+                          }
+                          rounded="lg"
+                          borderWidth={1}
+                          borderColor={selected ? "brand.solid" : "gray.100"}
+                          bg={selected ? "brand.subtle" : "white"}
+                          color={selected ? "brand.solid" : "gray.500"}
+                          p={2}
+                          display="flex"
+                          flexDir="column"
+                          alignItems="center"
+                          gap={1}
+                          cursor="pointer"
+                          _hover={{
+                            borderColor: "brand.solid",
+                            color: "brand.solid",
+                          }}
+                          title={label}
+                        >
+                          <Icon size={20} weight="BoldDuotone" />
+                          <Text fontSize="9px" fontWeight="600" lineHeight="1">
+                            {label}
+                          </Text>
+                        </Box>
+                      );
+                    })}
+                  </Flex>
+                </Field.Root>
+
+                {/* Tipo + Resultado */}
+                <Flex gap={4}>
+                  <Field.Root flex={1}>
+                    <Field.Label fontWeight="700" fontSize="sm">
+                      Tipo
+                    </Field.Label>
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        value={form.type}
+                        onChange={(e) =>
+                          set("type", e.target.value as GameType)
+                        }
+                        rounded="lg"
+                      >
+                        <option value="COMPETITIVE">Competitivo</option>
+                        <option value="COOPERATIVE">Cooperativo</option>
+                      </NativeSelect.Field>
+                    </NativeSelect.Root>
+                  </Field.Root>
+                  <Field.Root flex={1}>
+                    <Field.Label fontWeight="700" fontSize="sm">
+                      Resultado
+                    </Field.Label>
+                    <NativeSelect.Root>
+                      <NativeSelect.Field
+                        value={form.resultType}
+                        onChange={(e) =>
+                          set("resultType", e.target.value as ResultType)
+                        }
+                        rounded="lg"
+                      >
+                        <option value="SCORE">Pontuação</option>
+                        <option value="TIME">Tempo</option>
+                      </NativeSelect.Field>
+                    </NativeSelect.Root>
+                  </Field.Root>
+                </Flex>
+
+                {/* Sufixo + Máximo */}
+                <Flex gap={4}>
+                  <Field.Root flex={1}>
+                    <Field.Label fontWeight="700" fontSize="sm">
+                      Sufixo
+                    </Field.Label>
+                    <Input
+                      value={form.resultSuffix}
+                      onChange={(e) => set("resultSuffix", e.target.value)}
+                      placeholder="pts"
+                      rounded="lg"
+                    />
+                  </Field.Root>
+                  <Field.Root flex={1}>
+                    <Field.Label fontWeight="700" fontSize="sm">
+                      Valor máximo
+                    </Field.Label>
+                    <Input
+                      type="number"
+                      value={form.resultMax}
+                      onChange={(e) => set("resultMax", e.target.value)}
+                      placeholder="sem limite"
+                      rounded="lg"
+                    />
+                  </Field.Root>
+                </Flex>
+
+                {/* Menor é melhor */}
+                <Field.Root>
+                  <HStack justify="space-between">
+                    <Field.Label fontWeight="700" fontSize="sm" mb={0}>
+                      Menor é melhor
+                    </Field.Label>
+                    <Switch.Root
+                      checked={form.lowerIsBetter}
+                      onCheckedChange={(e) => set("lowerIsBetter", e.checked)}
+                      colorPalette="yellow"
+                    >
+                      <Switch.HiddenInput />
+                      <Switch.Control>
+                        <Switch.Thumb />
+                      </Switch.Control>
+                    </Switch.Root>
+                  </HStack>
+                </Field.Root>
+
+                {error && (
+                  <Text color="red.500" fontSize="sm">
+                    {error}
+                  </Text>
+                )}
+              </VStack>
+            </Dialog.Body>
+
+            <Dialog.Footer
+              borderTopWidth={1}
+              borderColor="gray.100"
+              px={6}
+              py={4}
+            >
+              <HStack justify="flex-end" gap={3}>
+                <Button variant="outline" onClick={onClose} disabled={saving}>
+                  Cancelar
+                </Button>
+                <Button
+                  colorPalette="yellow"
+                  loading={saving}
+                  onClick={handleSave}
+                  disabled={!form.name.trim() || !form.url.trim()}
+                >
+                  Salvar
+                </Button>
+              </HStack>
+            </Dialog.Footer>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
+  );
+}
+
 // ─── Admin Panel ──────────────────────────────────────────────────────────────
 
 function AdminPanel() {
@@ -124,6 +445,7 @@ function AdminPanel() {
   const [loadingResults, setLoadingResults] = useState(true);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingGame, setEditingGame] = useState<AdminGame | null>(null);
 
   const fetchGames = useCallback(async () => {
     setLoadingGames(true);
@@ -150,10 +472,14 @@ function AdminPanel() {
     fetchResults();
   }, [fetchGames, fetchResults]);
 
-  async function toggleGame(id: string) {
+  async function toggleGame(id: string, currentActive: boolean) {
     setTogglingId(id);
     try {
-      const res = await fetch(`/api/admin/games/${id}`, { method: "PATCH" });
+      const res = await fetch(`/api/admin/games/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !currentActive }),
+      });
       if (res.ok) {
         const updated: AdminGame = await res.json();
         setGames((prev) =>
@@ -216,15 +542,24 @@ function AdminPanel() {
                     {game.active ? "Ativo" : "Inativo"}
                   </Badge>
                 </HStack>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  colorPalette={game.active ? "red" : "green"}
-                  loading={togglingId === game.id}
-                  onClick={() => toggleGame(game.id)}
-                >
-                  {game.active ? "Desativar" : "Ativar"}
-                </Button>
+                <HStack gap={2}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingGame(game)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    colorPalette={game.active ? "red" : "green"}
+                    loading={togglingId === game.id}
+                    onClick={() => toggleGame(game.id, game.active)}
+                  >
+                    {game.active ? "Desativar" : "Ativar"}
+                  </Button>
+                </HStack>
               </HStack>
             ))}
           </VStack>
@@ -289,6 +624,21 @@ function AdminPanel() {
           </VStack>
         )}
       </Box>
+
+      {/* ─── Modal de edição ─────────────────────────────────────── */}
+      {editingGame && (
+        <EditGameModal
+          game={editingGame}
+          onClose={() => setEditingGame(null)}
+          onSaved={(updated) => {
+            setGames((prev) =>
+              prev.map((g) =>
+                g.id === updated.id ? (updated as AdminGame) : g,
+              ),
+            );
+          }}
+        />
+      )}
     </VStack>
   );
 }
@@ -304,7 +654,6 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (status === "loading" || !session?.user) return;
-    // Check if admin cookie is valid
     fetch("/api/admin/auth")
       .then((r) => {
         setAuthStatus(r.ok ? "admin" : "pin");

@@ -107,7 +107,7 @@ export function PodiumCard({
               {daysPlayed != null && (
                 <Box textAlign="center">
                   <Text
-                    fontSize="2xl"
+                    fontSize="lg"
                     fontWeight="900"
                     color="gray.900"
                     fontFamily="mono"
@@ -123,7 +123,7 @@ export function PodiumCard({
               {bestResult && (
                 <Box textAlign="center">
                   <Text
-                    fontSize="2xl"
+                    fontSize="lg"
                     fontWeight="900"
                     color="gray.900"
                     fontFamily="mono"
@@ -139,7 +139,7 @@ export function PodiumCard({
               {value && (
                 <Box textAlign="center">
                   <Text
-                    fontSize="2xl"
+                    fontSize="lg"
                     fontWeight="900"
                     color="brand.fg"
                     fontFamily="mono"
