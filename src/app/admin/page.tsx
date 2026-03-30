@@ -514,7 +514,11 @@ function AdminPanel() {
     }
   }
 
-  async function moveGame(id: string, direction: "up" | "down", group: AdminGame[]) {
+  async function moveGame(
+    id: string,
+    direction: "up" | "down",
+    group: AdminGame[],
+  ) {
     const sorted = [...group].sort(
       (a, b) => a.position - b.position || a.name.localeCompare(b.name),
     );
