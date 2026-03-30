@@ -1,6 +1,6 @@
 {
-  "name": "daily-games",
-  "version": "0.0.5",
+  "name": "nefes-daily-games",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

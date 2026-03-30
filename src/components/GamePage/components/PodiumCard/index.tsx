@@ -1,15 +1,16 @@
 "use client";
 
-import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Box, Center, Flex, Text } from "@chakra-ui/react";
 import { getInitials, avatarColor } from "../../helpers";
 import { Tooltip } from "@/components/Tooltip";
+import { NefesLogo } from "@/components/NefesLogo";
 
 const RANK_GRADIENT = [
   "linear-gradient(135deg, #ffffff 0%, #fef9c3 20%, #fde68a 45%, #d9f99d 100%)",
   "linear-gradient(135deg, #ffffff 0%, #f1f5f9 0%, #e2e8f0 45%, #ddd6fe 100%)",
   "linear-gradient(135deg, #ffffff 0%, #ffedd5 0%, #fed7aa 45%, #fef9c3 100%)",
 ];
-const RANK_SUBTITLE = ["#d97706", "#6366f1", "#ea580c"];
+const RANK_SUBTITLE = ["#ffd427", "#9881ff", "#ffad4f"];
 const RANK_LABEL = ["1º", "2º", "3º"];
 
 export function PodiumCard({
@@ -54,11 +55,11 @@ export function PodiumCard({
             display="flex"
             alignItems="center"
             justifyContent="center"
+            overflow={"hidden"}
             p={8}
           >
             <Text
               position="absolute"
-              right={2}
               top={2}
               fontSize="7xl"
               fontWeight="900"
@@ -70,17 +71,19 @@ export function PodiumCard({
             >
               NeFes
             </Text>
-            <Avatar.Root
-              bg={avatarColor("NeFes")}
-              shape="full"
+            <Center
+              bg={"brand.solid"}
+              borderRadius={"full"}
               w={20}
               h={20}
               borderWidth={4}
+              zIndex={2}
               borderColor="white"
-              style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}
+              shadow={"xl"}
+              color={"white"}
             >
-              <Avatar.Fallback fontSize="2xl">NF</Avatar.Fallback>
-            </Avatar.Root>
+              <NefesLogo size={50} />
+            </Center>
           </Box>
 
           {/* Content */}

@@ -17,6 +17,7 @@ import { FaGoogle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGames } from "@/services/games/hooks";
+import { useTodayPlayedGameIds } from "@/services/results/hooks";
 import { CreateGameModal } from "@/components/CreateGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { NefesLogo } from "@/components/NefesLogo";
@@ -31,6 +32,7 @@ export function Sidebar() {
   const { data: session } = useSession();
   const { openLogin } = useLoginModal();
   const [createOpen, setCreateOpen] = useState(false);
+  const playedGameIds = useTodayPlayedGameIds(session?.user?.id);
 
   const competitive = games?.filter((g) => g.type === "COMPETITIVE") ?? [];
   const cooperative = games?.filter((g) => g.type === "COOPERATIVE") ?? [];
@@ -69,6 +71,8 @@ export function Sidebar() {
           Icon={Ranking}
           label="Home"
           active={pathname === "/"}
+          disabled
+          badge="soon"
         />
 
         {/* Competitivos */}
@@ -90,7 +94,10 @@ export function Sidebar() {
               <GameNavItem
                 key={g.id}
                 game={g}
-                active={pathname === `/games/${g.id}`}
+                active={pathname === `/games/${g.slug ?? g.id}`}
+                playedToday={
+                  session?.user ? playedGameIds.has(g.id) : undefined
+                }
               />
             ))}
           </>
@@ -114,7 +121,10 @@ export function Sidebar() {
               <GameNavItem
                 key={g.id}
                 game={g}
-                active={pathname === `/games/${g.id}`}
+                active={pathname === `/games/${g.slug ?? g.id}`}
+                playedToday={
+                  session?.user ? playedGameIds.has(g.id) : undefined
+                }
               />
             ))}
           </>

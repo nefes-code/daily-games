@@ -206,6 +206,10 @@ export function GamePage({ slug }: { slug: string }) {
         </SimpleGrid>
       )}
 
+      <Text fontSize="xs" color="gray.400" textAlign="center" mt={-4}>
+        Ranking com base nos últimos 30 dias
+      </Text>
+
       <Separator my={8} width={"100%"} borderColor={"gray.100"} />
 
       {/* ── Resultados de hoje ── */}

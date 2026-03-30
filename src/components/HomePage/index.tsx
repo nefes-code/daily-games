@@ -1,75 +1,17 @@
 "use client";
 
-import { Box, Flex, SimpleGrid, Text, VStack } from "@chakra-ui/react";
-import { Leaderboard, type LeaderboardEntry } from "@/components/Leaderboard";
-import { StatCard } from "./components/StatCard";
-
-// Mock data — será substituído por um endpoint real depois
-const MOCK_LEADERBOARD: LeaderboardEntry[] = [
-  { rank: 1, name: "Pedro", value: "142 pts" },
-  { rank: 2, name: "Lucas", value: "128 pts" },
-  { rank: 3, name: "Matheus", value: "115 pts" },
-  { rank: 4, name: "Gabriel", value: "98 pts" },
-  { rank: 5, name: "Rafael", value: "87 pts" },
-];
+import { Center, Stack, Text, VStack } from "@chakra-ui/react";
+import { Sledgehammer } from "@solar-icons/react";
 
 export function HomePage() {
   return (
     <VStack gap={8} align="stretch" maxW="800px" mx="auto">
-      {/* Header */}
-      <Box textAlign="center">
-        <Text fontSize="4xl" mb={2}>
-          🏆
-        </Text>
-        <Text fontSize="2xl" fontWeight="800" color="gray.800">
-          Ranking Geral
-        </Text>
-        <Text fontSize="md" color="gray.500" fontWeight="600">
-          Quem tá dominando os jogos diários?
-        </Text>
-      </Box>
-
-      {/* Stats rápidos */}
-      <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}>
-        <StatCard
-          icon="🔥"
-          label="Dias seguidos"
-          value="7"
-          color="orange.500"
-        />
-        <StatCard icon="🎯" label="Jogos hoje" value="3/5" color="brand.fg" />
-        <StatCard
-          icon="👥"
-          label="Jogadores ativos"
-          value="5"
-          color="blue.500"
-        />
-      </SimpleGrid>
-
-      {/* Leaderboard geral */}
-      <Leaderboard
-        entries={MOCK_LEADERBOARD}
-        title="🏅 Leaderboard Semanal"
-        subtitle="Pontuação acumulada desta semana"
-      />
-
-      {/* Hint */}
-      <Flex
-        justify="center"
-        align="center"
-        gap={2}
-        py={4}
-        px={6}
-        bg="brand.subtle"
-        rounded="2xl"
-        borderWidth={2}
-        borderColor="brand.solid"
-      >
-        <Text fontSize="xl">💡</Text>
-        <Text fontWeight="700" color="brand.emphasized" fontSize="sm">
-          Selecione um jogo na barra lateral para ver o ranking e jogar!
-        </Text>
-      </Flex>
+      <Center height={"90vh"} w={"100%"}>
+        <Stack color="brand.solid" alignItems="center" gap={4}>
+          <Sledgehammer size={50} weight="BoldDuotone" />
+          <Text>Tela em construção</Text>
+        </Stack>
+      </Center>
     </VStack>
   );
 }

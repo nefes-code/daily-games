@@ -1,9 +1,16 @@
 import { db } from "@/lib/db";
 import { gameResults, games, users } from "@/lib/schema";
 import { apiError } from "@/lib/api-helpers";
-import { eq, or, sql, asc, desc } from "drizzle-orm";
+import { eq, or, sql, asc, desc, gte } from "drizzle-orm";
 
 type Params = { params: Promise<{ slug: string }> };
+
+function thirtyDaysAgo(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - 30);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 
 export async function GET(_req: Request, { params }: Params) {
   try {
@@ -17,6 +24,8 @@ export async function GET(_req: Request, { params }: Params) {
 
     if (!game) return apiError("Jogo não encontrado", 404);
 
+    const since = thirtyDaysAgo();
+
     // Cooperativo: um único resultado agregado do time
     if (game.type === "COOPERATIVE") {
       const [team] = await db
@@ -28,7 +37,9 @@ export async function GET(_req: Request, { params }: Params) {
           average: sql<number>`round(avg(${gameResults.value}))::int`,
         })
         .from(gameResults)
-        .where(eq(gameResults.gameId, game.id));
+        .where(
+          sql`${eq(gameResults.gameId, game.id)} and ${gte(gameResults.playedAt, since)}`,
+        );
 
       return Response.json(
         team
@@ -47,7 +58,7 @@ export async function GET(_req: Request, { params }: Params) {
       );
     }
 
-    // Competitivo: agrupa por userId
+    // Competitivo: agrupa por userId (últimos 30 dias)
     const playerCol = gameResults.userId;
     const orderDir = game.lowerIsBetter ? asc : desc;
 
@@ -61,7 +72,9 @@ export async function GET(_req: Request, { params }: Params) {
         average: sql<number>`round(avg(${gameResults.value}))::int`,
       })
       .from(gameResults)
-      .where(eq(gameResults.gameId, game.id))
+      .where(
+        sql`${eq(gameResults.gameId, game.id)} and ${gte(gameResults.playedAt, since)}`,
+      )
       .groupBy(playerCol)
       .orderBy(orderDir(sql`avg(${gameResults.value})`))
       .limit(3);

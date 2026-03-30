@@ -3,6 +3,16 @@ import { queryKeys } from "@/services/keys";
 import type { ResultsFilter } from "@/services/types";
 import { getResults, submitResult } from "./api";
 
+export function useTodayPlayedGameIds(userId: string | undefined): Set<string> {
+  const today = new Date().toISOString().split("T")[0];
+  const { data } = useQuery({
+    queryKey: queryKeys.results.filtered({ date: today, userId }),
+    queryFn: () => getResults({ date: today, userId }),
+    enabled: !!userId,
+  });
+  return new Set((data ?? []).map((r) => r.gameId));
+}
+
 export function useResults(filters: ResultsFilter = {}) {
   const hasGameIdFilter = "gameId" in filters;
   return useQuery({
