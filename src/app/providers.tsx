@@ -8,6 +8,7 @@ import { SessionProvider } from "next-auth/react";
 import { LoginModalProvider } from "@/lib/login-modal-context";
 import { LoginModal } from "@/components/LoginModal";
 import { useState } from "react";
+import "@/styles/global.css";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(

@@ -116,6 +116,22 @@ export const gameResults = pgTable(
   ],
 );
 
+export const resultReactions = pgTable(
+  "ResultReaction",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    emoji: text("emoji").notNull(),
+    createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+    resultId: text("resultId")
+      .notNull()
+      .references(() => gameResults.id, { onDelete: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => [unique().on(t.resultId, t.userId)],
+);
+
 // ─── Relations ───────────────────────────────────────────────────────────────
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -123,6 +139,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   results: many(gameResults, { relationName: "userResults" }),
   registeredResults: many(gameResults, { relationName: "registeredBy" }),
+  reactions: many(resultReactions),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -137,7 +154,7 @@ export const gamesRelations = relations(games, ({ many }) => ({
   results: many(gameResults),
 }));
 
-export const gameResultsRelations = relations(gameResults, ({ one }) => ({
+export const gameResultsRelations = relations(gameResults, ({ one, many }) => ({
   game: one(games, { fields: [gameResults.gameId], references: [games.id] }),
   user: one(users, {
     fields: [gameResults.userId],
@@ -149,4 +166,19 @@ export const gameResultsRelations = relations(gameResults, ({ one }) => ({
     references: [users.id],
     relationName: "registeredBy",
   }),
+  reactions: many(resultReactions),
 }));
+
+export const resultReactionsRelations = relations(
+  resultReactions,
+  ({ one }) => ({
+    result: one(gameResults, {
+      fields: [resultReactions.resultId],
+      references: [gameResults.id],
+    }),
+    user: one(users, {
+      fields: [resultReactions.userId],
+      references: [users.id],
+    }),
+  }),
+);

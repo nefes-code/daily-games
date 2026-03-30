@@ -69,7 +69,7 @@ export function PodiumCard({
               pointerEvents="none"
               style={{ color: "rgba(0,0,0,0.08)" }}
             >
-              NeFes
+              NeFEs
             </Text>
             <Center
               bg={"brand.solid"}
@@ -96,7 +96,7 @@ export function PodiumCard({
                 letterSpacing="-0.03em"
                 lineHeight="1"
               >
-                Time NeFes
+                NeFEs
               </Text>
               <Text fontSize="sm" color="gray.400" fontWeight="500" mt={1}>
                 Resultado do time

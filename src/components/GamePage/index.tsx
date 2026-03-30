@@ -5,7 +5,6 @@ import {
   Box,
   Button,
   Flex,
-  Grid,
   HStack,
   Separator,
   SimpleGrid,
@@ -18,11 +17,13 @@ import { useGame, useLeaderboard } from "@/services/games/hooks";
 import { useResults } from "@/services/results/hooks";
 import { PlayGameModal } from "@/components/PlayGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
+import { useAddReaction, useRemoveReaction } from "@/services/reactions/hooks";
 import { GameIconDisplay } from "@/utils/game-icon";
 import { PodiumCard } from "./components/PodiumCard";
 import { ResultRow } from "./components/ResultRow";
 import { formatValue, getToday } from "./helpers";
 import type { GameResult } from "@/services/types";
+import Link from "next/link";
 
 export function GamePage({ slug }: { slug: string }) {
   const { data: game, isLoading: gameLoading } = useGame(slug);
@@ -33,6 +34,8 @@ export function GamePage({ slug }: { slug: string }) {
   const { data: session } = useSession();
   const { openLogin } = useLoginModal();
   const [playOpen, setPlayOpen] = useState(false);
+  const addReaction = useAddReaction(game?.id ?? "");
+  const removeReaction = useRemoveReaction(game?.id ?? "");
 
   function handlePlay() {
     if (!session?.user) {
@@ -118,15 +121,20 @@ export function GamePage({ slug }: { slug: string }) {
             <GameIconDisplay icon={game.icon} />
           </Flex>
           <Box>
-            <Text
-              fontSize="xl"
-              fontWeight="800"
-              letterSpacing="-0.03em"
-              color="gray.900"
-              lineHeight="1.1"
-            >
-              {game.name}
-            </Text>
+            <Link href={`${game.url}`} target="_blank">
+              <Text
+                _hover={{
+                  textDecor: "underline",
+                }}
+                fontSize="xl"
+                fontWeight="800"
+                letterSpacing="-0.03em"
+                color="gray.900"
+                lineHeight="1.1"
+              >
+                {game.name}
+              </Text>
+            </Link>
             <Text fontSize="xs" color="gray.400" fontWeight="500" mt={0.5}>
               {game.type === "COOPERATIVE" ? "Cooperativo" : "Competitivo"}
               {" · "}
@@ -242,6 +250,11 @@ export function GamePage({ slug }: { slug: string }) {
               name={playerName(r)}
               value={formatValue(r.value, game)}
               isLast={i === sortedToday.length - 1 && hasPlayedToday}
+              reactions={r.reactions}
+              image={r.user?.image}
+              currentUserId={session?.user?.id ?? null}
+              onReact={(emoji) => addReaction.mutate({ resultId: r.id, emoji })}
+              onRemoveReaction={() => removeReaction.mutate(r.id)}
             />
           ))}
 

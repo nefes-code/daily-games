@@ -38,6 +38,15 @@ export type Game = {
   createdAt: string;
 };
 
+export type ResultReaction = {
+  id: string;
+  emoji: string;
+  createdAt: string;
+  resultId: string;
+  userId: string;
+  user: User;
+};
+
 export type GameResult = {
   id: string;
   value: number;
@@ -49,6 +58,7 @@ export type GameResult = {
   user: User | null;
   registeredBy: User;
   game: Game;
+  reactions: ResultReaction[];
 };
 
 export type LeaderboardEntry = {

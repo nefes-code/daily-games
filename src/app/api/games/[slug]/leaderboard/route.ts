@@ -47,7 +47,7 @@ export async function GET(_req: Request, { params }: Params) {
               {
                 rank: 1,
                 userId: null,
-                name: "Time NeFes",
+                name: "NeFEs",
                 image: null,
                 daysPlayed: team.daysPlayed,
                 bestResult: team.bestResult,
@@ -76,7 +76,15 @@ export async function GET(_req: Request, { params }: Params) {
         sql`${eq(gameResults.gameId, game.id)} and ${gte(gameResults.playedAt, since)}`,
       )
       .groupBy(playerCol)
-      .orderBy(orderDir(sql`avg(${gameResults.value})`))
+      .orderBy(
+        orderDir(sql`avg(${gameResults.value})`),
+        desc(sql`count(*)`),
+        orderDir(
+          game.lowerIsBetter
+            ? sql`min(${gameResults.value})`
+            : sql`max(${gameResults.value})`,
+        ),
+      )
       .limit(3);
 
     // Busca dados dos usuários dos top 3

@@ -41,7 +41,7 @@ export function Sidebar() {
     <Box
       as="aside"
       w="240px"
-      minH="100vh"
+      h="100vh"
       bg="white"
       borderRightWidth={1}
       borderColor="gray.100"
@@ -64,79 +64,87 @@ export function Sidebar() {
           Jogos diários
         </Text>
       </HStack>
-      <VStack mt={4} px={2} gap={2} align="stretch">
-        {/* Home */}
-        <NavItem
-          href="/"
-          Icon={Ranking}
-          label="Home"
-          active={pathname === "/"}
-          disabled
-          badge="soon"
-        />
+      <Box flex={1} overflowY="auto" minH={0}>
+        <VStack mt={4} px={2} gap={2} align="stretch" pb={2}>
+          {/* Home */}
+          <NavItem
+            href="/"
+            Icon={Ranking}
+            label="Home"
+            active={pathname === "/"}
+            disabled
+            badge="soon"
+          />
 
-        {/* Competitivos */}
-        {competitive.length > 0 && (
-          <>
-            <Text
-              fontSize="xs"
-              fontWeight="800"
-              textTransform="uppercase"
-              color="gray.400"
-              mt={6}
-              px={2}
-              letterSpacing="wider"
-              fontFamily={"mono"}
-            >
-              Competitivos
-            </Text>
-            {competitive.map((g) => (
-              <GameNavItem
-                key={g.id}
-                game={g}
-                active={pathname === `/games/${g.slug ?? g.id}`}
-                playedToday={
-                  session?.user ? playedGameIds.has(g.id) : undefined
-                }
-              />
-            ))}
-          </>
-        )}
+          {/* Competitivos */}
+          {competitive.length > 0 && (
+            <>
+              <Text
+                fontSize="xs"
+                fontWeight="800"
+                textTransform="uppercase"
+                color="gray.400"
+                mt={6}
+                px={2}
+                letterSpacing="wider"
+                fontFamily={"mono"}
+              >
+                Competitivos
+              </Text>
+              {competitive.map((g) => (
+                <GameNavItem
+                  key={g.id}
+                  game={g}
+                  active={pathname === `/games/${g.slug ?? g.id}`}
+                  playedToday={
+                    session?.user ? playedGameIds.has(g.id) : undefined
+                  }
+                />
+              ))}
+            </>
+          )}
 
-        {/* Cooperativos */}
-        {cooperative.length > 0 && (
-          <>
+          {/* Cooperativos */}
+          {cooperative.length > 0 && (
+            <>
+              <Text
+                fontSize="xs"
+                fontWeight="800"
+                textTransform="uppercase"
+                color="gray.400"
+                mt={4}
+                letterSpacing="wider"
+                fontFamily={"mono"}
+              >
+                Cooperativos
+              </Text>
+              {cooperative.map((g) => (
+                <GameNavItem
+                  key={g.id}
+                  game={g}
+                  active={pathname === `/games/${g.slug ?? g.id}`}
+                  playedToday={
+                    session?.user ? playedGameIds.has(g.id) : undefined
+                  }
+                />
+              ))}
+            </>
+          )}
+
+          {/* Empty state */}
+          {games && games.length === 0 && (
             <Text
-              fontSize="xs"
-              fontWeight="800"
-              textTransform="uppercase"
+              fontSize="sm"
               color="gray.400"
+              px={4}
               mt={4}
-              letterSpacing="wider"
-              fontFamily={"mono"}
+              textAlign="center"
             >
-              Cooperativos
+              Nenhum jogo cadastrado ainda
             </Text>
-            {cooperative.map((g) => (
-              <GameNavItem
-                key={g.id}
-                game={g}
-                active={pathname === `/games/${g.slug ?? g.id}`}
-                playedToday={
-                  session?.user ? playedGameIds.has(g.id) : undefined
-                }
-              />
-            ))}
-          </>
-        )}
-
-        {/* Empty state */}
-        {games && games.length === 0 && (
-          <Text fontSize="sm" color="gray.400" px={4} mt={4} textAlign="center">
-            Nenhum jogo cadastrado ainda
-          </Text>
-        )}
-      </VStack>
+          )}
+        </VStack>
+      </Box>
 
       {/* Botão Novo Jogo fixo na parte inferior */}
       <Box mt="auto" pt={4}>

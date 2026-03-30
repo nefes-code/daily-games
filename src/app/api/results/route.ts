@@ -19,7 +19,12 @@ export async function GET(request: Request) {
 
     const results = await db.query.gameResults.findMany({
       where: conditions.length ? and(...conditions) : undefined,
-      with: { user: true, registeredBy: true, game: true },
+      with: {
+        user: true,
+        registeredBy: true,
+        game: true,
+        reactions: { with: { user: true } },
+      },
       orderBy: [desc(gameResults.playedAt)],
     });
 
@@ -90,7 +95,12 @@ export async function POST(request: Request) {
     // Retorna com relations
     const [full] = await db.query.gameResults.findMany({
       where: eq(gameResults.id, result.id),
-      with: { user: true, registeredBy: true, game: true },
+      with: {
+        user: true,
+        registeredBy: true,
+        game: true,
+        reactions: { with: { user: true } },
+      },
     });
 
     return Response.json(full, { status: 201 });
