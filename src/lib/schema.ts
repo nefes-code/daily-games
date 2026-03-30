@@ -93,6 +93,7 @@ export const games = pgTable("Game", {
   lowerIsBetter: boolean("lowerIsBetter").notNull().default(false),
   icon: gameIconEnum("icon"),
   resultRounds: integer("resultRounds").notNull().default(1),
+  position: integer("position").notNull().default(0),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });

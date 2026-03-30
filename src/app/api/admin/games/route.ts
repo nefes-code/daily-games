@@ -14,7 +14,10 @@ export async function GET() {
   if (!ok) return apiError("Acesso admin necessário", 403);
 
   try {
-    const result = await db.select().from(games).orderBy(asc(games.name));
+    const result = await db
+      .select()
+      .from(games)
+      .orderBy(asc(games.position), asc(games.name));
     return Response.json(result);
   } catch (error) {
     console.error("GET /api/admin/games", error);

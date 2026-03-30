@@ -36,6 +36,13 @@
       "when": 1774886147103,
       "tag": "0004_tan_warhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774899660852,
+      "tag": "0005_skinny_sasquatch",
+      "breakpoints": true
     }
   ]
 }

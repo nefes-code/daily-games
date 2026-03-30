@@ -19,7 +19,7 @@ export async function GET() {
       .select()
       .from(games)
       .where(eq(games.active, true))
-      .orderBy(asc(games.name));
+      .orderBy(asc(games.position), asc(games.name));
     return Response.json(result);
   } catch (error) {
     console.error("GET /api/games", error);

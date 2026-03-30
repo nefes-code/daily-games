@@ -37,6 +37,7 @@ export type Game = {
   lowerIsBetter: boolean;
   icon: GameIcon | null;
   resultRounds: number;
+  position: number;
   active: boolean;
   createdAt: string;
 };
@@ -101,7 +102,13 @@ export type CreateGameInput = {
 export type UpdateGameInput = Partial<
   Pick<
     Game,
-    "name" | "url" | "resultSuffix" | "resultMax" | "lowerIsBetter" | "active"
+    | "name"
+    | "url"
+    | "resultSuffix"
+    | "resultMax"
+    | "lowerIsBetter"
+    | "active"
+    | "position"
   >
 >;
 

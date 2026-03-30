@@ -9,6 +9,7 @@ import {
   Field,
   Flex,
   HStack,
+  IconButton,
   Input,
   NativeSelect,
   Portal,
@@ -21,7 +22,12 @@ import {
 import { useSession } from "next-auth/react";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { GAME_ICON_OPTIONS, getGameIcon } from "@/utils/game-icon";
-import { CloseCircle, Gamepad } from "@solar-icons/react";
+import {
+  CloseCircle,
+  Gamepad,
+  AltArrowUp,
+  AltArrowDown,
+} from "@solar-icons/react";
 import type { GameIcon, GameType, ResultType } from "@/services/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -38,6 +44,7 @@ type AdminGame = {
   resultMax: number | null;
   lowerIsBetter: boolean;
   icon: GameIcon | null;
+  position: number;
 };
 
 type AdminResult = {
@@ -449,6 +456,7 @@ function AdminPanel() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingGame, setEditingGame] = useState<AdminGame | null>(null);
+  const [movingId, setMovingId] = useState<string | null>(null);
 
   const fetchGames = useCallback(async () => {
     setLoadingGames(true);
@@ -506,6 +514,45 @@ function AdminPanel() {
     }
   }
 
+  async function moveGame(id: string, direction: "up" | "down", group: AdminGame[]) {
+    const sorted = [...group].sort(
+      (a, b) => a.position - b.position || a.name.localeCompare(b.name),
+    );
+    const idx = sorted.findIndex((g) => g.id === id);
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+
+    const curr = sorted[idx];
+    const swap = sorted[swapIdx];
+    const newCurrPos = swapIdx;
+    const newSwapPos = idx;
+
+    setMovingId(id);
+    try {
+      await Promise.all([
+        fetch(`/api/admin/games/${curr.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ position: newCurrPos }),
+        }),
+        fetch(`/api/admin/games/${swap.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ position: newSwapPos }),
+        }),
+      ]);
+      setGames((prev) =>
+        prev.map((g) => {
+          if (g.id === curr.id) return { ...g, position: newCurrPos };
+          if (g.id === swap.id) return { ...g, position: newSwapPos };
+          return g;
+        }),
+      );
+    } finally {
+      setMovingId(null);
+    }
+  }
+
   function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString("pt-BR");
   }
@@ -524,47 +571,99 @@ function AdminPanel() {
         {loadingGames ? (
           <Spinner />
         ) : (
-          <VStack align="stretch" gap={2}>
-            {games.map((game) => (
-              <HStack
-                key={game.id}
-                bg="white"
-                px={4}
-                py={3}
-                borderRadius="lg"
-                borderWidth={1}
-                borderColor="gray.100"
-                justify="space-between"
-              >
-                <HStack gap={3}>
-                  <Text fontWeight="600">{game.name}</Text>
-                  <Badge
-                    colorPalette={game.active ? "green" : "gray"}
-                    size="sm"
+          <VStack align="stretch" gap={6}>
+            {(["COMPETITIVE", "COOPERATIVE"] as const).map((type) => {
+              const group = [...games]
+                .filter((g) => g.type === type)
+                .sort(
+                  (a, b) =>
+                    a.position - b.position || a.name.localeCompare(b.name),
+                );
+              return (
+                <Box key={type}>
+                  <Text
+                    fontSize="xs"
+                    fontWeight="800"
+                    textTransform="uppercase"
+                    color="gray.400"
+                    letterSpacing="wider"
+                    fontFamily="mono"
+                    mb={2}
                   >
-                    {game.active ? "Ativo" : "Inativo"}
-                  </Badge>
-                </HStack>
-                <HStack gap={2}>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditingGame(game)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    colorPalette={game.active ? "red" : "green"}
-                    loading={togglingId === game.id}
-                    onClick={() => toggleGame(game.id, game.active)}
-                  >
-                    {game.active ? "Desativar" : "Ativar"}
-                  </Button>
-                </HStack>
-              </HStack>
-            ))}
+                    {type === "COMPETITIVE" ? "Competitivos" : "Cooperativos"}
+                  </Text>
+                  <VStack align="stretch" gap={2}>
+                    {group.map((game, i) => (
+                      <HStack
+                        key={game.id}
+                        bg="white"
+                        px={4}
+                        py={3}
+                        borderRadius="lg"
+                        borderWidth={1}
+                        borderColor="gray.100"
+                        justify="space-between"
+                      >
+                        <HStack gap={2}>
+                          <VStack gap={0}>
+                            <IconButton
+                              aria-label="Mover para cima"
+                              size="2xs"
+                              variant="ghost"
+                              disabled={i === 0 || movingId === game.id}
+                              onClick={() => moveGame(game.id, "up", group)}
+                            >
+                              <AltArrowUp size={12} />
+                            </IconButton>
+                            <IconButton
+                              aria-label="Mover para baixo"
+                              size="2xs"
+                              variant="ghost"
+                              disabled={
+                                i === group.length - 1 || movingId === game.id
+                              }
+                              onClick={() => moveGame(game.id, "down", group)}
+                            >
+                              <AltArrowDown size={12} />
+                            </IconButton>
+                          </VStack>
+                          <Text fontWeight="600">{game.name}</Text>
+                          <Badge
+                            colorPalette={game.active ? "green" : "gray"}
+                            size="sm"
+                          >
+                            {game.active ? "Ativo" : "Inativo"}
+                          </Badge>
+                        </HStack>
+                        <HStack gap={2}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingGame(game)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            colorPalette={game.active ? "red" : "green"}
+                            loading={togglingId === game.id}
+                            onClick={() => toggleGame(game.id, game.active)}
+                          >
+                            {game.active ? "Desativar" : "Ativar"}
+                          </Button>
+                        </HStack>
+                      </HStack>
+                    ))}
+                    {group.length === 0 && (
+                      <Text fontSize="sm" color="gray.400">
+                        Nenhum jogo
+                      </Text>
+                    )}
+                  </VStack>
+                </Box>
+              );
+            })}
           </VStack>
         )}
       </Box>
