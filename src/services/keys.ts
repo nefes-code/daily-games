@@ -17,6 +17,7 @@ export const queryKeys = {
   games: {
     all: () => ["games"] as const,
     detail: (id: string) => ["games", "detail", id] as const,
+    leaderboard: (slug: string) => ["games", "leaderboard", slug] as const,
   },
 
   results: {

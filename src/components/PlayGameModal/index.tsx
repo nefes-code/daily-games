@@ -7,13 +7,18 @@ import {
   Dialog,
   Field,
   Flex,
+  HStack,
   Input,
   Portal,
+  Square,
+  Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useSubmitResult } from "@/services/results/hooks";
+import { GameIconDisplay } from "@/utils/game-icon";
+import { Ranking, SquareBottomUp } from "@solar-icons/react";
 import type { Game } from "@/services/types";
 
 type Step = "summary" | "result";
@@ -62,8 +67,7 @@ export function PlayGameModal({
 
   function isValid(): boolean {
     if (isTime) {
-      const totalSecs = getNumericValue();
-      return totalSecs > 0;
+      return getNumericValue() > 0;
     }
     const num = parseInt(value);
     if (isNaN(num) || num < 0) return false;
@@ -80,8 +84,6 @@ export function PlayGameModal({
       value: getNumericValue(),
       playedAt: today,
       gameId: game.id,
-      // Competitivo: envia userId do próprio user
-      // Cooperativo: sem userId (resultado do time)
       ...(game.type === "COMPETITIVE" && session?.user?.id
         ? { userId: session.user.id }
         : {}),
@@ -96,6 +98,7 @@ export function PlayGameModal({
       onOpenChange={(e) => {
         if (!e.open) handleClose();
       }}
+      placement="center"
     >
       <Portal>
         <Dialog.Backdrop bg="blackAlpha.600" />
@@ -104,70 +107,56 @@ export function PlayGameModal({
             bg="white"
             rounded="2xl"
             mx={4}
-            maxW="440px"
+            maxW="420px"
             w="full"
             boxShadow="xl"
           >
             {step === "summary" ? (
               /* ─── Step 1: Resumo do jogo ─── */
-              <Dialog.Body px={8} py={8}>
-                <VStack gap={5}>
-                  <Text fontSize="5xl">
-                    {game.type === "COOPERATIVE" ? "🤝" : "⚔️"}
-                  </Text>
+              <Dialog.Body px={8} py={10}>
+                <VStack gap={6}>
+                  {/* Icon header */}
+                  <Square
+                    borderRadius="lg"
+                    bgColor="brand.solid"
+                    size="64px"
+                    color="white"
+                  >
+                    <GameIconDisplay icon={game.icon} size={32} />
+                  </Square>
 
-                  <Box textAlign="center">
-                    <Text fontSize="xl" fontWeight="800" color="gray.800">
+                  {/* Title */}
+                  <Stack gap={1} textAlign="center">
+                    <Text fontSize="2xl" fontWeight="800" color="gray.800">
                       {game.name}
                     </Text>
-                    <Flex justify="center" gap={2} mt={2} flexWrap="wrap">
-                      <Box
-                        bg={
-                          game.type === "COOPERATIVE" ? "purple.100" : "red.100"
-                        }
-                        color={
-                          game.type === "COOPERATIVE" ? "purple.700" : "red.700"
-                        }
-                        px={3}
-                        py={0.5}
-                        rounded="full"
-                        fontSize="xs"
-                        fontWeight="800"
-                      >
-                        {game.type === "COOPERATIVE"
-                          ? "Cooperativo"
-                          : "Competitivo"}
-                      </Box>
-                      <Box
-                        bg="blue.100"
-                        color="blue.700"
-                        px={3}
-                        py={0.5}
-                        rounded="full"
-                        fontSize="xs"
-                        fontWeight="800"
-                      >
-                        {isTime ? "⏱ Tempo" : "🎯 Pontuação"}
-                      </Box>
-                    </Flex>
-                  </Box>
+                    <Text fontSize="sm" color="gray.500" fontWeight="600">
+                      {game.type === "COOPERATIVE"
+                        ? "Cooperativo"
+                        : "Competitivo"}
+                      {" · "}
+                      {isTime ? "Tempo" : "Pontuação"}
+                    </Text>
+                  </Stack>
 
+                  {/* lowerIsBetter notice */}
                   {game.lowerIsBetter && (
                     <Box
-                      bg="orange.50"
+                      bg="brand.subtle"
                       rounded="xl"
                       px={4}
                       py={2}
                       borderWidth={1}
-                      borderColor="orange.200"
+                      borderColor="brand.muted"
+                      w="full"
                     >
                       <Text
                         fontSize="sm"
                         fontWeight="700"
-                        color="orange.600"
+                        color="brand.fg"
                         textAlign="center"
                       >
-                        ⬇ Menor é melhor nesse jogo!
+                        Menor resultado é melhor nesse jogo
                       </Text>
                     </Box>
                   )}
@@ -190,7 +179,8 @@ export function PlayGameModal({
                     transition="all 0.1s"
                     onClick={handleGoToGame}
                   >
-                    🎮 Ir para o jogo
+                    Ir para o jogo
+                    <SquareBottomUp weight="BoldDuotone" />
                   </Button>
 
                   <Text fontSize="xs" color="gray.400" textAlign="center">
@@ -202,19 +192,29 @@ export function PlayGameModal({
               </Dialog.Body>
             ) : (
               /* ─── Step 2: Registrar resultado ─── */
-              <Dialog.Body px={8} py={8}>
-                <VStack gap={5}>
-                  <Text fontSize="4xl">✍️</Text>
+              <Dialog.Body px={8} py={10}>
+                <VStack gap={6}>
+                  {/* Icon header */}
+                  <Square
+                    borderRadius="lg"
+                    bgColor="brand.solid"
+                    size="64px"
+                    color="white"
+                  >
+                    <GameIconDisplay icon={game.icon} size={32} />
+                  </Square>
 
-                  <Box textAlign="center">
-                    <Text fontSize="lg" fontWeight="800" color="gray.800">
-                      Registrar resultado
+                  {/* Title */}
+                  <Stack gap={1} textAlign="center">
+                    <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                      Qual foi o seu resultado?
                     </Text>
                     <Text fontSize="sm" color="gray.500" fontWeight="600">
-                      {game.name} — Hoje
+                      {game.name} — hoje
                     </Text>
-                  </Box>
+                  </Stack>
 
+                  {/* Inputs */}
                   {isTime ? (
                     <Flex gap={3} w="full" align="flex-end">
                       <Field.Root flex={1}>
@@ -243,7 +243,7 @@ export function PlayGameModal({
                       <Text
                         fontSize="2xl"
                         fontWeight="800"
-                        color="gray.400"
+                        color="gray.300"
                         pb={2}
                       >
                         :
@@ -285,7 +285,7 @@ export function PlayGameModal({
                         min={0}
                         max={game.resultMax ?? undefined}
                         placeholder={
-                          game.resultMax ? `0 - ${game.resultMax}` : "0"
+                          game.resultMax ? `0 – ${game.resultMax}` : "0"
                         }
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
@@ -334,7 +334,7 @@ export function PlayGameModal({
                     disabled={!isValid()}
                     loading={submitResult.isPending}
                   >
-                    Salvar Resultado 🎯
+                    Salvar resultado
                   </Button>
 
                   {submitResult.isError && (
@@ -356,7 +356,6 @@ export function PlayGameModal({
               position="absolute"
               top={3}
               right={3}
-              fontSize="lg"
               color="gray.400"
               _hover={{ color: "gray.600" }}
             />

@@ -51,6 +51,16 @@ export type GameResult = {
   game: Game;
 };
 
+export type LeaderboardEntry = {
+  rank: number;
+  userId: string | null;
+  name: string;
+  image: string | null;
+  daysPlayed: number;
+  bestResult: number;
+  average: number;
+};
+
 // ─── Inputs (payload das mutations) ──────────────────────────────────────────
 
 export type CreateUserInput = {

@@ -23,6 +23,12 @@ export function useSubmitResult() {
       qc.invalidateQueries({
         queryKey: queryKeys.results.filtered({ gameId: result.gameId }),
       });
+      // Invalida a leaderboard do jogo (slug via game relation)
+      if (result.game?.slug) {
+        qc.invalidateQueries({
+          queryKey: queryKeys.games.leaderboard(result.game.slug),
+        });
+      }
     },
   });
 }

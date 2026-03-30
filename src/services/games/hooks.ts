@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/services/keys";
 import type { UpdateGameInput } from "@/services/types";
-import { createGame, getGame, getGames, updateGame } from "./api";
+import {
+  createGame,
+  getGame,
+  getGames,
+  getLeaderboard,
+  updateGame,
+} from "./api";
 
 export function useGames() {
   return useQuery({
@@ -15,6 +21,14 @@ export function useGame(id: string) {
     queryKey: queryKeys.games.detail(id),
     queryFn: () => getGame(id),
     enabled: !!id,
+  });
+}
+
+export function useLeaderboard(slug: string) {
+  return useQuery({
+    queryKey: queryKeys.games.leaderboard(slug),
+    queryFn: () => getLeaderboard(slug),
+    enabled: !!slug,
   });
 }
 

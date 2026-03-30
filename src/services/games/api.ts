@@ -1,4 +1,9 @@
-import type { Game, CreateGameInput, UpdateGameInput } from "@/services/types";
+import type {
+  Game,
+  CreateGameInput,
+  UpdateGameInput,
+  LeaderboardEntry,
+} from "@/services/types";
 
 const BASE = "/api/games";
 
@@ -21,6 +26,14 @@ export async function createGame(input: CreateGameInput): Promise<Game> {
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error("Falha ao criar jogo");
+  return res.json();
+}
+
+export async function getLeaderboard(
+  slug: string,
+): Promise<LeaderboardEntry[]> {
+  const res = await fetch(`${BASE}/${slug}/leaderboard`);
+  if (!res.ok) throw new Error("Falha ao buscar leaderboard");
   return res.json();
 }
 

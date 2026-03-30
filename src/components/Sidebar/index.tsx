@@ -12,7 +12,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { Ranking, AddCircle } from "@solar-icons/react";
+import { Ranking, AddCircle, Logout } from "@solar-icons/react";
 import { FaGoogle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -188,7 +188,7 @@ export function Sidebar() {
                 onClick={() => signOut()}
                 title="Sair"
               >
-                🚪
+                <Logout weight="BoldDuotone" />
               </Button>
             </Flex>
           ) : (

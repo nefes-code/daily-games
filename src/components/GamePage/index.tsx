@@ -7,12 +7,14 @@ import {
   Flex,
   Grid,
   HStack,
+  Separator,
+  SimpleGrid,
   Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
-import { useGame } from "@/services/games/hooks";
+import { useGame, useLeaderboard } from "@/services/games/hooks";
 import { useResults } from "@/services/results/hooks";
 import { PlayGameModal } from "@/components/PlayGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
@@ -24,6 +26,7 @@ import type { GameResult } from "@/services/types";
 
 export function GamePage({ slug }: { slug: string }) {
   const { data: game, isLoading: gameLoading } = useGame(slug);
+  const { data: leaderboard, isLoading: lbLoading } = useLeaderboard(slug);
   const { data: results, isLoading: resultsLoading } = useResults({
     gameId: game?.id,
   });
@@ -39,7 +42,7 @@ export function GamePage({ slug }: { slug: string }) {
     setPlayOpen(true);
   }
 
-  if (gameLoading || resultsLoading) {
+  if (gameLoading || resultsLoading || lbLoading) {
     return (
       <Flex justify="center" py={20}>
         <Spinner size="xl" color="brand.solid" />
@@ -59,26 +62,25 @@ export function GamePage({ slug }: { slug: string }) {
 
   const todayStr = getToday();
 
+  // ── Leaderboard do endpoint (top 3 all-time) ──
+  const top3 = leaderboard ?? [];
+  const isCooperative = game.type === "COOPERATIVE";
+
+  // Competitivo: sempre 3 entradas — preenche posições vazias com placeholder
+  const filled = [0, 1, 2].map(
+    (i) => top3[i] ?? { rank: i + 1, name: "", empty: true },
+  );
+  // Reordenar para pódio visual: [2º, 1º, 3º]
+  const podiumOrder = [filled[1], filled[0], filled[2]];
+
+  // ── Resultados de hoje ──
   const todayResults = (results ?? []).filter(
     (r) => r.playedAt.split("T")[0] === todayStr,
   );
 
-  const sorted = [...todayResults].sort((a, b) =>
+  const sortedToday = [...todayResults].sort((a, b) =>
     game.lowerIsBetter ? a.value - b.value : b.value - a.value,
   );
-
-  const top3 = sorted.slice(0, 3);
-  const rest = sorted.slice(3);
-
-  // Reordenar para pódio: [2º, 1º, 3º]
-  const podiumOrder: (GameResult & { _rank: number })[] =
-    top3.length === 3
-      ? [
-          { ...top3[1], _rank: 2 },
-          { ...top3[0], _rank: 1 },
-          { ...top3[2], _rank: 3 },
-        ]
-      : top3.map((r, i) => ({ ...r, _rank: i + 1 }));
 
   function playerName(r: GameResult) {
     return game!.type === "COOPERATIVE"
@@ -86,12 +88,20 @@ export function GamePage({ slug }: { slug: string }) {
       : (r.user?.name ?? "—");
   }
 
-  const totalPlayers = new Set(
-    todayResults.map((r) => r.userId ?? r.registeredById),
-  ).size;
+  const hasPlayedToday =
+    !!session?.user &&
+    todayResults.some(
+      (r) =>
+        r.userId === session.user!.id || r.registeredById === session.user!.id,
+    );
+
+  const todayLabel = new Date(todayStr + "T12:00:00").toLocaleDateString(
+    "pt-BR",
+    { day: "2-digit", month: "2-digit" },
+  );
 
   return (
-    <VStack gap={8} align="stretch" maxW="680px" mx="auto" pt={2}>
+    <VStack gap={8} align="stretch" maxW="850px" mx="auto" pt={2}>
       {/* ── Header ── */}
       <Flex align="center" justify="space-between" gap={4} flexWrap="wrap">
         <HStack gap={3}>
@@ -140,159 +150,138 @@ export function GamePage({ slug }: { slug: string }) {
         </Button>
       </Flex>
 
-      {/* ── Pódio ── */}
-      {top3.length > 0 && (
-        <Grid
-          templateColumns={`repeat(${Math.min(top3.length, 3)}, 1fr)`}
+      {/* ── Pódio all-time ── */}
+      {isCooperative ? (
+        // Cooperativo: card único do time
+        <Box pt={4}>
+          {top3[0] ? (
+            <PodiumCard
+              rank={1}
+              wide
+              name={top3[0].name}
+              value={formatValue(top3[0].average, game)}
+              daysPlayed={top3[0].daysPlayed}
+              bestResult={formatValue(top3[0].bestResult, game)}
+            />
+          ) : (
+            <PodiumCard rank={1} wide empty />
+          )}
+        </Box>
+      ) : (
+        // Competitivo: pódio com 3 cards
+        <SimpleGrid
+          columns={3}
           gap={3}
+          position="relative"
+          pt={16}
+          mt={4}
           alignItems="end"
         >
-          {podiumOrder.map((r) => (
-            <PodiumCard
+          <Flex
+            w="100%"
+            justifyContent="center"
+            position="absolute"
+            top={-12}
+            color="blackAlpha.100"
+          >
+            <Text fontSize="9xl" fontWeight="extrabold">
+              LEADERBOARD
+            </Text>
+          </Flex>
+          {podiumOrder.map((p) =>
+            "empty" in p ? (
+              <PodiumCard key={p.rank} rank={p.rank} empty />
+            ) : (
+              <PodiumCard
+                key={p.name}
+                rank={p.rank}
+                name={p.name}
+                value={formatValue(p.average, game)}
+                image={p.image}
+                daysPlayed={p.daysPlayed}
+                bestResult={formatValue(p.bestResult, game)}
+              />
+            ),
+          )}
+        </SimpleGrid>
+      )}
+
+      <Separator my={8} width={"100%"} borderColor={"gray.100"} />
+
+      {/* ── Resultados de hoje ── */}
+      <Box>
+        <HStack width="100%" justify="space-between" mb={5}>
+          <Text
+            fontSize="3xl"
+            fontWeight="900"
+            letterSpacing="-0.04em"
+            color="gray.900"
+            lineHeight="1"
+          >
+            Resultados de hoje
+          </Text>
+          <Text fontSize="xl" color="gray.400" fontWeight="500" mt={1}>
+            {todayLabel}
+          </Text>
+        </HStack>
+
+        <Box
+          borderWidth={1}
+          borderColor="gray.100"
+          rounded="xl"
+          overflow="hidden"
+        >
+          {sortedToday.map((r, i) => (
+            <ResultRow
               key={r.id}
-              rank={r._rank}
+              rank={i + 1}
               name={playerName(r)}
               value={formatValue(r.value, game)}
-              elevated={r._rank === 1}
-              isCurrentUser={
-                !!session?.user?.email &&
-                session.user.email === (r.user?.email ?? r.registeredBy.email)
-              }
+              isLast={i === sortedToday.length - 1 && hasPlayedToday}
             />
           ))}
-        </Grid>
-      )}
 
-      {/* ── Stats ── */}
-      <Grid templateColumns="repeat(3, 1fr)" gap={3}>
-        {[
-          { label: "Hoje", value: todayResults.length },
-          { label: "Total", value: (results ?? []).length },
-          { label: "Jogadores hoje", value: totalPlayers },
-        ].map((s) => (
-          <Box
-            key={s.label}
-            borderWidth={1}
-            borderColor="gray.100"
-            rounded="xl"
-            p={4}
-          >
-            <Text
-              fontSize="2xl"
-              fontWeight="900"
-              letterSpacing="-0.04em"
-              color="gray.900"
-              fontFamily="mono"
-            >
-              {s.value}
-            </Text>
-            <Text fontSize="xs" color="gray.400" fontWeight="500" mt={0.5}>
-              {s.label}
-            </Text>
-          </Box>
-        ))}
-      </Grid>
-
-      {/* ── Hoje ── */}
-      <Box>
-        <Flex align="baseline" justify="space-between" mb={4}>
-          <Text
-            fontSize="xs"
-            fontWeight="800"
-            color="gray.400"
-            textTransform="uppercase"
-            letterSpacing="wider"
-          >
-            Hoje
-          </Text>
-          <Text
-            fontSize="xs"
-            color="gray.300"
-            fontWeight="600"
-            fontFamily="mono"
-          >
-            {todayStr}
-          </Text>
-        </Flex>
-
-        {sorted.length === 0 ? (
-          <Box
-            borderWidth={1}
-            borderColor="gray.100"
-            rounded="xl"
-            py={12}
-            textAlign="center"
-          >
-            <Text fontSize="sm" color="gray.400" fontWeight="600" mb={3}>
-              Nenhum resultado ainda hoje
-            </Text>
-            <Button
-              size="sm"
-              bg="brand.solid"
-              color="white"
-              rounded="lg"
-              fontWeight="700"
-              _hover={{ bg: "brand.emphasized" }}
+          {/* CTA — aparece quando o usuário ainda não registrou resultado hoje */}
+          {!hasPlayedToday && (
+            <Flex
+              align="center"
+              justify={"center"}
+              textAlign={"center"}
+              px={4}
+              py={3}
+              gap={3}
+              borderTopWidth={sortedToday.length > 0 ? 1 : 0}
+              borderStyle="dashed"
+              borderColor="gray.200"
+              cursor="pointer"
               onClick={handlePlay}
+              _hover={{ bg: "gray.100" }}
+              transition="background 0.1s"
             >
-              Seja o primeiro
-            </Button>
-          </Box>
-        ) : (
-          <VStack gap={3} align="stretch">
-            {rest.length > 0 && (
-              <Box
-                borderWidth={1}
-                borderColor="gray.100"
-                rounded="xl"
-                overflow="hidden"
-              >
-                {rest.map((r, i) => (
-                  <ResultRow
-                    key={r.id}
-                    rank={i + 4}
-                    name={playerName(r)}
-                    value={formatValue(r.value, game)}
-                    isLast={i === rest.length - 1}
-                  />
-                ))}
-              </Box>
-            )}
-          </VStack>
-        )}
-      </Box>
-
-      {/* ── Histórico ── */}
-      {(results ?? []).length > 0 && (
-        <Box>
-          <Text
-            fontSize="xs"
-            fontWeight="800"
-            color="gray.400"
-            textTransform="uppercase"
-            letterSpacing="wider"
-            mb={4}
-          >
-            Histórico
-          </Text>
-          <Box
-            borderWidth={1}
-            borderColor="gray.100"
-            rounded="xl"
-            overflow="hidden"
-          >
-            {(results ?? []).slice(0, 10).map((r, i, arr) => (
-              <ResultRow
-                key={r.id}
-                name={playerName(r)}
-                value={formatValue(r.value, game)}
-                date={new Date(r.playedAt).toLocaleDateString("pt-BR")}
-                isLast={i === arr.length - 1}
-              />
-            ))}
-          </Box>
+              <HStack>
+                <Flex
+                  w="30px"
+                  h="30px"
+                  rounded="full"
+                  borderWidth={1}
+                  borderColor={"black"}
+                  borderStyle="dashed"
+                  align="center"
+                  justify="center"
+                  flexShrink={0}
+                  fontSize="lg"
+                  lineHeight="1"
+                >
+                  +
+                </Flex>
+                <Text fontSize="sm" flex={1}>
+                  Faça o seu resultado
+                </Text>
+              </HStack>
+            </Flex>
+          )}
         </Box>
-      )}
+      </Box>
 
       {game && (
         <PlayGameModal

@@ -1,14 +1,14 @@
 "use client";
 
-import { Box, Circle, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Text } from "@chakra-ui/react";
 import { getInitials, avatarColor } from "../../helpers";
+import { Tooltip } from "@/components/Tooltip";
 
 const RANK_GRADIENT = [
-  "linear-gradient(135deg, #fef9c3 0%, #fde68a 45%, #d9f99d 100%)",
-  "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 45%, #ddd6fe 100%)",
-  "linear-gradient(135deg, #ffedd5 0%, #fed7aa 45%, #fef9c3 100%)",
+  "linear-gradient(135deg, #ffffff 0%, #fef9c3 20%, #fde68a 45%, #d9f99d 100%)",
+  "linear-gradient(135deg, #ffffff 0%, #f1f5f9 0%, #e2e8f0 45%, #ddd6fe 100%)",
+  "linear-gradient(135deg, #ffffff 0%, #ffedd5 0%, #fed7aa 45%, #fef9c3 100%)",
 ];
-const RANK_BADGE_BG = ["#78350f", "#1e293b", "#7c2d12"];
 const RANK_SUBTITLE = ["#d97706", "#6366f1", "#ea580c"];
 const RANK_LABEL = ["1º", "2º", "3º"];
 
@@ -16,34 +16,235 @@ export function PodiumCard({
   rank,
   name,
   value,
-  elevated,
-  isCurrentUser,
+  image,
+  daysPlayed,
+  bestResult,
+  empty,
+  wide,
 }: {
   rank: number;
-  name: string;
-  value: string;
-  elevated?: boolean;
-  isCurrentUser?: boolean;
+  name?: string;
+  value?: string;
+  image?: string | null;
+  daysPlayed?: number;
+  bestResult?: string;
+  empty?: boolean;
+  wide?: boolean;
 }) {
   const gradient = RANK_GRADIENT[rank - 1];
-  const badgeBg = RANK_BADGE_BG[rank - 1];
   const subtitleColor = RANK_SUBTITLE[rank - 1];
   const label = RANK_LABEL[rank - 1];
+
+  if (wide) {
+    return (
+      <Box
+        bg="white"
+        rounded="2xl"
+        overflow="hidden"
+        borderWidth={4}
+        shadow="xl"
+        borderColor="white"
+      >
+        <Flex>
+          {/* Gradient sidebar */}
+          <Box
+            style={{ background: RANK_GRADIENT[0] }}
+            position="relative"
+            minW={48}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            p={8}
+          >
+            <Text
+              position="absolute"
+              right={2}
+              top={2}
+              fontSize="7xl"
+              fontWeight="900"
+              lineHeight="1"
+              fontFamily="mono"
+              userSelect="none"
+              pointerEvents="none"
+              style={{ color: "rgba(0,0,0,0.08)" }}
+            >
+              NeFes
+            </Text>
+            <Avatar.Root
+              bg={avatarColor("NeFes")}
+              shape="full"
+              w={20}
+              h={20}
+              borderWidth={4}
+              borderColor="white"
+              style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}
+            >
+              <Avatar.Fallback fontSize="2xl">NF</Avatar.Fallback>
+            </Avatar.Root>
+          </Box>
+
+          {/* Content */}
+          <Flex flex={1} px={8} py={6} align="center" gap={10} flexWrap="wrap">
+            <Box flex={1} minW={0}>
+              <Text
+                fontSize="2xl"
+                fontWeight="900"
+                color="gray.900"
+                letterSpacing="-0.03em"
+                lineHeight="1"
+              >
+                Time NeFes
+              </Text>
+              <Text fontSize="sm" color="gray.400" fontWeight="500" mt={1}>
+                Resultado do time
+              </Text>
+            </Box>
+
+            <Flex gap={8} flexShrink={0}>
+              {daysPlayed != null && (
+                <Box textAlign="center">
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="900"
+                    color="gray.900"
+                    fontFamily="mono"
+                    letterSpacing="-0.04em"
+                  >
+                    {daysPlayed}
+                  </Text>
+                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                    Dias jogados
+                  </Text>
+                </Box>
+              )}
+              {bestResult && (
+                <Box textAlign="center">
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="900"
+                    color="gray.900"
+                    fontFamily="mono"
+                    letterSpacing="-0.04em"
+                  >
+                    {bestResult}
+                  </Text>
+                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                    Melhor resultado
+                  </Text>
+                </Box>
+              )}
+              {value && (
+                <Box textAlign="center">
+                  <Text
+                    fontSize="2xl"
+                    fontWeight="900"
+                    color="brand.fg"
+                    fontFamily="mono"
+                    letterSpacing="-0.04em"
+                  >
+                    {value}
+                  </Text>
+                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                    Média
+                  </Text>
+                </Box>
+              )}
+            </Flex>
+          </Flex>
+        </Flex>
+      </Box>
+    );
+  }
+
+  if (empty) {
+    return (
+      <Box
+        bg="white"
+        rounded="2xl"
+        overflow="visible"
+        borderWidth={4}
+        shadow="md"
+        borderColor="white"
+        position="relative"
+        opacity={0.55}
+      >
+        <Box
+          style={{ background: gradient }}
+          position="relative"
+          p={4}
+          pb={6}
+          height={24}
+          roundedTop="xl"
+        >
+          <Text
+            position="absolute"
+            right={3}
+            top={1}
+            fontSize="6xl"
+            fontWeight="900"
+            lineHeight="1"
+            fontFamily="mono"
+            userSelect="none"
+            pointerEvents="none"
+            style={{ color: "rgba(0,0,0,0.10)" }}
+          >
+            {label}
+          </Text>
+
+          <Box
+            position="absolute"
+            bottom={0}
+            left={4}
+            transform="translateY(50%)"
+            zIndex={1}
+          >
+            <Flex
+              w={16}
+              h={16}
+              rounded="full"
+              borderWidth={3}
+              borderColor="white"
+              borderStyle="dashed"
+              bg="gray.100"
+              align="center"
+              justify="center"
+              style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}
+            >
+              <Text fontSize="2xl" color="gray.300" fontWeight="700">
+                ?
+              </Text>
+            </Flex>
+          </Box>
+        </Box>
+
+        <Box px={4} pb={4} pt={12}>
+          <Text fontSize="sm" fontWeight="600" color="gray.400" lineClamp={2}>
+            O {label} lugar aparecerá aqui
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box
       bg="white"
       rounded="2xl"
-      overflow="hidden"
-      borderWidth={1}
-      borderColor={isCurrentUser ? "brand.solid" : "gray.100"}
-      transform={elevated ? "translateY(-14px)" : undefined}
-      boxShadow={
-        elevated ? "0 16px 48px rgba(0,0,0,0.11)" : "0 1px 4px rgba(0,0,0,0.05)"
-      }
+      overflow="visible"
+      borderWidth={4}
+      shadow="xl"
+      borderColor="white"
+      position="relative"
     >
-      {/* Gradient header */}
-      <Box style={{ background: gradient }} position="relative" p={4} pb={7}>
+      {/* Gradient header — rounded top to compensate overflow:visible */}
+      <Box
+        style={{ background: gradient }}
+        position="relative"
+        p={4}
+        pb={6}
+        height={24}
+        roundedTop="xl"
+      >
         {/* Rank watermark */}
         <Text
           position="absolute"
@@ -60,45 +261,53 @@ export function PodiumCard({
           {label}
         </Text>
 
-        {/* Avatar */}
-        <Circle
-          size="52px"
-          bg={avatarColor(name)}
-          color="white"
-          fontWeight="800"
-          fontSize="sm"
-          borderWidth={2}
-          borderColor="white"
-          style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.15)" }}
+        {/* Avatar — posicionado na borda inferior do header, sobrepondo a área branca */}
+        <Box
+          position="absolute"
+          bottom={0}
+          left={4}
+          transform="translateY(50%)"
+          zIndex={1}
         >
-          {getInitials(name)}
-        </Circle>
+          <Avatar.Root
+            bg={avatarColor(name ?? "")}
+            shape="full"
+            w={16}
+            h={16}
+            borderWidth={3}
+            borderColor="white"
+            style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.18)" }}
+          >
+            {image && <Avatar.Image src={image} />}
+            <Avatar.Fallback>{getInitials(name ?? "")}</Avatar.Fallback>
+          </Avatar.Root>
+        </Box>
+        <Flex px={4}>
+          <Tooltip openDelay={0} closeDelay={300} showArrow content="Média">
+            <Box
+              color="white"
+              px={3}
+              py={1}
+              bgColor={"black"}
+              position={"absolute"}
+              bottom={-3}
+              right={2}
+              rounded="full"
+              fontSize="xs"
+              fontWeight="800"
+              fontFamily="mono"
+              letterSpacing="0.02em"
+            >
+              {value}
+            </Box>
+          </Tooltip>
+        </Flex>
       </Box>
 
-      {/* Score badge — overlaps gradient border */}
-      <Flex px={4} mt={-3.5} mb={2} justify="flex-end">
-        <Box
-          style={{
-            background: badgeBg,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-          }}
-          color="white"
-          px={3}
-          py={1}
-          rounded="full"
-          fontSize="xs"
-          fontWeight="800"
-          fontFamily="mono"
-          letterSpacing="0.02em"
-        >
-          {value}
-        </Box>
-      </Flex>
-
-      {/* Content */}
-      <Box px={4} pb={4}>
+      {/* Content — pt para o texto não sobrepor o avatar */}
+      <Box px={4} pb={4} pt={12}>
         <Text
-          fontSize="sm"
+          fontSize="xl"
           fontWeight="800"
           color="gray.900"
           lineClamp={1}
@@ -106,14 +315,34 @@ export function PodiumCard({
         >
           {name}
         </Text>
-        <Text
-          fontSize="xs"
-          fontWeight="600"
-          mt={0.5}
-          style={{ color: subtitleColor }}
-        >
+        <Text fontSize="md" fontWeight="600" style={{ color: subtitleColor }}>
           {label} lugar
         </Text>
+
+        {(daysPlayed != null || bestResult != null) && (
+          <Flex gap={4} mt={2}>
+            {daysPlayed != null && (
+              <Box>
+                <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  Dias
+                </Text>
+                <Text fontSize="sm" fontWeight="700" color="gray.700">
+                  {daysPlayed}
+                </Text>
+              </Box>
+            )}
+            {bestResult != null && (
+              <Box>
+                <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  Melhor
+                </Text>
+                <Text fontSize="sm" fontWeight="700" color="gray.700">
+                  {bestResult}
+                </Text>
+              </Box>
+            )}
+          </Flex>
+        )}
       </Box>
     </Box>
   );
