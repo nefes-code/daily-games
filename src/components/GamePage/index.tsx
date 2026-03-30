@@ -73,8 +73,6 @@ export function GamePage({ slug }: { slug: string }) {
   const filled = [0, 1, 2].map(
     (i) => top3[i] ?? { rank: i + 1, name: "", empty: true },
   );
-  // Reordenar para pódio visual: [2º, 1º, 3º]
-  const podiumOrder = [filled[1], filled[0], filled[2]];
 
   // ── Resultados de hoje ──
   const todayResults = (results ?? []).filter(
@@ -243,10 +241,10 @@ export function GamePage({ slug }: { slug: string }) {
       ) : (
         // Competitivo: pódio com 3 cards
         <SimpleGrid
-          columns={3}
-          gap={3}
+          columns={{ base: 1, md: 3 }}
+          gap={{ base: 2, md: 3 }}
           position="relative"
-          pt={16}
+          pt={{ base: 2, md: 16 }}
           mt={4}
           alignItems="end"
         >
@@ -254,28 +252,37 @@ export function GamePage({ slug }: { slug: string }) {
             w="100%"
             justifyContent="center"
             position="absolute"
-            top={-12}
+            top={{ base: -4, md: -12 }}
             color="blackAlpha.100"
+            display={{ base: "none", md: "flex" }}
           >
             <Text fontSize="9xl" fontWeight="extrabold">
               LEADERBOARD
             </Text>
           </Flex>
-          {podiumOrder.map((p) =>
-            "empty" in p ? (
-              <PodiumCard key={p.rank} rank={p.rank} empty />
-            ) : (
-              <PodiumCard
-                key={p.name}
-                rank={p.rank}
-                name={p.name}
-                value={formatValue(p.average, game)}
-                image={p.image}
-                daysPlayed={p.daysPlayed}
-                bestResult={formatValue(p.bestResult, game)}
-              />
-            ),
-          )}
+          {filled.map((p) => {
+            const orderMap: Record<number, { base: number; md: number }> = {
+              1: { base: 0, md: 1 },
+              2: { base: 1, md: 0 },
+              3: { base: 2, md: 2 },
+            };
+            return (
+              <Box key={p.rank} order={orderMap[p.rank]}>
+                {"empty" in p ? (
+                  <PodiumCard rank={p.rank} empty />
+                ) : (
+                  <PodiumCard
+                    rank={p.rank}
+                    name={p.name}
+                    value={formatValue(p.average, game)}
+                    image={p.image}
+                    daysPlayed={p.daysPlayed}
+                    bestResult={formatValue(p.bestResult, game)}
+                  />
+                )}
+              </Box>
+            );
+          })}
         </SimpleGrid>
       )}
 
@@ -289,7 +296,7 @@ export function GamePage({ slug }: { slug: string }) {
       <Box>
         <HStack width="100%" justify="space-between" mb={5}>
           <Text
-            fontSize="3xl"
+            fontSize={{ base: "xl", md: "3xl" }}
             fontWeight="900"
             letterSpacing="-0.04em"
             color="gray.900"

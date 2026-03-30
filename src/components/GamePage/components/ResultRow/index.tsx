@@ -79,14 +79,15 @@ export function ResultRow({
   return (
     <Flex
       align="center"
-      px={4}
+      px={{ base: 2, md: 4 }}
       py={3}
-      gap={3}
+      gap={{ base: 2, md: 3 }}
       borderBottomWidth={isLast ? 0 : 1}
       borderColor="gray.50"
       transition="background 0.1s"
       position="relative"
       bgColor={isFirst ? "white" : "transparent"}
+      flexWrap="wrap"
     >
       {rank !== undefined && (
         <Text

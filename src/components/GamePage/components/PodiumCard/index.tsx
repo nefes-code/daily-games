@@ -46,17 +46,18 @@ export function PodiumCard({
         shadow="xl"
         borderColor="white"
       >
-        <Flex>
+        <Flex flexDir={{ base: "column", md: "row" }}>
           {/* Gradient sidebar */}
           <Box
             style={{ background: RANK_GRADIENT[0] }}
             position="relative"
-            minW={48}
+            minW={{ base: "auto", md: 48 }}
+            minH={{ base: 24, md: "auto" }}
             display="flex"
             alignItems="center"
             justifyContent="center"
             overflow={"hidden"}
-            p={8}
+            p={{ base: 4, md: 8 }}
           >
             <Text
               position="absolute"
@@ -87,7 +88,14 @@ export function PodiumCard({
           </Box>
 
           {/* Content */}
-          <Flex flex={1} px={8} py={6} align="center" gap={10} flexWrap="wrap">
+          <Flex
+            flex={1}
+            px={{ base: 4, md: 8 }}
+            py={{ base: 4, md: 6 }}
+            align="center"
+            gap={{ base: 4, md: 10 }}
+            flexWrap="wrap"
+          >
             <Box flex={1} minW={0}>
               <Text
                 fontSize="2xl"
@@ -103,7 +111,7 @@ export function PodiumCard({
               </Text>
             </Box>
 
-            <Flex gap={8} flexShrink={0}>
+            <Flex gap={{ base: 4, md: 8 }} flexShrink={0}>
               {daysPlayed != null && (
                 <Box textAlign="center">
                   <Text
@@ -310,7 +318,7 @@ export function PodiumCard({
       {/* Content — pt para o texto não sobrepor o avatar */}
       <Box px={4} pb={4} pt={12}>
         <Text
-          fontSize="xl"
+          fontSize={{ base: "sm", md: "xl" }}
           fontWeight="800"
           color="gray.900"
           lineClamp={1}
@@ -318,7 +326,11 @@ export function PodiumCard({
         >
           {name}
         </Text>
-        <Text fontSize="md" fontWeight="600" style={{ color: subtitleColor }}>
+        <Text
+          fontSize={{ base: "xs", md: "md" }}
+          fontWeight="600"
+          style={{ color: subtitleColor }}
+        >
           {label} lugar
         </Text>
 

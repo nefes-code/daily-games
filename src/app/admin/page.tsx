@@ -598,18 +598,21 @@ function AdminPanel() {
                   </Text>
                   <VStack align="stretch" gap={2}>
                     {group.map((game, i) => (
-                      <HStack
+                      <Flex
                         key={game.id}
                         bg="white"
-                        px={4}
+                        px={{ base: 2, md: 4 }}
                         py={3}
                         borderRadius="lg"
                         borderWidth={1}
                         borderColor="gray.100"
                         justify="space-between"
+                        align="center"
+                        gap={2}
+                        flexWrap="wrap"
                       >
-                        <HStack gap={2}>
-                          <VStack gap={0}>
+                        <HStack gap={2} minW={0} flex={1}>
+                          <VStack gap={0} flexShrink={0}>
                             <IconButton
                               aria-label="Mover para cima"
                               size="2xs"
@@ -631,15 +634,18 @@ function AdminPanel() {
                               <AltArrowDown size={12} />
                             </IconButton>
                           </VStack>
-                          <Text fontWeight="600">{game.name}</Text>
+                          <Text fontWeight="600" truncate>
+                            {game.name}
+                          </Text>
                           <Badge
                             colorPalette={game.active ? "green" : "gray"}
                             size="sm"
+                            flexShrink={0}
                           >
                             {game.active ? "Ativo" : "Inativo"}
                           </Badge>
                         </HStack>
-                        <HStack gap={2}>
+                        <HStack gap={2} flexShrink={0}>
                           <Button
                             size="sm"
                             variant="outline"
@@ -657,7 +663,7 @@ function AdminPanel() {
                             {game.active ? "Desativar" : "Ativar"}
                           </Button>
                         </HStack>
-                      </HStack>
+                      </Flex>
                     ))}
                     {group.length === 0 && (
                       <Text fontSize="sm" color="gray.400">
@@ -688,15 +694,16 @@ function AdminPanel() {
         ) : (
           <VStack align="stretch" gap={2}>
             {results.map((result) => (
-              <HStack
+              <Flex
                 key={result.id}
                 bg="white"
-                px={4}
+                px={{ base: 2, md: 4 }}
                 py={3}
                 borderRadius="lg"
                 borderWidth={1}
                 borderColor="gray.100"
                 justify="space-between"
+                align="center"
                 flexWrap="wrap"
                 gap={2}
               >
@@ -725,7 +732,7 @@ function AdminPanel() {
                 >
                   Excluir
                 </Button>
-              </HStack>
+              </Flex>
             ))}
           </VStack>
         )}

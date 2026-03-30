@@ -26,7 +26,13 @@ import { GameNavItem } from "./components/GameNavItem";
 
 import pkg from "@/../package.json";
 
-export function Sidebar() {
+export function Sidebar({
+  mobileOpen,
+  onMobileClose,
+}: {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}) {
   const pathname = usePathname();
   const { data: games } = useGames();
   const { data: session } = useSession();
@@ -37,7 +43,7 @@ export function Sidebar() {
   const competitive = games?.filter((g) => g.type === "COMPETITIVE") ?? [];
   const cooperative = games?.filter((g) => g.type === "COOPERATIVE") ?? [];
 
-  return (
+  const sidebarContent = (
     <Box
       as="aside"
       w="240px"
@@ -45,9 +51,6 @@ export function Sidebar() {
       bg="white"
       borderRightWidth={1}
       borderColor="gray.100"
-      position="fixed"
-      left={0}
-      top={0}
       display="flex"
       flexDirection="column"
     >
@@ -92,14 +95,15 @@ export function Sidebar() {
                 Competitivos
               </Text>
               {competitive.map((g) => (
-                <GameNavItem
-                  key={g.id}
-                  game={g}
-                  active={pathname === `/games/${g.slug ?? g.id}`}
-                  playedToday={
-                    session?.user ? playedGameIds.has(g.id) : undefined
-                  }
-                />
+                <Box key={g.id} onClick={onMobileClose}>
+                  <GameNavItem
+                    game={g}
+                    active={pathname === `/games/${g.slug ?? g.id}`}
+                    playedToday={
+                      session?.user ? playedGameIds.has(g.id) : undefined
+                    }
+                  />
+                </Box>
               ))}
             </>
           )}
@@ -119,14 +123,15 @@ export function Sidebar() {
                 Cooperativos
               </Text>
               {cooperative.map((g) => (
-                <GameNavItem
-                  key={g.id}
-                  game={g}
-                  active={pathname === `/games/${g.slug ?? g.id}`}
-                  playedToday={
-                    session?.user ? playedGameIds.has(g.id) : undefined
-                  }
-                />
+                <Box key={g.id} onClick={onMobileClose}>
+                  <GameNavItem
+                    game={g}
+                    active={pathname === `/games/${g.slug ?? g.id}`}
+                    playedToday={
+                      session?.user ? playedGameIds.has(g.id) : undefined
+                    }
+                  />
+                </Box>
               ))}
             </>
           )}
@@ -232,5 +237,46 @@ export function Sidebar() {
       </Box>
       <CreateGameModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </Box>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar — fixed */}
+      <Box
+        display={{ base: "none", md: "block" }}
+        position="fixed"
+        left={0}
+        top={0}
+        zIndex={100}
+      >
+        {sidebarContent}
+      </Box>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <Box
+          display={{ base: "block", md: "none" }}
+          position="fixed"
+          inset={0}
+          zIndex={200}
+        >
+          <Box
+            position="fixed"
+            inset={0}
+            bg="blackAlpha.600"
+            onClick={onMobileClose}
+          />
+          <Box
+            position="fixed"
+            left={0}
+            top={0}
+            zIndex={201}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sidebarContent}
+          </Box>
+        </Box>
+      )}
+    </>
   );
 }
