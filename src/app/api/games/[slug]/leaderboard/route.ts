@@ -2,15 +2,9 @@ import { db } from "@/lib/db";
 import { gameResults, games, users } from "@/lib/schema";
 import { apiError } from "@/lib/api-helpers";
 import { eq, or, sql, asc, desc, gte } from "drizzle-orm";
+import { thirtyDaysAgo } from "@/utils/date";
 
 type Params = { params: Promise<{ slug: string }> };
-
-function thirtyDaysAgo(): Date {
-  const d = new Date();
-  d.setDate(d.getDate() - 30);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
 
 export async function GET(_req: Request, { params }: Params) {
   try {

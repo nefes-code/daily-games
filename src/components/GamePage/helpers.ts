@@ -1,3 +1,5 @@
+import { getToday as getTodayBRT } from "@/utils/date";
+
 export function formatValue(
   value: number,
   game: {
@@ -38,7 +40,7 @@ export function formatRoundValue(
 }
 
 export function getToday() {
-  return new Date().toISOString().split("T")[0];
+  return getTodayBRT();
 }
 
 export function getInitials(name: string) {

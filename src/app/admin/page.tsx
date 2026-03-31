@@ -22,6 +22,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { GAME_ICON_OPTIONS, getGameIcon } from "@/utils/game-icon";
+import { formatDateBR } from "@/utils/date";
 import {
   CloseCircle,
   Gamepad,
@@ -558,7 +559,7 @@ function AdminPanel() {
   }
 
   function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString("pt-BR");
+    return formatDateBR(iso, "DD/MM/YYYY");
   }
 
   return (

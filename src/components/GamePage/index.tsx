@@ -19,6 +19,7 @@ import { PlayGameModal } from "@/components/PlayGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { useAddReaction, useRemoveReaction } from "@/services/reactions/hooks";
 import { GameIconDisplay } from "@/utils/game-icon";
+import { formatDateBR } from "@/utils/date";
 import { PodiumCard } from "./components/PodiumCard";
 import { ResultRow } from "./components/ResultRow";
 import { formatValue, formatRoundValue, getToday } from "./helpers";
@@ -161,10 +162,7 @@ export function GamePage({ slug }: { slug: string }) {
         g.userId === session.user!.id || g.registeredById === session.user!.id,
     );
 
-  const todayLabel = new Date(todayStr + "T12:00:00").toLocaleDateString(
-    "pt-BR",
-    { day: "2-digit", month: "2-digit" },
-  );
+  const todayLabel = formatDateBR(todayStr);
 
   return (
     <VStack gap={8} align="stretch" maxW="850px" mx="auto" pt={2}>

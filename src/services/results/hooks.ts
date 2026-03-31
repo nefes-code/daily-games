@@ -2,9 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/services/keys";
 import type { ResultsFilter } from "@/services/types";
 import { getResults, submitResult } from "./api";
+import { getToday } from "@/utils/date";
 
 export function useTodayPlayedGameIds(userId: string | undefined): Set<string> {
-  const today = new Date().toISOString().split("T")[0];
+  const today = getToday();
   const { data } = useQuery({
     queryKey: queryKeys.results.filtered({ date: today, userId }),
     queryFn: () => getResults({ date: today, userId }),

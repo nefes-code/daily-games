@@ -20,6 +20,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useSubmitResult } from "@/services/results/hooks";
 import { GameIconDisplay } from "@/utils/game-icon";
+import { getToday } from "@/utils/date";
 import { CloseCircle, Ghost, SquareBottomUp } from "@solar-icons/react";
 import type { Game, ResultStatus } from "@/services/types";
 
@@ -91,7 +92,7 @@ export function PlayGameModal({
   async function handleSubmit() {
     if (!isValid()) return;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = getToday();
 
     const roundsPayload = rounds.map((r, i) => {
       const won = r.won;
