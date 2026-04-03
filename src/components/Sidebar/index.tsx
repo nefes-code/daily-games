@@ -7,18 +7,20 @@ import {
   Circle,
   Flex,
   HStack,
+  IconButton,
   Image,
   Square,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { Ranking, AddCircle, Logout } from "@solar-icons/react";
+import { Ranking, Logout, Fire } from "@solar-icons/react";
 import { FaGoogle } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGames } from "@/services/games/hooks";
 import { useTodayPlayedGameIds } from "@/services/results/hooks";
-import { CreateGameModal } from "@/components/CreateGameModal";
+import { useUserStreak } from "@/services/users/hooks";
+import { StreakModal } from "@/components/StreakModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { NefesLogo } from "@/components/NefesLogo";
 import { NavItem } from "./components/NavItem";
@@ -37,8 +39,9 @@ export function Sidebar({
   const { data: games } = useGames();
   const { data: session } = useSession();
   const { openLogin } = useLoginModal();
-  const [createOpen, setCreateOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
   const playedGameIds = useTodayPlayedGameIds(session?.user?.id);
+  const { data: streak } = useUserStreak(session?.user?.id);
 
   const competitive = games?.filter((g) => g.type === "COMPETITIVE") ?? [];
   const cooperative = games?.filter((g) => g.type === "COOPERATIVE") ?? [];
@@ -150,24 +153,25 @@ export function Sidebar({
           )}
         </VStack>
       </Box>
-
       {/* Botão Novo Jogo fixo na parte inferior */}
-      <Box mt="auto" pt={4}>
+      <Box mt="auto" pt={2}>
         <Flex px={2}>
           <Button
-            _hover={{
-              bgColor: "brand.solid",
-              color: "white",
-            }}
+            _hover={{ color: "orange.400", bgColor: "orange.400/10" }}
             borderRadius={"lg"}
+            title="Dias jogados"
             width={"100%"}
-            justifyContent={"start"}
+            size={"sm"}
+            px={2}
             variant={"ghost"}
             color="brand.solid"
-            onClick={() => setCreateOpen(true)}
+            onClick={() => setStreakOpen(true)}
           >
-            <AddCircle weight="BoldDuotone" />
-            Novo Jogo
+            Streak de dias jogados:{" "}
+            {streak && streak.currentStreak > 0 && (
+              <Text>{streak.currentStreak}</Text>
+            )}{" "}
+            <Fire weight="BoldDuotone" />
           </Button>
         </Flex>
 
@@ -203,16 +207,17 @@ export function Sidebar({
                   {session.user.email}
                 </Text>
               </Box>
-              <Button
+
+              <IconButton
                 size="xs"
                 variant="ghost"
                 color="gray.400"
-                _hover={{ color: "red.500" }}
+                _hover={{ color: "red.500", bgColor: "red.500/10" }}
                 onClick={() => signOut()}
                 title="Sair"
               >
                 <Logout weight="BoldDuotone" />
-              </Button>
+              </IconButton>
             </Flex>
           ) : (
             <Button
@@ -235,7 +240,12 @@ export function Sidebar({
           </Text>
         </Box>
       </Box>
-      <CreateGameModal open={createOpen} onClose={() => setCreateOpen(false)} />
+
+      <StreakModal
+        open={streakOpen}
+        onClose={() => setStreakOpen(false)}
+        streak={streak}
+      />
     </Box>
   );
 

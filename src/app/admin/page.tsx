@@ -28,8 +28,10 @@ import {
   Gamepad,
   AltArrowUp,
   AltArrowDown,
+  AddCircle,
 } from "@solar-icons/react";
 import type { GameIcon, GameType, ResultType } from "@/services/types";
+import { CreateGameModal } from "@/components/CreateGameModal";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -458,6 +460,7 @@ function AdminPanel() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingGame, setEditingGame] = useState<AdminGame | null>(null);
   const [movingId, setMovingId] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const fetchGames = useCallback(async () => {
     setLoadingGames(true);
@@ -567,6 +570,22 @@ function AdminPanel() {
       <Text fontSize="2xl" fontWeight="800">
         Painel Admin
       </Text>
+
+      <Button
+        _hover={{
+          bgColor: "brand.solid",
+          color: "white",
+        }}
+        borderRadius={"lg"}
+        width={"fit-content"}
+        justifyContent={"start"}
+        variant={"ghost"}
+        color="brand.solid"
+        onClick={() => setCreateOpen(true)}
+      >
+        <AddCircle weight="BoldDuotone" />
+        Novo Jogo
+      </Button>
 
       {/* ─── Jogos ───────────────────────────────────────────────── */}
       <Box>
@@ -738,6 +757,7 @@ function AdminPanel() {
           </VStack>
         )}
       </Box>
+      <CreateGameModal open={createOpen} onClose={() => setCreateOpen(false)} />
 
       {/* ─── Modal de edição ─────────────────────────────────────── */}
       {editingGame && (

@@ -12,6 +12,7 @@ export const queryKeys = {
   users: {
     all: () => ["users"] as const,
     detail: (id: string) => ["users", "detail", id] as const,
+    streak: (id: string) => ["users", "streak", id] as const,
   },
 
   games: {

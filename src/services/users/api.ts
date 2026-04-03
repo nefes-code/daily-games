@@ -1,4 +1,9 @@
-import type { User, CreateUserInput, UpdateUserInput } from "@/services/types";
+import type {
+  User,
+  CreateUserInput,
+  UpdateUserInput,
+  UserStreak,
+} from "@/services/types";
 
 const BASE = "/api/users";
 
@@ -34,5 +39,11 @@ export async function updateUser(
     body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error("Falha ao atualizar usuário");
+  return res.json();
+}
+
+export async function getUserStreak(id: string): Promise<UserStreak> {
+  const res = await fetch(`${BASE}/${id}/streak`);
+  if (!res.ok) throw new Error("Falha ao buscar streak");
   return res.json();
 }

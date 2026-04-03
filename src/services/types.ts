@@ -77,6 +77,13 @@ export type LeaderboardEntry = {
   average: number;
 };
 
+export type UserStreak = {
+  currentStreak: number;
+  longestStreak: number;
+  totalDays: number;
+  playedToday: boolean;
+};
+
 // ─── Inputs (payload das mutations) ──────────────────────────────────────────
 
 export type CreateUserInput = {

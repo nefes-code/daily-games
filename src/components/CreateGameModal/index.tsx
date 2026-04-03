@@ -84,6 +84,7 @@ export function CreateGameModal({
         if (!e.open) onClose();
       }}
       placement={"center"}
+      size={"md"}
     >
       <Portal>
         <Dialog.Backdrop bg="blackAlpha.600" />
@@ -92,7 +93,6 @@ export function CreateGameModal({
             bg="white"
             rounded="2xl"
             mx={4}
-            maxW="480px"
             w="full"
             boxShadow="xl"
           >
@@ -118,7 +118,7 @@ export function CreateGameModal({
                 {/* Nome */}
                 <Field.Root required>
                   <Field.Label fontWeight="700" fontSize="sm">
-                    Nome do jogo
+                    Nome do jogo *
                   </Field.Label>
                   <Input
                     placeholder="Wordle"
@@ -136,7 +136,7 @@ export function CreateGameModal({
                 {/* Ícone */}
                 <Field.Root>
                   <Field.Label fontWeight="700" fontSize="sm">
-                    Ícone (opcional)
+                    Ícone
                   </Field.Label>
                   <Flex gap={2} flexWrap="wrap">
                     {GAME_ICON_OPTIONS.map(({ value, label }) => {
@@ -179,7 +179,7 @@ export function CreateGameModal({
                 {/* URL */}
                 <Field.Root required>
                   <Field.Label fontWeight="700" fontSize="sm">
-                    Link do jogo
+                    Link do jogo *
                   </Field.Label>
                   <Input
                     placeholder="https://www.nytimes.com/games/wordle"
@@ -196,7 +196,7 @@ export function CreateGameModal({
                 <Flex gap={4}>
                   <Field.Root flex={1}>
                     <Field.Label fontWeight="700" fontSize="sm">
-                      Tipo
+                      Tipo *
                     </Field.Label>
                     <NativeSelect.Root>
                       <NativeSelect.Field
@@ -217,7 +217,7 @@ export function CreateGameModal({
 
                   <Field.Root flex={1}>
                     <Field.Label fontWeight="700" fontSize="sm">
-                      Resultado
+                      Resultado *
                     </Field.Label>
                     <NativeSelect.Root>
                       <NativeSelect.Field
@@ -244,7 +244,7 @@ export function CreateGameModal({
                 <Flex gap={4}>
                   <Field.Root flex={1}>
                     <Field.Label fontWeight="700" fontSize="sm">
-                      Sufixo (opcional)
+                      Sufixo
                     </Field.Label>
                     <Input
                       placeholder="pts, quadrados, etc."
@@ -259,7 +259,7 @@ export function CreateGameModal({
 
                   <Field.Root flex={1}>
                     <Field.Label fontWeight="700" fontSize="sm">
-                      Valor máximo (opcional)
+                      Valor máximo
                     </Field.Label>
                     <Input
                       type="number"
@@ -280,7 +280,7 @@ export function CreateGameModal({
 
                   <Field.Root flex={1}>
                     <Field.Label fontWeight="700" fontSize="sm">
-                      Rodadas por dia
+                      Rodadas por dia *
                     </Field.Label>
                     <Input
                       type="number"

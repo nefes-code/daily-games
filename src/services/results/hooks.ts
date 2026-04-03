@@ -3,6 +3,7 @@ import { queryKeys } from "@/services/keys";
 import type { ResultsFilter } from "@/services/types";
 import { getResults, submitResult } from "./api";
 import { getToday } from "@/utils/date";
+import { useSession } from "next-auth/react";
 
 export function useTodayPlayedGameIds(userId: string | undefined): Set<string> {
   const today = getToday();
@@ -25,6 +26,7 @@ export function useResults(filters: ResultsFilter = {}) {
 
 export function useSubmitResult() {
   const qc = useQueryClient();
+  const { data: session } = useSession();
   return useMutation({
     mutationFn: submitResult,
     onSuccess: (result) => {
@@ -41,6 +43,12 @@ export function useSubmitResult() {
       if (first.game?.slug) {
         qc.invalidateQueries({
           queryKey: queryKeys.games.leaderboard(first.game.slug),
+        });
+      }
+      // Invalida o streak do usuário logado
+      if (session?.user?.id) {
+        qc.invalidateQueries({
+          queryKey: queryKeys.users.streak(session.user.id),
         });
       }
     },
