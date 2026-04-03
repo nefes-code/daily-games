@@ -21,6 +21,10 @@ import { useGames } from "@/services/games/hooks";
 import { useTodayPlayedGameIds } from "@/services/results/hooks";
 import { useUserStreak } from "@/services/users/hooks";
 import { StreakModal } from "@/components/StreakModal";
+import {
+  ReleaseNotesModal,
+  getHasNewRelease,
+} from "@/components/ReleaseNotesModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { NefesLogo } from "@/components/NefesLogo";
 import { NavItem } from "./components/NavItem";
@@ -40,6 +44,7 @@ export function Sidebar({
   const { data: session } = useSession();
   const { openLogin } = useLoginModal();
   const [streakOpen, setStreakOpen] = useState(false);
+  const [releaseOpen, setReleaseOpen] = useState(() => getHasNewRelease());
   const playedGameIds = useTodayPlayedGameIds(session?.user?.id);
   const { data: streak } = useUserStreak(session?.user?.id);
 
@@ -155,25 +160,27 @@ export function Sidebar({
       </Box>
       {/* Botão Novo Jogo fixo na parte inferior */}
       <Box mt="auto" pt={2}>
-        <Flex px={2}>
-          <Button
-            _hover={{ color: "orange.400", bgColor: "orange.400/10" }}
-            borderRadius={"lg"}
-            title="Dias jogados"
-            width={"100%"}
-            size={"sm"}
-            px={2}
-            variant={"ghost"}
-            color="brand.solid"
-            onClick={() => setStreakOpen(true)}
-          >
-            Streak de dias jogados:{" "}
-            {streak && streak.currentStreak > 0 && (
-              <Text>{streak.currentStreak}</Text>
-            )}{" "}
-            <Fire weight="BoldDuotone" />
-          </Button>
-        </Flex>
+        {session?.user && (
+          <Flex px={2}>
+            <Button
+              _hover={{ color: "orange.400", bgColor: "orange.400/10" }}
+              borderRadius={"lg"}
+              title="Dias jogados"
+              width={"100%"}
+              size={"sm"}
+              px={2}
+              variant={"ghost"}
+              color="brand.solid"
+              onClick={() => setStreakOpen(true)}
+            >
+              Streak de dias jogados:{" "}
+              {streak && streak.currentStreak > 0 && (
+                <Text>{streak.currentStreak}</Text>
+              )}{" "}
+              <Fire weight="BoldDuotone" />
+            </Button>
+          </Flex>
+        )}
 
         {/* User section */}
         <Box mt={4} p={4} borderTopWidth={1} borderColor="gray.100">
@@ -235,7 +242,16 @@ export function Sidebar({
               Entrar com Google
             </Button>
           )}
-          <Text fontSize="2xs" color="gray.400" textAlign="center" mt={3}>
+          <Text
+            fontSize="2xs"
+            color="gray.400"
+            textAlign="center"
+            mt={3}
+            cursor="pointer"
+            _hover={{ color: "brand.solid" }}
+            transition="color 0.15s"
+            onClick={() => setReleaseOpen(true)}
+          >
             v{pkg.version}
           </Text>
         </Box>
@@ -245,6 +261,10 @@ export function Sidebar({
         open={streakOpen}
         onClose={() => setStreakOpen(false)}
         streak={streak}
+      />
+      <ReleaseNotesModal
+        open={releaseOpen}
+        onClose={() => setReleaseOpen(false)}
       />
     </Box>
   );
