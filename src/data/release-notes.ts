@@ -21,6 +21,10 @@ export const releaseNotes: ReleaseNote[] = [
         emoji: "⌨️",
         text: "Para abrir o modal novamente clique na versão abaixo do perfil",
       },
+      {
+        emoji: "⌨️",
+        text: "Resolvido scroll do modal de salvar resultado",
+      },
     ],
   },
   {
