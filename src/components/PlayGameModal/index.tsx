@@ -144,6 +144,7 @@ export function PlayGameModal({
                 e.preventDefault();
                 handleSubmit();
               }}
+              style={{ display: "contents" }}
             >
               <Dialog.Body px={8} py={10}>
                 <VStack gap={6}>
