@@ -15,7 +15,7 @@ import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { getInitials, avatarColor } from "../../helpers";
 import type { ResultReaction } from "@/services/types";
-import { MedalRibbonStar, Star, StarAngle } from "@solar-icons/react";
+import { MedalRibbonStar, Star, StarAngle, Bolt } from "@solar-icons/react";
 
 export function ResultRow({
   rank,
@@ -30,6 +30,7 @@ export function ResultRow({
   onReact,
   onRemoveReaction,
   rounds,
+  boosted,
 }: {
   rank?: number;
   name: string;
@@ -42,7 +43,8 @@ export function ResultRow({
   currentUserId?: string | null;
   onReact?: (emoji: string) => void;
   onRemoveReaction?: () => void;
-  rounds?: Array<{ label: string; isLoss: boolean }>;
+  rounds?: Array<{ label: string; isLoss: boolean; isBoosted?: boolean }>;
+  boosted?: boolean;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
@@ -130,14 +132,28 @@ export function ResultRow({
         {rounds && rounds.length > 0 && (
           <Flex gap={2} flexWrap="wrap">
             {rounds.map((r, i) => (
-              <Text
-                key={i}
-                fontSize="sm"
-                fontWeight="600"
-                color={r.isLoss ? "gray.400" : "green.600"}
-              >
-                {r.label}
-              </Text>
+              <HStack key={i} gap={0.5}>
+                <Text
+                  fontSize="sm"
+                  fontWeight="600"
+                  color={
+                    r.isLoss
+                      ? "gray.400"
+                      : r.isBoosted
+                        ? "purple.600"
+                        : "green.600"
+                  }
+                >
+                  {r.label}
+                </Text>
+                {r.isBoosted && (
+                  <Bolt
+                    size={14}
+                    weight="BoldDuotone"
+                    color="var(--chakra-colors-purple-500)"
+                  />
+                )}
+              </HStack>
             ))}
           </Flex>
         )}
@@ -250,15 +266,23 @@ export function ResultRow({
           {date}
         </Text>
       )}
-      <Text
-        fontSize="sm"
-        fontWeight="800"
-        color="gray.600"
-        fontFamily="mono"
-        flexShrink={0}
-      >
-        {value}
-      </Text>
+      <HStack gap={1} flexShrink={0}>
+        {boosted && (
+          <Bolt
+            size={16}
+            weight="BoldDuotone"
+            color="var(--chakra-colors-purple-500)"
+          />
+        )}
+        <Text
+          fontSize="sm"
+          fontWeight="800"
+          color={boosted ? "purple.600" : "gray.600"}
+          fontFamily="mono"
+        >
+          {value}
+        </Text>
+      </HStack>
     </Flex>
   );
 }

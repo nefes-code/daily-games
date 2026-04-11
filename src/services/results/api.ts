@@ -34,3 +34,14 @@ export async function submitResult(
   }
   return res.json();
 }
+
+export async function applyBoost(resultId: string): Promise<GameResult> {
+  const res = await fetch(`${BASE}/${resultId}/boost`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Falha ao aplicar impulso");
+  }
+  return res.json();
+}

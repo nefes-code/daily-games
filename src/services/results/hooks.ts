@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/services/keys";
 import type { ResultsFilter } from "@/services/types";
-import { getResults, submitResult } from "./api";
+import { getResults, submitResult, applyBoost } from "./api";
 import { getToday } from "@/utils/date";
 import { useSession } from "next-auth/react";
 
@@ -49,6 +49,35 @@ export function useSubmitResult() {
       if (session?.user?.id) {
         qc.invalidateQueries({
           queryKey: queryKeys.users.streak(session.user.id),
+        });
+      }
+    },
+  });
+}
+
+export function useApplyBoost() {
+  const qc = useQueryClient();
+  const { data: session } = useSession();
+  return useMutation({
+    mutationFn: applyBoost,
+    onSuccess: (result) => {
+      qc.invalidateQueries({ queryKey: queryKeys.results.all() });
+      if (result.gameId) {
+        qc.invalidateQueries({
+          queryKey: queryKeys.results.filtered({ gameId: result.gameId }),
+        });
+      }
+      if (result.game?.slug) {
+        qc.invalidateQueries({
+          queryKey: queryKeys.games.leaderboard(result.game.slug),
+        });
+      }
+      if (session?.user?.id) {
+        qc.invalidateQueries({
+          queryKey: queryKeys.users.streak(session.user.id),
+        });
+        qc.invalidateQueries({
+          queryKey: queryKeys.users.boost(session.user.id),
         });
       }
     },

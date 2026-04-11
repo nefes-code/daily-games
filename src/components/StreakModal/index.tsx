@@ -16,8 +16,11 @@ import {
   StarCircle,
   CalendarMinimalistic,
   CloseCircle,
+  Bolt,
+  Shield,
 } from "@solar-icons/react";
-import type { UserStreak } from "@/services/types";
+import type { UserStreak, BoostInfo, RescueInfo } from "@/services/types";
+import { useAttemptRescue } from "@/services/users/hooks";
 
 function StatBox({
   icon,
@@ -67,15 +70,22 @@ export function StreakModal({
   open,
   onClose,
   streak,
+  boostInfo,
+  rescueInfo,
+  userId,
 }: {
   open: boolean;
   onClose: () => void;
   streak: UserStreak | undefined;
+  boostInfo?: BoostInfo;
+  rescueInfo?: RescueInfo;
+  userId?: string;
 }) {
   const current = streak?.currentStreak ?? 0;
   const longest = streak?.longestStreak ?? 0;
   const total = streak?.totalDays ?? 0;
   const playedToday = streak?.playedToday ?? false;
+  const attemptRescue = useAttemptRescue();
 
   return (
     <Dialog.Root
@@ -169,6 +179,103 @@ export function StreakModal({
                     <Text color="blackAlpha.500">Você já jogou hoje ✓</Text>
                   )}
                 </Center>
+
+                {/* Boost info */}
+                {boostInfo && current > 0 && (
+                  <Box
+                    w="100%"
+                    p={4}
+                    borderRadius="xl"
+                    bg="purple.50"
+                    borderWidth={1}
+                    borderColor="purple.200"
+                  >
+                    <HStack gap={2} mb={1}>
+                      <Bolt
+                        size={20}
+                        weight="BoldDuotone"
+                        color="var(--chakra-colors-purple-500)"
+                      />
+                      <Text fontSize="sm" fontWeight="700" color="purple.700">
+                        Impulso disponível
+                      </Text>
+                    </HStack>
+                    <Text fontSize="sm" color="purple.600">
+                      Sua streak de {current} dias permite um impulso de{" "}
+                      <Text as="span" fontWeight="800">
+                        {(
+                          (1 - (boostInfo.potentialMultiplier ?? 1)) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </Text>{" "}
+                      nos seus resultados. Use na página do jogo!
+                    </Text>
+                  </Box>
+                )}
+
+                {/* Rescue section */}
+                {rescueInfo?.canRescue && userId && (
+                  <Box
+                    w="100%"
+                    p={4}
+                    borderRadius="xl"
+                    bg="red.50"
+                    borderWidth={1}
+                    borderColor="red.200"
+                  >
+                    <HStack gap={2} mb={2}>
+                      <Shield
+                        size={20}
+                        weight="BoldDuotone"
+                        color="var(--chakra-colors-red-500)"
+                      />
+                      <Text fontSize="sm" fontWeight="700" color="red.700">
+                        Resgate de Streak
+                      </Text>
+                    </HStack>
+                    <Text fontSize="sm" color="red.600" mb={3}>
+                      Sua streak de{" "}
+                      <Text as="span" fontWeight="800">
+                        {rescueInfo.previousStreak} dias
+                      </Text>{" "}
+                      foi perdida! Fique em 1º lugar em qualquer jogo
+                      competitivo hoje para resgatá-la.
+                    </Text>
+                    <Button
+                      size="sm"
+                      colorPalette="red"
+                      w="100%"
+                      loading={attemptRescue.isPending}
+                      onClick={() => attemptRescue.mutate(userId)}
+                    >
+                      <Shield size={16} weight="BoldDuotone" />
+                      Verificar Resgate
+                    </Button>
+                    {attemptRescue.isSuccess && (
+                      <Text
+                        fontSize="xs"
+                        color="green.600"
+                        fontWeight="600"
+                        mt={2}
+                        textAlign="center"
+                      >
+                        Streak resgatada com sucesso! 🎉
+                      </Text>
+                    )}
+                    {attemptRescue.isError && (
+                      <Text
+                        fontSize="xs"
+                        color="red.600"
+                        fontWeight="600"
+                        mt={2}
+                        textAlign="center"
+                      >
+                        Você ainda não está em 1º em nenhum jogo hoje.
+                      </Text>
+                    )}
+                  </Box>
+                )}
               </VStack>
             </Dialog.Body>
           </Dialog.Content>

@@ -22,6 +22,43 @@ export function formatValue(
   return `${value}${suffix}`;
 }
 
+/** Formata valor que pode ter decimais (boostedValue) */
+export function formatBoostedValue(
+  value: number,
+  game: {
+    resultType: string;
+    resultSuffix: string | null;
+    resultMax: number | null;
+    resultRounds?: number;
+  },
+) {
+  if (game.resultType === "TIME") {
+    // Tempo com boost: mostra com 1 decimal se não for inteiro
+    const mins = Math.floor(value / 60);
+    const secs = value % 60;
+    const secsStr = Number.isInteger(secs)
+      ? String(secs).padStart(2, "0")
+      : secs.toFixed(1).padStart(4, "0");
+    return mins > 0
+      ? `${mins}:${secsStr}`
+      : `${secs % 1 === 0 ? secs : secs.toFixed(1)}s`;
+  }
+  const suffix = game.resultSuffix ? ` ${game.resultSuffix}` : "";
+  const isMultiRound = (game.resultRounds ?? 1) > 1;
+  const display = Number.isInteger(value) ? String(value) : value.toFixed(1);
+  if (game.resultMax && !isMultiRound)
+    return `${display}/${game.resultMax}${suffix}`;
+  return `${display}${suffix}`;
+}
+
+/** Retorna o valor efetivo de um resultado (boostedValue se existir, senão value) */
+export function effectiveValue(result: {
+  value: number;
+  boostedValue: number | null;
+}): number {
+  return result.boostedValue ?? result.value;
+}
+
 export function formatRoundValue(
   value: number,
   status: "WIN" | "LOSS" | null,

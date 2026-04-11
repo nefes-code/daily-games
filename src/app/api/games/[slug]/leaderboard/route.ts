@@ -33,7 +33,7 @@ export async function GET(_req: Request, { params }: Params) {
         })
         .from(
           sql`(
-            SELECT ${gameResults.playedAt}, sum(${gameResults.value})::int as daily_total
+            SELECT ${gameResults.playedAt}, sum(COALESCE(${gameResults.boostedValue}, ${gameResults.value}))::numeric as daily_total
             FROM ${gameResults}
             WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
             GROUP BY ${gameResults.playedAt}
@@ -61,6 +61,29 @@ export async function GET(_req: Request, { params }: Params) {
     // Para multi-round: soma rodadas por dia por jogador, depois agrega os totais diários
     const orderDir = game.lowerIsBetter ? asc : desc;
 
+    // Constante bayesiana: representa quantos dias de "prior" um jogador recebe antes de
+    // ter sua média totalmente confiada. Com C=7, após 7 dias jogados o score já é 50%
+    // média real e 50% média global — evita que quem jogou pouco domine o ranking.
+    const BAYESIAN_C = 7;
+
+    // Passo 1: calcular a média global de todos os jogadores no período (o "prior")
+    const [globalRow] = await db
+      .select({
+        mean: sql<number>`coalesce(avg(daily_total), 0)`,
+      })
+      .from(
+        sql`(
+          SELECT sum(COALESCE(${gameResults.boostedValue}, ${gameResults.value}))::numeric as daily_total
+          FROM ${gameResults}
+          WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+          GROUP BY ${gameResults.userId}, ${gameResults.playedAt}
+        ) all_daily`,
+      );
+
+    const globalMean = Number(globalRow?.mean ?? 0);
+
+    // Passo 2: buscar stats por jogador e ordenar pela média bayesiana
+    // Fórmula: (C × média_global + soma_scores) / (C + dias_jogados)
     const rows = await db
       .select({
         playerId: sql<string>`player_id`,
@@ -72,7 +95,7 @@ export async function GET(_req: Request, { params }: Params) {
       })
       .from(
         sql`(
-          SELECT ${gameResults.userId} as player_id, ${gameResults.playedAt}, sum(${gameResults.value})::int as daily_total
+          SELECT ${gameResults.userId} as player_id, ${gameResults.playedAt}, sum(COALESCE(${gameResults.boostedValue}, ${gameResults.value}))::numeric as daily_total
           FROM ${gameResults}
           WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
           GROUP BY ${gameResults.userId}, ${gameResults.playedAt}
@@ -80,7 +103,9 @@ export async function GET(_req: Request, { params }: Params) {
       )
       .groupBy(sql`player_id`)
       .orderBy(
-        orderDir(sql`avg(daily_total)`),
+        orderDir(
+          sql`(${BAYESIAN_C} * ${globalMean}::numeric + sum(daily_total)) / (${BAYESIAN_C} + count(*))`,
+        ),
         desc(sql`count(*)`),
         orderDir(
           game.lowerIsBetter ? sql`min(daily_total)` : sql`max(daily_total)`,

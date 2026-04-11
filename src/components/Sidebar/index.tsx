@@ -19,7 +19,11 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useGames } from "@/services/games/hooks";
 import { useTodayPlayedGameIds } from "@/services/results/hooks";
-import { useUserStreak } from "@/services/users/hooks";
+import {
+  useUserStreak,
+  useUserBoostInfo,
+  useUserRescueInfo,
+} from "@/services/users/hooks";
 import { StreakModal } from "@/components/StreakModal";
 import {
   ReleaseNotesModal,
@@ -47,6 +51,8 @@ export function Sidebar({
   const [releaseOpen, setReleaseOpen] = useState(() => getHasNewRelease());
   const playedGameIds = useTodayPlayedGameIds(session?.user?.id);
   const { data: streak } = useUserStreak(session?.user?.id);
+  const { data: boostInfo } = useUserBoostInfo(session?.user?.id);
+  const { data: rescueInfo } = useUserRescueInfo(session?.user?.id);
 
   const competitive = games?.filter((g) => g.type === "COMPETITIVE") ?? [];
   const cooperative = games?.filter((g) => g.type === "COOPERATIVE") ?? [];
@@ -261,6 +267,9 @@ export function Sidebar({
         open={streakOpen}
         onClose={() => setStreakOpen(false)}
         streak={streak}
+        boostInfo={boostInfo}
+        rescueInfo={rescueInfo}
+        userId={session?.user?.id}
       />
       <ReleaseNotesModal
         open={releaseOpen}

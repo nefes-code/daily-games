@@ -7,6 +7,9 @@ import {
   getUsers,
   updateUser,
   getUserStreak,
+  getUserBoostInfo,
+  getUserRescueInfo,
+  attemptStreakRescue,
 } from "./api";
 
 export function useUsers() {
@@ -51,5 +54,33 @@ export function useUserStreak(id: string | undefined) {
     queryKey: queryKeys.users.streak(id ?? ""),
     queryFn: () => getUserStreak(id!),
     enabled: !!id,
+  });
+}
+
+export function useUserBoostInfo(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.users.boost(id ?? ""),
+    queryFn: () => getUserBoostInfo(id!),
+    enabled: !!id,
+  });
+}
+
+export function useUserRescueInfo(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.users.rescue(id ?? ""),
+    queryFn: () => getUserRescueInfo(id!),
+    enabled: !!id,
+  });
+}
+
+export function useAttemptRescue() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => attemptStreakRescue(userId),
+    onSuccess: (_, userId) => {
+      qc.invalidateQueries({ queryKey: queryKeys.users.streak(userId) });
+      qc.invalidateQueries({ queryKey: queryKeys.users.rescue(userId) });
+      qc.invalidateQueries({ queryKey: queryKeys.users.boost(userId) });
+    },
   });
 }

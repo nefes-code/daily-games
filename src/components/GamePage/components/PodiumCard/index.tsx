@@ -1,14 +1,15 @@
 "use client";
 
-import { Avatar, Box, Center, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Box, Center, Circle, Flex, Text } from "@chakra-ui/react";
 import { getInitials, avatarColor } from "../../helpers";
 import { Tooltip } from "@/components/Tooltip";
 import { NefesLogo } from "@/components/NefesLogo";
+import { Crown, CrownMinimalistic, Star } from "@solar-icons/react";
 
 const RANK_GRADIENT = [
   "linear-gradient(135deg, #ffffff 0%, #fef9c3 20%, #fde68a 45%, #d9f99d 100%)",
   "linear-gradient(135deg, #ffffff 0%, #f1f5f9 0%, #e2e8f0 45%, #ddd6fe 100%)",
-  "linear-gradient(135deg, #ffffff 0%, #ffedd5 0%, #fed7aa 45%, #fef9c3 100%)",
+  "linear-gradient(135deg, #ffffff 0%, #ffedd5 0%, #ffd3aa 45%, #fef9c3 100%)",
 ];
 const RANK_SUBTITLE = ["#ffd427", "#9881ff", "#ffad4f"];
 const RANK_LABEL = ["1º", "2º", "3º"];
@@ -239,12 +240,16 @@ export function PodiumCard({
 
   return (
     <Box
-      bg="white"
+      bgGradient={rank === 1 ? "to-br" : undefined}
+      gradientFrom={"white"}
+      gradientTo={"yellow.50"}
+      bg={rank === 1 ? undefined : "white"}
       rounded="2xl"
       overflow="visible"
       borderWidth={4}
       shadow="xl"
       borderColor="white"
+      mb={rank === 1 ? 3 : 0}
       position="relative"
     >
       {/* Gradient header — rounded top to compensate overflow:visible */}
@@ -280,6 +285,21 @@ export function PodiumCard({
           transform="translateY(50%)"
           zIndex={1}
         >
+          {rank === 1 && (
+            <Circle
+              color={"white"}
+              bgColor={"brand.solid"}
+              size={8}
+              zIndex={2}
+              borderWidth={2}
+              borderColor={"white"}
+              position={"absolute"}
+              top={-2}
+              right={-2}
+            >
+              <CrownMinimalistic size={20} weight="BoldDuotone" />
+            </Circle>
+          )}
           <Avatar.Root
             bg={avatarColor(name ?? "")}
             shape="full"

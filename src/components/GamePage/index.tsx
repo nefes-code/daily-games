@@ -15,6 +15,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useGame, useLeaderboard } from "@/services/games/hooks";
 import { useResults } from "@/services/results/hooks";
+import { useUserBoostInfo } from "@/services/users/hooks";
 import { PlayGameModal } from "@/components/PlayGameModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { useAddReaction, useRemoveReaction } from "@/services/reactions/hooks";
@@ -22,7 +23,13 @@ import { GameIconDisplay } from "@/utils/game-icon";
 import { formatDateBR } from "@/utils/date";
 import { PodiumCard } from "./components/PodiumCard";
 import { ResultRow } from "./components/ResultRow";
-import { formatValue, formatRoundValue, getToday } from "./helpers";
+import {
+  formatValue,
+  formatBoostedValue,
+  formatRoundValue,
+  effectiveValue,
+  getToday,
+} from "./helpers";
 import type { GameResult } from "@/services/types";
 import Link from "next/link";
 
@@ -37,6 +44,7 @@ export function GamePage({ slug }: { slug: string }) {
   const [playOpen, setPlayOpen] = useState(false);
   const addReaction = useAddReaction(game?.id ?? "");
   const removeReaction = useRemoveReaction(game?.id ?? "");
+  const { data: boostInfo } = useUserBoostInfo(session?.user?.id);
 
   function handlePlay() {
     if (!session?.user) {
@@ -90,6 +98,7 @@ export function GamePage({ slug }: { slug: string }) {
     userId: string | null;
     registeredById: string;
     totalValue: number;
+    hasBoostedRound: boolean;
     rounds: GameResult[];
     reactions: GameResult["reactions"];
     mainResultId: string;
@@ -107,7 +116,8 @@ export function GamePage({ slug }: { slug: string }) {
         image: r.user?.image,
         userId: r.userId,
         registeredById: r.registeredById,
-        totalValue: r.value,
+        totalValue: effectiveValue(r),
+        hasBoostedRound: r.boostedValue !== null,
         rounds: [r],
         reactions: r.reactions,
         mainResultId: r.id,
@@ -129,7 +139,8 @@ export function GamePage({ slug }: { slug: string }) {
     return Array.from(groups.entries()).map(([key, roundResults]) => {
       const first = roundResults[0];
       const sorted = [...roundResults].sort((a, b) => a.round - b.round);
-      const totalValue = sorted.reduce((sum, r) => sum + r.value, 0);
+      const totalValue = sorted.reduce((sum, r) => sum + effectiveValue(r), 0);
+      const hasBoostedRound = sorted.some((r) => r.boostedValue !== null);
       // Collect all reactions from all rounds
       const allReactions = sorted.flatMap((r) => r.reactions);
       return {
@@ -142,6 +153,7 @@ export function GamePage({ slug }: { slug: string }) {
         userId: first.userId,
         registeredById: first.registeredById,
         totalValue,
+        hasBoostedRound,
         rounds: sorted,
         reactions: allReactions,
         mainResultId: first.id,
@@ -162,6 +174,10 @@ export function GamePage({ slug }: { slug: string }) {
         g.userId === session.user!.id || g.registeredById === session.user!.id,
     );
 
+  // Rounds do usuário atual para o boost modal
+  const myTodayGroup = session?.user
+    ? sortedToday.find((g) => g.userId === session.user!.id)
+    : null;
   const todayLabel = formatDateBR(todayStr);
 
   return (
@@ -205,18 +221,20 @@ export function GamePage({ slug }: { slug: string }) {
           </Box>
         </HStack>
 
-        <Button
-          bg="brand.solid"
-          color="white"
-          rounded="lg"
-          fontWeight="700"
-          px={5}
-          size="sm"
-          _hover={{ bg: "brand.emphasized" }}
-          onClick={handlePlay}
-        >
-          Jogar hoje
-        </Button>
+        <HStack gap={2}>
+          <Button
+            bg="brand.solid"
+            color="white"
+            rounded="lg"
+            fontWeight="700"
+            px={5}
+            size="sm"
+            _hover={{ bg: "brand.emphasized" }}
+            onClick={handlePlay}
+          >
+            Jogar hoje
+          </Button>
+        </HStack>
       </Flex>
 
       {/* ── Pódio all-time ── */}
@@ -288,7 +306,7 @@ export function GamePage({ slug }: { slug: string }) {
         Ranking com base nos últimos 30 dias
       </Text>
 
-      <Separator my={8} width={"100%"} borderColor={"gray.100"} />
+      <Separator my={4} width={"100%"} borderColor={"gray.100"} />
 
       {/* ── Resultados de hoje ── */}
       <Box>
@@ -318,12 +336,17 @@ export function GamePage({ slug }: { slug: string }) {
               <ResultRow
                 rank={i + 1}
                 name={g.playerName}
-                value={formatValue(g.totalValue, game)}
+                value={
+                  g.hasBoostedRound
+                    ? formatBoostedValue(g.totalValue, game)
+                    : formatValue(g.totalValue, game)
+                }
                 isLast={i === sortedToday.length - 1}
                 isFirst={i === 0}
                 reactions={g.reactions}
                 image={g.image}
                 currentUserId={session?.user?.id ?? null}
+                boosted={g.hasBoostedRound}
                 onReact={(emoji) =>
                   addReaction.mutate({ resultId: g.mainResultId, emoji })
                 }
@@ -331,8 +354,9 @@ export function GamePage({ slug }: { slug: string }) {
                 rounds={
                   isMultiRound && g.rounds.length > 1
                     ? g.rounds.map((r) => ({
-                        label: `R${r.round}: ${formatRoundValue(r.value, r.status, game)}`,
+                        label: `R${r.round}: ${r.boostedValue !== null ? formatBoostedValue(r.boostedValue, game) : formatRoundValue(r.value, r.status, game)}`,
                         isLoss: r.status === "LOSS",
+                        isBoosted: r.boostedValue !== null,
                       }))
                     : undefined
                 }
@@ -387,6 +411,7 @@ export function GamePage({ slug }: { slug: string }) {
           game={game}
           open={playOpen}
           onClose={() => setPlayOpen(false)}
+          boostInfo={boostInfo}
         />
       )}
     </VStack>

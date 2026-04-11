@@ -61,6 +61,8 @@ export type GameResult = {
   registeredById: string;
   round: number;
   status: ResultStatus | null;
+  boostedValue: number | null;
+  boostMultiplier: number | null;
   user: User | null;
   registeredBy: User;
   game: Game;
@@ -82,6 +84,19 @@ export type UserStreak = {
   longestStreak: number;
   totalDays: number;
   playedToday: boolean;
+};
+
+export type BoostInfo = {
+  canBoost: boolean;
+  currentStreak: number;
+  potentialMultiplier: number;
+  lastBoostUsedAt: string | null;
+};
+
+export type RescueInfo = {
+  canRescue: boolean;
+  missedDate: string | null;
+  previousStreak: number;
 };
 
 // ─── Inputs (payload das mutations) ──────────────────────────────────────────

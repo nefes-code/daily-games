@@ -6,6 +6,7 @@ import {
   timestamp,
   integer,
   date,
+  real,
   index,
   unique,
 } from "drizzle-orm/pg-core";
@@ -38,6 +39,7 @@ export const users = pgTable("User", {
   image: text("image"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  streakResetAt: timestamp("streakResetAt", { mode: "date" }),
 });
 
 export const accounts = pgTable(
@@ -114,6 +116,8 @@ export const gameResults = pgTable(
       .references(() => users.id),
     round: integer("round").notNull().default(1),
     status: resultStatusEnum("status"),
+    boostedValue: real("boostedValue"),
+    boostMultiplier: real("boostMultiplier"),
   },
   (t) => [
     unique().on(t.userId, t.gameId, t.playedAt, t.round),
@@ -137,6 +141,37 @@ export const resultReactions = pgTable(
   (t) => [unique().on(t.resultId, t.userId)],
 );
 
+// ─── Boost & Rescue tables ───────────────────────────────────────────────────
+
+export const userBoosts = pgTable("UserBoost", {
+  id: text("id").primaryKey().$defaultFn(createId),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  resultId: text("resultId")
+    .notNull()
+    .references(() => gameResults.id, { onDelete: "cascade" }),
+  streakAtTime: integer("streakAtTime").notNull(),
+  multiplier: real("multiplier").notNull(),
+  usedAt: timestamp("usedAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const streakRescues = pgTable(
+  "StreakRescue",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    missedDate: date("missedDate", { mode: "date" }).notNull(),
+    gameId: text("gameId")
+      .notNull()
+      .references(() => games.id),
+    rescuedAt: timestamp("rescuedAt", { mode: "date" }).notNull().defaultNow(),
+  },
+  (t) => [unique().on(t.userId, t.missedDate)],
+);
+
 // ─── Relations ───────────────────────────────────────────────────────────────
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -145,6 +180,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   results: many(gameResults, { relationName: "userResults" }),
   registeredResults: many(gameResults, { relationName: "registeredBy" }),
   reactions: many(resultReactions),
+  boosts: many(userBoosts),
+  rescues: many(streakRescues),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -172,6 +209,25 @@ export const gameResultsRelations = relations(gameResults, ({ one, many }) => ({
     relationName: "registeredBy",
   }),
   reactions: many(resultReactions),
+}));
+
+export const userBoostsRelations = relations(userBoosts, ({ one }) => ({
+  user: one(users, { fields: [userBoosts.userId], references: [users.id] }),
+  result: one(gameResults, {
+    fields: [userBoosts.resultId],
+    references: [gameResults.id],
+  }),
+}));
+
+export const streakRescuesRelations = relations(streakRescues, ({ one }) => ({
+  user: one(users, {
+    fields: [streakRescues.userId],
+    references: [users.id],
+  }),
+  game: one(games, {
+    fields: [streakRescues.gameId],
+    references: [games.id],
+  }),
 }));
 
 export const resultReactionsRelations = relations(

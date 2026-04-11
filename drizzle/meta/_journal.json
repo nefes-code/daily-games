@@ -43,6 +43,20 @@
       "when": 1774899660852,
       "tag": "0005_skinny_sasquatch",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775772440764,
+      "tag": "0006_tidy_shinko_yamashiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775772483582,
+      "tag": "0007_wet_randall",
+      "breakpoints": true
     }
   ]
 }

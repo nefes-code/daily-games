@@ -3,6 +3,8 @@ import type {
   CreateUserInput,
   UpdateUserInput,
   UserStreak,
+  BoostInfo,
+  RescueInfo,
 } from "@/services/types";
 
 const BASE = "/api/users";
@@ -45,5 +47,35 @@ export async function updateUser(
 export async function getUserStreak(id: string): Promise<UserStreak> {
   const res = await fetch(`${BASE}/${id}/streak`);
   if (!res.ok) throw new Error("Falha ao buscar streak");
+  return res.json();
+}
+
+export async function getUserBoostInfo(id: string): Promise<BoostInfo> {
+  const res = await fetch(`${BASE}/${id}/boost`);
+  if (!res.ok) throw new Error("Falha ao buscar info do impulso");
+  return res.json();
+}
+
+export async function getUserRescueInfo(id: string): Promise<RescueInfo> {
+  const res = await fetch(`${BASE}/${id}/streak/rescue`);
+  if (!res.ok) throw new Error("Falha ao verificar resgate");
+  return res.json();
+}
+
+export async function attemptStreakRescue(
+  id: string,
+): Promise<{
+  success: boolean;
+  missedDate: string;
+  previousStreak: number;
+  rescuedByGame: string;
+}> {
+  const res = await fetch(`${BASE}/${id}/streak/rescue`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error ?? "Falha ao resgatar streak");
+  }
   return res.json();
 }
