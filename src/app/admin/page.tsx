@@ -53,6 +53,7 @@ type AdminGame = {
 type AdminResult = {
   id: string;
   value: number;
+  status: "WIN" | "LOSS" | null;
   playedAt: string;
   game: { name: string } | null;
   user: { name: string | null; email: string } | null;
@@ -451,6 +452,87 @@ function EditGameModal({
 
 // ─── Admin Panel ──────────────────────────────────────────────────────────────
 
+// ─── EditResultModal ──────────────────────────────────────────────────────────
+
+function EditResultModal({
+  result,
+  onClose,
+  onSaved,
+}: {
+  result: AdminResult;
+  onClose: () => void;
+  onSaved: (id: string, value: number, status: "WIN" | "LOSS") => void;
+}) {
+  const [value, setValue] = useState(String(result.value));
+  const [status, setStatus] = useState<"WIN" | "LOSS">(result.status ?? "WIN");
+  const [saving, setSaving] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const num = parseInt(value);
+    if (isNaN(num)) return;
+    setSaving(true);
+    try {
+      onSaved(result.id, num, status);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Dialog.Root open onOpenChange={(e) => { if (!e.open) onClose(); }} placement="center">
+      <Portal>
+        <Dialog.Backdrop bg="blackAlpha.600" />
+        <Dialog.Positioner>
+          <Dialog.Content bg="white" rounded="2xl" mx={4} maxW="360px" w="full" boxShadow="xl" p={6}>
+            <Dialog.CloseTrigger color="gray.300" cursor="pointer" position="absolute" top={4} right={4}>
+              <CloseCircle size={24} weight="BoldDuotone" />
+            </Dialog.CloseTrigger>
+            <Text fontWeight="800" fontSize="lg" mb={4}>Editar resultado</Text>
+            <Text fontSize="sm" color="gray.500" mb={4}>
+              {result.game?.name ?? "—"} ·{" "}
+              {result.user?.name ?? result.user?.email ?? "Anônimo"}
+            </Text>
+            <form onSubmit={handleSubmit} style={{ display: "contents" }}>
+              <VStack gap={4} align="stretch">
+                <Field.Root>
+                  <Field.Label fontWeight="600" fontSize="sm">Valor</Field.Label>
+                  <Input
+                    type="number"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    borderRadius="lg"
+                  />
+                </Field.Root>
+                <Field.Root>
+                  <Field.Label fontWeight="600" fontSize="sm">Status</Field.Label>
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value as "WIN" | "LOSS")}
+                      borderRadius="lg"
+                    >
+                      <option value="WIN">WIN</option>
+                      <option value="LOSS">LOSS</option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
+                </Field.Root>
+                <HStack justify="end" gap={2} pt={2}>
+                  <Button variant="ghost" onClick={onClose}>Cancelar</Button>
+                  <Button type="submit" colorPalette="yellow" loading={saving}>Salvar</Button>
+                </HStack>
+              </VStack>
+            </form>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
+  );
+}
+
+// ─── AdminPanel ───────────────────────────────────────────────────────────────
+
 function AdminPanel() {
   const [games, setGames] = useState<AdminGame[]>([]);
   const [results, setResults] = useState<AdminResult[]>([]);
@@ -459,6 +541,7 @@ function AdminPanel() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingGame, setEditingGame] = useState<AdminGame | null>(null);
+  const [editingResult, setEditingResult] = useState<AdminResult | null>(null);
   const [movingId, setMovingId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -515,6 +598,18 @@ function AdminPanel() {
       }
     } finally {
       setDeletingId(null);
+    }
+  }
+
+  async function saveResult(id: string, value: number, status: "WIN" | "LOSS") {
+    const res = await fetch(`/api/admin/results/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value, status }),
+    });
+    if (res.ok) {
+      const updated: AdminResult = await res.json();
+      setResults((prev) => prev.map((r) => (r.id === id ? { ...r, value: updated.value, status: updated.status } : r)));
     }
   }
 
@@ -743,21 +838,42 @@ function AdminPanel() {
                     {" · "}valor: {result.value}
                   </Text>
                 </VStack>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  colorPalette="red"
-                  loading={deletingId === result.id}
-                  onClick={() => deleteResult(result.id)}
-                >
-                  Excluir
-                </Button>
+                <HStack gap={2} flexShrink={0}>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    onClick={() => setEditingResult(result)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    colorPalette="red"
+                    loading={deletingId === result.id}
+                    onClick={() => deleteResult(result.id)}
+                  >
+                    Excluir
+                  </Button>
+                </HStack>
               </Flex>
             ))}
           </VStack>
         )}
       </Box>
       <CreateGameModal open={createOpen} onClose={() => setCreateOpen(false)} />
+
+      {/* ─── Modal de edição de resultado ────────────────────────── */}
+      {editingResult && (
+        <EditResultModal
+          result={editingResult}
+          onClose={() => setEditingResult(null)}
+          onSaved={(id, value, status) => {
+            saveResult(id, value, status);
+            setEditingResult(null);
+          }}
+        />
+      )}
 
       {/* ─── Modal de edição ─────────────────────────────────────── */}
       {editingGame && (
