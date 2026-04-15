@@ -73,8 +73,10 @@ export type LeaderboardEntry = {
   name: string;
   image: string | null;
   daysPlayed: number;
+  totalDays: number;
   bestResult: number;
   average: number;
+  streak: number;
 };
 
 export type UserStreak = {

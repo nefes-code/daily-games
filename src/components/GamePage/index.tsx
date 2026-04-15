@@ -6,12 +6,16 @@ import {
   Button,
   Flex,
   HStack,
+  IconButton,
   Separator,
   SimpleGrid,
   Spinner,
+  Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
+import { InfoCircle } from "@solar-icons/react";
+import { LeaderboardInfoModal } from "@/components/LeaderboardInfoModal";
 import { useSession } from "next-auth/react";
 import { useGame, useLeaderboard } from "@/services/games/hooks";
 import { useResults } from "@/services/results/hooks";
@@ -35,6 +39,7 @@ export function GamePage({ slug }: { slug: string }) {
   const { data: session } = useSession();
   const { openLogin } = useLoginModal();
   const [playOpen, setPlayOpen] = useState(false);
+  const [lbInfoOpen, setLbInfoOpen] = useState(false);
   const addReaction = useAddReaction(game?.id ?? "");
   const removeReaction = useRemoveReaction(game?.id ?? "");
 
@@ -230,6 +235,7 @@ export function GamePage({ slug }: { slug: string }) {
               name={top3[0].name}
               value={formatValue(top3[0].average, game)}
               daysPlayed={top3[0].daysPlayed}
+              totalDays={top3[0].totalDays}
               bestResult={formatValue(top3[0].bestResult, game)}
             />
           ) : (
@@ -275,7 +281,9 @@ export function GamePage({ slug }: { slug: string }) {
                     value={formatValue(p.average, game)}
                     image={p.image}
                     daysPlayed={p.daysPlayed}
+                    totalDays={p.totalDays}
                     bestResult={formatValue(p.bestResult, game)}
+                    streak={p.streak}
                   />
                 )}
               </Box>
@@ -284,9 +292,18 @@ export function GamePage({ slug }: { slug: string }) {
         </SimpleGrid>
       )}
 
-      <Text fontSize="xs" color="gray.400" textAlign="center" mt={-4}>
-        Ranking com base nos últimos 30 dias
-      </Text>
+      <Stack justify="center" align="center" gap={1} mt={-4}>
+        <Text fontSize="xs" color="gray.400">
+          Ranking dos últimos 30 dias
+        </Text>
+        <Button
+          size={"2xs"}
+          variant={"ghost"}
+          onClick={() => setLbInfoOpen(true)}
+        >
+          Como funciona o ranking?
+        </Button>
+      </Stack>
 
       <Separator my={8} width={"100%"} borderColor={"gray.100"} />
 
@@ -387,6 +404,14 @@ export function GamePage({ slug }: { slug: string }) {
           game={game}
           open={playOpen}
           onClose={() => setPlayOpen(false)}
+        />
+      )}
+
+      {game && (
+        <LeaderboardInfoModal
+          game={game}
+          open={lbInfoOpen}
+          onClose={() => setLbInfoOpen(false)}
         />
       )}
     </VStack>

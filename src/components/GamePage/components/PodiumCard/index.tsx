@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Box, Center, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Box, Center, Flex, HStack, Text } from "@chakra-ui/react";
 import { getInitials, avatarColor } from "../../helpers";
 import { Tooltip } from "@/components/Tooltip";
 import { NefesLogo } from "@/components/NefesLogo";
@@ -19,7 +19,9 @@ export function PodiumCard({
   value,
   image,
   daysPlayed,
+  totalDays,
   bestResult,
+  streak,
   empty,
   wide,
 }: {
@@ -28,6 +30,8 @@ export function PodiumCard({
   value?: string;
   image?: string | null;
   daysPlayed?: number;
+  totalDays?: number;
+  streak?: number;
   bestResult?: string;
   empty?: boolean;
   wide?: boolean;
@@ -121,7 +125,9 @@ export function PodiumCard({
                     fontFamily="mono"
                     letterSpacing="-0.04em"
                   >
-                    {daysPlayed}
+                    {totalDays != null && totalDays > 0
+                      ? `${daysPlayed}/${totalDays}`
+                      : daysPlayed}
                   </Text>
                   <Text fontSize="xs" color="gray.400" fontWeight="500">
                     Dias jogados
@@ -326,13 +332,44 @@ export function PodiumCard({
         >
           {name}
         </Text>
-        <Text
-          fontSize={{ base: "xs", md: "md" }}
-          fontWeight="600"
-          style={{ color: subtitleColor }}
-        >
-          {label} lugar
-        </Text>
+        <HStack gap={2} mt={0.5}>
+          <Text
+            fontSize={{ base: "xs", md: "md" }}
+            fontWeight="600"
+            style={{ color: subtitleColor }}
+          >
+            {label} lugar
+          </Text>
+          {streak != null && streak > 0 && (
+            <Tooltip
+              openDelay={0}
+              closeDelay={200}
+              showArrow
+              content={`${streak} dias seguidos`}
+            >
+              <HStack
+                gap={0.5}
+                px={1.5}
+                py={0.5}
+                bg="orange.50"
+                rounded="full"
+                cursor="default"
+              >
+                <Text fontSize="xs" lineHeight="1">
+                  🔥
+                </Text>
+                <Text
+                  fontSize="xs"
+                  fontWeight="800"
+                  color="orange.500"
+                  lineHeight="1"
+                >
+                  {streak}
+                </Text>
+              </HStack>
+            </Tooltip>
+          )}
+        </HStack>
 
         {(daysPlayed != null || bestResult != null) && (
           <Flex gap={4} mt={2}>
@@ -342,7 +379,9 @@ export function PodiumCard({
                   Dias
                 </Text>
                 <Text fontSize="sm" fontWeight="700" color="gray.700">
-                  {daysPlayed}
+                  {totalDays != null && totalDays > 0
+                    ? `${daysPlayed}/${totalDays}`
+                    : daysPlayed}
                 </Text>
               </Box>
             )}

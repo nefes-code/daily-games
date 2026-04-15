@@ -18,9 +18,12 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSubmitResult } from "@/services/results/hooks";
+import { useUserStreak } from "@/services/users/hooks";
 import { GameIconDisplay } from "@/utils/game-icon";
 import { getToday } from "@/utils/date";
+import { queryKeys } from "@/services/keys";
 import { CloseCircle, Ghost, SquareBottomUp } from "@solar-icons/react";
 import type { Game, ResultStatus } from "@/services/types";
 
@@ -51,11 +54,17 @@ export function PlayGameModal({
   const [rounds, setRounds] = useState<RoundState[]>(() =>
     Array.from({ length: numRounds }, emptyRound),
   );
+  const [submitted, setSubmitted] = useState(false);
   const { data: session } = useSession();
   const submitResult = useSubmitResult();
+  const qc = useQueryClient();
+  const { data: streakData, refetch: refetchStreak } = useUserStreak(
+    session?.user?.id ?? undefined,
+  );
 
   function reset() {
     setRounds(Array.from({ length: numRounds }, emptyRound));
+    setSubmitted(false);
   }
 
   function handleClose() {
@@ -96,9 +105,7 @@ export function PlayGameModal({
 
     const roundsPayload = rounds.map((r, i) => {
       const won = r.won;
-      const lossValue = game.lowerIsBetter
-        ? (game.resultMax ?? 0) + 1
-        : -1;
+      const lossValue = game.lowerIsBetter ? (game.resultMax ?? 0) + 1 : -1;
       const value = won ? getNumericValue(r) : lossValue;
       return {
         round: i + 1,
@@ -116,7 +123,18 @@ export function PlayGameModal({
       rounds: roundsPayload,
     });
 
-    handleClose();
+    if (session?.user?.id) {
+      qc.invalidateQueries({
+        queryKey: queryKeys.users.streak(session.user.id),
+      });
+      await refetchStreak();
+    }
+    qc.invalidateQueries({ queryKey: queryKeys.results.all() });
+    qc.invalidateQueries({
+      queryKey: queryKeys.games.leaderboard(game.slug ?? game.id),
+    });
+
+    setSubmitted(true);
   }
 
   return (
@@ -142,303 +160,381 @@ export function PlayGameModal({
             <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit();
-              }}
-              style={{ display: "contents" }}
-            >
+
+            {/* ── Estado de sucesso ── */}
+            {submitted ? (
               <Dialog.Body px={8} py={10}>
-                <VStack gap={6}>
-                  {/* Icon header */}
-                  <Square
-                    borderRadius="lg"
-                    bgColor="brand.solid"
-                    size="64px"
-                    color="white"
-                  >
-                    <GameIconDisplay icon={game.icon} size={32} />
-                  </Square>
-
-                  {/* Title */}
-                  <Stack gap={1} textAlign="center">
+                <VStack gap={6} textAlign="center">
+                  <Text fontSize="5xl" lineHeight="1">
+                    🎉
+                  </Text>
+                  <Stack gap={1}>
                     <Text fontSize="2xl" fontWeight="800" color="gray.800">
-                      {game.name}
+                      Resultado registrado!
                     </Text>
-                    <Text
-                      mt={1}
-                      fontSize="sm"
-                      color="gray.500"
-                      fontWeight="600"
-                    >
-                      {game.type === "COOPERATIVE"
-                        ? "Cooperativo"
-                        : "Competitivo"}
-                      {" · "}
-                      {isTime ? "Tempo" : "Pontuação"}
-                      {isMultiRound ? ` · ${numRounds} rodadas` : ""}
+                    <Text fontSize="sm" color="gray.500" fontWeight="500">
+                      Sua participação conta no ranking de consistência.
                     </Text>
-                    <Text fontSize="sm" color="gray.500" fontWeight="600">
-                      {game.lowerIsBetter
-                        ? "Menor resultado é melhor"
-                        : "Maior resultado é melhor"}
-                    </Text>
-                    <Flex w="full" justifyContent="center">
-                      <Link
-                        href={game.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        fontSize="sm"
-                        color="gray.400"
-                        fontWeight="600"
-                        display="flex"
-                        alignItems="center"
-                        gap={1}
-                        _hover={{ color: "brand.solid" }}
-                      >
-                        Ir para o jogo
-                        <SquareBottomUp weight="Bold" size={14} />
-                      </Link>
-                    </Flex>
                   </Stack>
-                  <Separator width={"100%"} borderColor={"gray.100"} />
-                  {/* Rounds */}
-                  {rounds.map((round, idx) => (
-                    <Box key={idx} w="full">
-                      <HStack w={"100%"} justifyContent={"space-between"}>
-                        {isMultiRound && (
-                          <Text
-                            fontSize="sm"
-                            fontWeight="800"
-                            color="gray.400"
-                            textTransform="uppercase"
-                            letterSpacing="0.05em"
-                            mb={2}
-                          >
-                            Rodada {idx + 1}
-                          </Text>
-                        )}
 
-                        {/* WIN/LOSS toggle */}
-                        {game.resultMax != null && (
-                          <Flex gap={2} mb={2}>
-                            <Button
-                              size="xs"
-                              height={7}
-                              variant={round.won ? "solid" : "outline"}
-                              bg={round.won ? "brand.solid" : undefined}
-                              color={round.won ? "white" : "gray.500"}
-                              borderColor={
-                                round.won ? "brand.solid" : "gray.200"
-                              }
-                              rounded="lg"
-                              fontWeight="700"
-                              _hover={{
-                                bg: round.won ? "brand.solid" : "gray.50",
-                              }}
-                              onClick={() => updateRound(idx, { won: true })}
-                            >
-                              Acertei
-                            </Button>
-                            <Button
-                              size="xs"
-                              variant={!round.won ? "solid" : "outline"}
-                              bg={!round.won ? "red.500" : undefined}
-                              color={!round.won ? "white" : "gray.500"}
-                              borderColor={!round.won ? "red.500" : "gray.200"}
-                              rounded="lg"
-                              fontWeight="700"
-                              height={7}
-                              _hover={{
-                                bg: !round.won ? "red.600" : "gray.50",
-                              }}
-                              onClick={() => updateRound(idx, { won: false })}
-                            >
-                              Não acertei
-                            </Button>
-                          </Flex>
-                        )}
-                      </HStack>
-                      {/* Input (hidden when LOSS) */}
-                      {round.won && (
-                        <>
-                          {isTime ? (
-                            <Flex gap={3} w="full" align="flex-end">
-                              <Field.Root flex={1}>
-                                <Field.Label fontWeight="700" fontSize="sm">
-                                  Minutos
-                                </Field.Label>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  placeholder="0"
-                                  value={round.minutes}
-                                  onChange={(e) =>
-                                    updateRound(idx, {
-                                      minutes: e.target.value,
-                                    })
-                                  }
-                                  rounded="xl"
-                                  borderWidth={2}
-                                  borderColor="gray.200"
-                                  textAlign="center"
-                                  fontSize={isMultiRound ? "xl" : "2xl"}
-                                  fontWeight="800"
-                                  py={isMultiRound ? 4 : 6}
-                                  _focus={{
-                                    borderColor: "brand.solid",
-                                    boxShadow: "none",
-                                  }}
-                                />
-                              </Field.Root>
-                              <Text
-                                fontSize={isMultiRound ? "xl" : "2xl"}
-                                fontWeight="800"
-                                color="gray.300"
-                                pb={2}
-                              >
-                                :
-                              </Text>
-                              <Field.Root flex={1}>
-                                <Field.Label fontWeight="700" fontSize="sm">
-                                  Segundos
-                                </Field.Label>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  max={59}
-                                  placeholder="00"
-                                  value={round.seconds}
-                                  onChange={(e) =>
-                                    updateRound(idx, {
-                                      seconds: e.target.value,
-                                    })
-                                  }
-                                  rounded="xl"
-                                  borderWidth={2}
-                                  borderColor="gray.200"
-                                  textAlign="center"
-                                  fontSize={isMultiRound ? "xl" : "2xl"}
-                                  fontWeight="800"
-                                  py={isMultiRound ? 4 : 6}
-                                  _focus={{
-                                    borderColor: "brand.solid",
-                                    boxShadow: "none",
-                                  }}
-                                />
-                              </Field.Root>
-                            </Flex>
-                          ) : (
-                            <Field.Root w="full">
-                              <Field.Label fontWeight="700" fontSize="sm">
-                                {game.resultSuffix
-                                  ? `Resultado (${game.resultSuffix})`
-                                  : "Resultado"}
-                              </Field.Label>
-                              <Input
-                                type="number"
-                                min={0}
-                                max={game.resultMax ?? undefined}
-                                placeholder={
-                                  game.resultMax ? `0 – ${game.resultMax}` : "0"
-                                }
-                                value={round.value}
-                                onChange={(e) =>
-                                  updateRound(idx, { value: e.target.value })
-                                }
-                                rounded="xl"
-                                borderWidth={2}
-                                borderColor="gray.200"
-                                textAlign="center"
-                                fontSize={isMultiRound ? "xl" : "3xl"}
-                                fontWeight="800"
-                                py={isMultiRound ? 4 : 7}
-                                _focus={{
-                                  borderColor: "brand.solid",
-                                  boxShadow: "none",
-                                }}
-                              />
-                              {game.resultMax && !isMultiRound && (
-                                <Text
-                                  fontSize="xs"
-                                  color="gray.400"
-                                  mt={1}
-                                  textAlign="center"
-                                >
-                                  Máximo: {game.resultMax}
-                                </Text>
-                              )}
-                            </Field.Root>
-                          )}
-                        </>
-                      )}
-
-                      {!round.won && (
-                        <Box
-                          bg="red.50"
-                          rounded="xl"
-                          px={4}
-                          mt={1}
-                          py={2}
-                          borderColor="red.500/10"
+                  {streakData && streakData.currentStreak > 0 && (
+                    <Flex
+                      align="center"
+                      justify="center"
+                      gap={2}
+                      px={5}
+                      py={3}
+                      bg="orange.50"
+                      rounded="xl"
+                      borderWidth={1}
+                      borderColor="orange.100"
+                    >
+                      <Text fontSize="2xl" lineHeight="1">
+                        🔥
+                      </Text>
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="900"
+                          color="orange.500"
+                          lineHeight="1"
                         >
-                          <Text
-                            fontSize="sm"
-                            fontWeight="700"
-                            color="red.500"
-                            textAlign="center"
-                          >
-                            ✕ Não acertou
-                            {game.resultMax
-                              ? ` — contará como ${game.resultMax + 1}`
-                              : ""}
-                          </Text>
-                        </Box>
-                      )}
-                    </Box>
-                  ))}
-                </VStack>
-              </Dialog.Body>
-              <Dialog.Footer pb={6}>
-                <Stack w="full">
+                          {streakData.currentStreak}{" "}
+                          {streakData.currentStreak === 1 ? "dia" : "dias"}{" "}
+                          seguidos
+                        </Text>
+                        <Text
+                          fontSize="xs"
+                          color="orange.400"
+                          fontWeight="500"
+                          mt={0.5}
+                        >
+                          {streakData.currentStreak >= 7
+                            ? "Sequência incrível! Continue assim 💪"
+                            : streakData.currentStreak >= 3
+                              ? "Boa sequência! Não pare agora."
+                              : "Cada dia conta. Volte amanhã!"}
+                        </Text>
+                      </Box>
+                    </Flex>
+                  )}
+
                   <Button
-                    type="submit"
-                    w="full"
-                    size="lg"
                     bg="brand.solid"
                     color="white"
-                    rounded="xl"
-                    fontWeight="800"
-                    fontSize="md"
-                    py={6}
+                    rounded="lg"
+                    fontWeight="700"
+                    w="full"
                     _hover={{ bg: "brand.emphasized" }}
-                    boxShadow="0 4px 0 0 var(--chakra-colors-brand-emphasized)"
-                    _active={{
-                      boxShadow: "none",
-                      transform: "translateY(4px)",
-                    }}
-                    transition="all 0.1s"
-                    disabled={!isValid()}
-                    loading={submitResult.isPending}
+                    onClick={handleClose}
                   >
-                    Salvar resultado
+                    Fechar
                   </Button>
-
-                  {submitResult.isError && (
-                    <Text
-                      fontSize="sm"
-                      color="red.500"
-                      fontWeight="600"
-                      textAlign="center"
+                </VStack>
+              </Dialog.Body>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
+                style={{ display: "contents" }}
+              >
+                <Dialog.Body px={8} py={10}>
+                  <VStack gap={6}>
+                    {/* Icon header */}
+                    <Square
+                      borderRadius="lg"
+                      bgColor="brand.solid"
+                      size="64px"
+                      color="white"
                     >
-                      {(submitResult.error as Error).message ??
-                        "Erro ao salvar resultado"}
-                    </Text>
-                  )}
-                </Stack>
-              </Dialog.Footer>
-            </form>
+                      <GameIconDisplay icon={game.icon} size={32} />
+                    </Square>
+
+                    {/* Title */}
+                    <Stack gap={1} textAlign="center">
+                      <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                        {game.name}
+                      </Text>
+                      <Text
+                        mt={1}
+                        fontSize="sm"
+                        color="gray.500"
+                        fontWeight="600"
+                      >
+                        {game.type === "COOPERATIVE"
+                          ? "Cooperativo"
+                          : "Competitivo"}
+                        {" · "}
+                        {isTime ? "Tempo" : "Pontuação"}
+                        {isMultiRound ? ` · ${numRounds} rodadas` : ""}
+                      </Text>
+                      <Text fontSize="sm" color="gray.500" fontWeight="600">
+                        {game.lowerIsBetter
+                          ? "Menor resultado é melhor"
+                          : "Maior resultado é melhor"}
+                      </Text>
+                      <Flex w="full" justifyContent="center">
+                        <Link
+                          href={game.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          fontSize="sm"
+                          color="gray.400"
+                          fontWeight="600"
+                          display="flex"
+                          alignItems="center"
+                          gap={1}
+                          _hover={{ color: "brand.solid" }}
+                        >
+                          Ir para o jogo
+                          <SquareBottomUp weight="Bold" size={14} />
+                        </Link>
+                      </Flex>
+                    </Stack>
+                    <Separator width={"100%"} borderColor={"gray.100"} />
+                    {/* Rounds */}
+                    {rounds.map((round, idx) => (
+                      <Box key={idx} w="full">
+                        <HStack w={"100%"} justifyContent={"space-between"}>
+                          {isMultiRound && (
+                            <Text
+                              fontSize="sm"
+                              fontWeight="800"
+                              color="gray.400"
+                              textTransform="uppercase"
+                              letterSpacing="0.05em"
+                              mb={2}
+                            >
+                              Rodada {idx + 1}
+                            </Text>
+                          )}
+
+                          {/* WIN/LOSS toggle */}
+                          {game.resultMax != null && (
+                            <Flex gap={2} mb={2}>
+                              <Button
+                                size="xs"
+                                height={7}
+                                variant={round.won ? "solid" : "outline"}
+                                bg={round.won ? "brand.solid" : undefined}
+                                color={round.won ? "white" : "gray.500"}
+                                borderColor={
+                                  round.won ? "brand.solid" : "gray.200"
+                                }
+                                rounded="lg"
+                                fontWeight="700"
+                                _hover={{
+                                  bg: round.won ? "brand.solid" : "gray.50",
+                                }}
+                                onClick={() => updateRound(idx, { won: true })}
+                              >
+                                Acertei
+                              </Button>
+                              <Button
+                                size="xs"
+                                variant={!round.won ? "solid" : "outline"}
+                                bg={!round.won ? "red.500" : undefined}
+                                color={!round.won ? "white" : "gray.500"}
+                                borderColor={
+                                  !round.won ? "red.500" : "gray.200"
+                                }
+                                rounded="lg"
+                                fontWeight="700"
+                                height={7}
+                                _hover={{
+                                  bg: !round.won ? "red.600" : "gray.50",
+                                }}
+                                onClick={() => updateRound(idx, { won: false })}
+                              >
+                                Não acertei
+                              </Button>
+                            </Flex>
+                          )}
+                        </HStack>
+                        {/* Input (hidden when LOSS) */}
+                        {round.won && (
+                          <>
+                            {isTime ? (
+                              <Flex gap={3} w="full" align="flex-end">
+                                <Field.Root flex={1}>
+                                  <Field.Label fontWeight="700" fontSize="sm">
+                                    Minutos
+                                  </Field.Label>
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    placeholder="0"
+                                    value={round.minutes}
+                                    onChange={(e) =>
+                                      updateRound(idx, {
+                                        minutes: e.target.value,
+                                      })
+                                    }
+                                    rounded="xl"
+                                    borderWidth={2}
+                                    borderColor="gray.200"
+                                    textAlign="center"
+                                    fontSize={isMultiRound ? "xl" : "2xl"}
+                                    fontWeight="800"
+                                    py={isMultiRound ? 4 : 6}
+                                    _focus={{
+                                      borderColor: "brand.solid",
+                                      boxShadow: "none",
+                                    }}
+                                  />
+                                </Field.Root>
+                                <Text
+                                  fontSize={isMultiRound ? "xl" : "2xl"}
+                                  fontWeight="800"
+                                  color="gray.300"
+                                  pb={2}
+                                >
+                                  :
+                                </Text>
+                                <Field.Root flex={1}>
+                                  <Field.Label fontWeight="700" fontSize="sm">
+                                    Segundos
+                                  </Field.Label>
+                                  <Input
+                                    type="number"
+                                    min={0}
+                                    max={59}
+                                    placeholder="00"
+                                    value={round.seconds}
+                                    onChange={(e) =>
+                                      updateRound(idx, {
+                                        seconds: e.target.value,
+                                      })
+                                    }
+                                    rounded="xl"
+                                    borderWidth={2}
+                                    borderColor="gray.200"
+                                    textAlign="center"
+                                    fontSize={isMultiRound ? "xl" : "2xl"}
+                                    fontWeight="800"
+                                    py={isMultiRound ? 4 : 6}
+                                    _focus={{
+                                      borderColor: "brand.solid",
+                                      boxShadow: "none",
+                                    }}
+                                  />
+                                </Field.Root>
+                              </Flex>
+                            ) : (
+                              <Field.Root w="full">
+                                <Field.Label fontWeight="700" fontSize="sm">
+                                  {game.resultSuffix
+                                    ? `Resultado (${game.resultSuffix})`
+                                    : "Resultado"}
+                                </Field.Label>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  max={game.resultMax ?? undefined}
+                                  placeholder={
+                                    game.resultMax
+                                      ? `0 – ${game.resultMax}`
+                                      : "0"
+                                  }
+                                  value={round.value}
+                                  onChange={(e) =>
+                                    updateRound(idx, { value: e.target.value })
+                                  }
+                                  rounded="xl"
+                                  borderWidth={2}
+                                  borderColor="gray.200"
+                                  textAlign="center"
+                                  fontSize={isMultiRound ? "xl" : "3xl"}
+                                  fontWeight="800"
+                                  py={isMultiRound ? 4 : 7}
+                                  _focus={{
+                                    borderColor: "brand.solid",
+                                    boxShadow: "none",
+                                  }}
+                                />
+                                {game.resultMax && !isMultiRound && (
+                                  <Text
+                                    fontSize="xs"
+                                    color="gray.400"
+                                    mt={1}
+                                    textAlign="center"
+                                  >
+                                    Máximo: {game.resultMax}
+                                  </Text>
+                                )}
+                              </Field.Root>
+                            )}
+                          </>
+                        )}
+
+                        {!round.won && (
+                          <Box
+                            bg="red.50"
+                            rounded="xl"
+                            px={4}
+                            mt={1}
+                            py={2}
+                            borderColor="red.500/10"
+                          >
+                            <Text
+                              fontSize="sm"
+                              fontWeight="700"
+                              color="red.500"
+                              textAlign="center"
+                            >
+                              ✕ Não acertou
+                              {game.resultMax
+                                ? ` — contará como ${game.resultMax + 1}`
+                                : ""}
+                            </Text>
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
+                  </VStack>
+                </Dialog.Body>
+                <Dialog.Footer pb={6}>
+                  <Stack w="full">
+                    <Button
+                      type="submit"
+                      w="full"
+                      size="lg"
+                      bg="brand.solid"
+                      color="white"
+                      rounded="xl"
+                      fontWeight="800"
+                      fontSize="md"
+                      py={6}
+                      _hover={{ bg: "brand.emphasized" }}
+                      boxShadow="0 4px 0 0 var(--chakra-colors-brand-emphasized)"
+                      _active={{
+                        boxShadow: "none",
+                        transform: "translateY(4px)",
+                      }}
+                      transition="all 0.1s"
+                      disabled={!isValid()}
+                      loading={submitResult.isPending}
+                    >
+                      Salvar resultado
+                    </Button>
+
+                    {submitResult.isError && (
+                      <Text
+                        fontSize="sm"
+                        color="red.500"
+                        fontWeight="600"
+                        textAlign="center"
+                      >
+                        {(submitResult.error as Error).message ??
+                          "Erro ao salvar resultado"}
+                      </Text>
+                    )}
+                  </Stack>
+                </Dialog.Footer>
+              </form>
+            )}
 
             <Dialog.CloseTrigger
               position="absolute"
