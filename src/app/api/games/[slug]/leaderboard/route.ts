@@ -96,17 +96,16 @@ export async function GET(_req: Request, { params }: Params) {
     const orderDir = game.lowerIsBetter ? asc : desc;
     const GRACE_DAYS = 3;
 
-    // Valor de penalidade: pior resultado possível para o tipo de jogo
+    // Valor de penalidade: pior resultado possível para o tipo de jogo.
+    // Se resultMax estiver configurado: (resultMax + 1) × rodadas — sempre pior que qualquer dia real.
+    // Fallback: pior daily_total registrado no período.
     let penaltyValue: number;
     if (game.lowerIsBetter) {
       if (game.resultMax !== null) {
-        penaltyValue = game.resultMax;
+        penaltyValue = (game.resultMax + 1) * (game.resultRounds ?? 1);
       } else {
-        // Sem resultMax definido: usa o pior daily_total (soma das rodadas) do período
         const [maxRow] = await db
-          .select({
-            maxVal: sql<number>`max(daily_total)::int`,
-          })
+          .select({ maxVal: sql<number>`max(daily_total)::int` })
           .from(
             sql`(
               SELECT sum(${gameResults.value})::int as daily_total
