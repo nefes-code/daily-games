@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { Providers } from "./providers";
 import { DashboardShell } from "@/components/DashboardShell";
-
+import { Analytics } from "@vercel/analytics/next";
 const roboto = Roboto({
   subsets: ["latin"],
   weight: ["400", "500", "700", "900"],
@@ -24,6 +24,7 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning className={roboto.variable}>
       <body>
         <Providers>
+          <Analytics />
           <DashboardShell>{children}</DashboardShell>
         </Providers>
       </body>
