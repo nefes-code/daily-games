@@ -96,7 +96,10 @@ export function PlayGameModal({
 
     const roundsPayload = rounds.map((r, i) => {
       const won = r.won;
-      const value = won ? getNumericValue(r) : (game.resultMax ?? 0) + 1;
+      const lossValue = game.lowerIsBetter
+        ? (game.resultMax ?? 0) + 1
+        : -1;
+      const value = won ? getNumericValue(r) : lossValue;
       return {
         round: i + 1,
         value,
