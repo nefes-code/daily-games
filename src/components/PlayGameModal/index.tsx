@@ -24,7 +24,13 @@ import { useUserStreak } from "@/services/users/hooks";
 import { GameIconDisplay } from "@/utils/game-icon";
 import { getToday } from "@/utils/date";
 import { queryKeys } from "@/services/keys";
-import { CloseCircle, Ghost, SquareBottomUp } from "@solar-icons/react";
+import {
+  CloseCircle,
+  Fire,
+  Ghost,
+  SquareBottomUp,
+  StarRainbow,
+} from "@solar-icons/react";
 import type { Game, ResultStatus } from "@/services/types";
 
 type RoundState = {
@@ -165,10 +171,10 @@ export function PlayGameModal({
             {submitted ? (
               <Dialog.Body px={8} py={10}>
                 <VStack gap={6} textAlign="center">
-                  <Text fontSize="5xl" lineHeight="1">
-                    🎉
-                  </Text>
-                  <Stack gap={1}>
+                  <Box color="brand.solid">
+                    <StarRainbow weight="BoldDuotone" size={60} />
+                  </Box>
+                  <Stack gap={2}>
                     <Text fontSize="2xl" fontWeight="800" color="gray.800">
                       Resultado registrado!
                     </Text>
@@ -178,21 +184,19 @@ export function PlayGameModal({
                   </Stack>
 
                   {streakData && streakData.currentStreak > 0 && (
-                    <Flex
+                    <Stack
                       align="center"
                       justify="center"
-                      gap={2}
+                      gap={0}
                       px={5}
+                      w="full"
                       py={3}
-                      bg="orange.50"
                       rounded="xl"
                       borderWidth={1}
                       borderColor="orange.100"
                     >
-                      <Text fontSize="2xl" lineHeight="1">
-                        🔥
-                      </Text>
-                      <Box>
+                      <HStack gap={1} color={"orange"}>
+                        <Fire weight="BoldDuotone" size={24} />
                         <Text
                           fontSize="xl"
                           fontWeight="900"
@@ -203,32 +207,40 @@ export function PlayGameModal({
                           {streakData.currentStreak === 1 ? "dia" : "dias"}{" "}
                           seguidos
                         </Text>
-                        <Text
-                          fontSize="xs"
-                          color="orange.400"
-                          fontWeight="500"
-                          mt={0.5}
-                        >
-                          {streakData.currentStreak >= 7
-                            ? "Sequência incrível! Continue assim 💪"
-                            : streakData.currentStreak >= 3
-                              ? "Boa sequência! Não pare agora."
-                              : "Cada dia conta. Volte amanhã!"}
-                        </Text>
-                      </Box>
-                    </Flex>
+                      </HStack>
+                      <Text
+                        fontSize="xs"
+                        color="orange.400"
+                        fontWeight="500"
+                        mt={0.5}
+                      >
+                        {streakData.currentStreak >= 7
+                          ? "Sequência incrível! Continue assim 💪"
+                          : streakData.currentStreak >= 3
+                            ? "Boa sequência! Não pare agora."
+                            : "Cada dia conta. Volte amanhã!"}
+                      </Text>
+                    </Stack>
                   )}
-
                   <Button
+                    w="full"
+                    size="lg"
                     bg="brand.solid"
                     color="white"
-                    rounded="lg"
-                    fontWeight="700"
-                    w="full"
+                    rounded="xl"
+                    fontWeight="800"
+                    fontSize="md"
+                    py={6}
                     _hover={{ bg: "brand.emphasized" }}
+                    boxShadow="0 4px 0 0 var(--chakra-colors-brand-emphasized)"
+                    _active={{
+                      boxShadow: "none",
+                      transform: "translateY(4px)",
+                    }}
+                    transition="all 0.1s"
                     onClick={handleClose}
                   >
-                    Fechar
+                    Entendido!
                   </Button>
                 </VStack>
               </Dialog.Body>

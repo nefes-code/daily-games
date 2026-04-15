@@ -4,6 +4,7 @@ import { Avatar, Box, Center, Flex, HStack, Text } from "@chakra-ui/react";
 import { getInitials, avatarColor } from "../../helpers";
 import { Tooltip } from "@/components/Tooltip";
 import { NefesLogo } from "@/components/NefesLogo";
+import { FireMinimalistic, FireSquare } from "@solar-icons/react";
 
 const RANK_GRADIENT = [
   "linear-gradient(135deg, #ffffff 0%, #fef9c3 20%, #fde68a 45%, #d9f99d 100%)",
@@ -348,22 +349,15 @@ export function PodiumCard({
               content={`${streak} dias seguidos`}
             >
               <HStack
-                gap={0.5}
+                gap={1}
                 px={1.5}
                 py={0.5}
-                bg="orange.50"
                 rounded="full"
                 cursor="default"
+                color={"orange.500"}
               >
-                <Text fontSize="xs" lineHeight="1">
-                  🔥
-                </Text>
-                <Text
-                  fontSize="xs"
-                  fontWeight="800"
-                  color="orange.500"
-                  lineHeight="1"
-                >
+                <FireSquare size={14} weight="BoldDuotone" />
+                <Text fontSize="xs" fontWeight="800" lineHeight="1">
                   {streak}
                 </Text>
               </HStack>

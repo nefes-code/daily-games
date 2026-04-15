@@ -12,6 +12,33 @@ export type ReleaseNote = {
 
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "0.5.0",
+    date: "Abril 2026",
+    title: "Ranking de consistência",
+    features: [
+      {
+        emoji: "⚖️",
+        text: "Dias sem registro agora contam como pior resultado na média do ranking",
+      },
+      {
+        emoji: "📅",
+        text: "Contador X/Y dias no pódio mostra quantos dias você participou no período",
+      },
+      {
+        emoji: "🔥",
+        text: "Badge de streak por jogo exibido diretamente no card do pódio",
+      },
+      {
+        emoji: "🎉",
+        text: "Tela de sucesso ao registrar resultado mostra sua sequência atual",
+      },
+      {
+        emoji: "ℹ️",
+        text: "Botão de informação no ranking explica as regras de forma simples",
+      },
+    ],
+  },
+  {
     version: "0.4.0",
     date: "Abril 2026",
     title: "Release notes",
