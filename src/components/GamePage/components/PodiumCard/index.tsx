@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, Box, Center, Flex, HStack, Text } from "@chakra-ui/react";
 import { getInitials, avatarColor } from "../../helpers";
 import { Tooltip } from "@/components/Tooltip";
 import { NefesLogo } from "@/components/NefesLogo";
-import { FireMinimalistic, FireSquare } from "@solar-icons/react";
+import { FireMinimalistic, FireSquare, Snowflake } from "@solar-icons/react";
+import { GraceDaysModal } from "@/components/GraceDaysModal";
 
 const RANK_GRADIENT = [
   "linear-gradient(135deg, #ffffff 0%, #fef9c3 20%, #fde68a 45%, #d9f99d 100%)",
@@ -23,6 +25,8 @@ export function PodiumCard({
   totalDays,
   bestResult,
   streak,
+  graceDays,
+  graceDaysUsed,
   empty,
   wide,
 }: {
@@ -33,6 +37,8 @@ export function PodiumCard({
   daysPlayed?: number;
   totalDays?: number;
   streak?: number;
+  graceDays?: number;
+  graceDaysUsed?: number;
   bestResult?: string;
   empty?: boolean;
   wide?: boolean;
@@ -40,6 +46,7 @@ export function PodiumCard({
   const gradient = RANK_GRADIENT[rank - 1];
   const subtitleColor = RANK_SUBTITLE[rank - 1];
   const label = RANK_LABEL[rank - 1];
+  const [graceDaysOpen, setGraceDaysOpen] = useState(false);
 
   if (wide) {
     return (
@@ -389,9 +396,40 @@ export function PodiumCard({
                 </Text>
               </Box>
             )}
+            {graceDays != null && graceDays > 0 && (
+              <Box>
+                <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  Proteção
+                </Text>
+                <HStack
+                  gap={0.5}
+                  cursor="pointer"
+                  color="blue.400"
+                  _hover={{ color: "blue.500" }}
+                  onClick={() => setGraceDaysOpen(true)}
+                >
+                  <Snowflake size={12} weight="BoldDuotone" />
+                  <Text fontSize="sm" fontWeight="700">
+                    {graceDays - (graceDaysUsed ?? 0)}{" "}
+                    {graceDays - (graceDaysUsed ?? 0) === 1
+                      ? "restante"
+                      : "restantes"}
+                  </Text>
+                </HStack>
+              </Box>
+            )}
           </Flex>
         )}
       </Box>
+
+      {graceDays != null && (
+        <GraceDaysModal
+          open={graceDaysOpen}
+          onClose={() => setGraceDaysOpen(false)}
+          graceDays={graceDays}
+          graceDaysUsed={graceDaysUsed ?? 0}
+        />
+      )}
     </Box>
   );
 }

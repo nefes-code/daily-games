@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/services/keys";
-import type { UpdateGameInput } from "@/services/types";
+import type { StatsFilters, UpdateGameInput } from "@/services/types";
 import {
   createGame,
   getGame,
   getGames,
   getLeaderboard,
+  getStats,
   updateGame,
 } from "./api";
 
@@ -28,6 +29,14 @@ export function useLeaderboard(slug: string) {
   return useQuery({
     queryKey: queryKeys.games.leaderboard(slug),
     queryFn: () => getLeaderboard(slug),
+    enabled: !!slug,
+  });
+}
+
+export function useStats(slug: string, filters: Partial<StatsFilters>) {
+  return useQuery({
+    queryKey: queryKeys.games.stats(slug, filters as Record<string, unknown>),
+    queryFn: () => getStats(slug, filters),
     enabled: !!slug,
   });
 }

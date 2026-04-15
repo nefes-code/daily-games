@@ -89,10 +89,12 @@ export async function GET(_req: Request, { params }: Params) {
       );
     }
 
-    // ── Competitivo com penalidade por ausência ──────────────────────────────
+    // ── Competitivo com penalidade por ausência + dias de graça ────────────
     // Para cada dia disponível no período, dias sem registro recebem a pior
-    // pontuação possível: isso incentiva o jogador a registrar mesmo resultados ruins.
+    // pontuação possível. Os 3 piores dias de penalidade são descartados
+    // ("dias de graça") para que esquecimentos pontuais não destruam a média.
     const orderDir = game.lowerIsBetter ? asc : desc;
+    const GRACE_DAYS = 3;
 
     // Valor de penalidade: pior resultado possível para o tipo de jogo
     let penaltyValue: number;
@@ -116,44 +118,69 @@ export async function GET(_req: Request, { params }: Params) {
       penaltyValue = 0;
     }
 
-    // CROSS JOIN: todos os jogadores × todos os dias disponíveis
-    // LEFT JOIN: traz os resultados reais; ausências ficam NULL → COALESCE com penalidade
+    // Ranqueia os dias por valor, piores primeiro (com penalty pra ausências).
+    // Descarta os N piores dias de penalidade — somente ausências são elegíveis.
+    // A média é calculada sobre os dias restantes.
+    const worstDir = game.lowerIsBetter ? "DESC" : "ASC";
+
     const rows = await db
       .select({
-        playerId: sql<string>`all_players.player_id`,
-        daysPlayed: sql<number>`count(actual.daily_total)::int`,
+        playerId: sql<string>`player_id`,
+        daysPlayed: sql<number>`sum(case when is_real = true then 1 else 0 end)::int`,
         bestResult: game.lowerIsBetter
-          ? sql<number>`min(actual.daily_total)::int`
-          : sql<number>`max(actual.daily_total)::int`,
-        average: sql<number>`round(avg(coalesce(actual.daily_total, ${penaltyValue})))::int`,
+          ? sql<number>`min(case when is_real = true then effective_value else null end)::int`
+          : sql<number>`max(case when is_real = true then effective_value else null end)::int`,
+        average: sql<number>`round(avg(effective_value))::int`,
+        graceDaysUsed: sql<number>`${totalDays} - count(*)::int`,
       })
       .from(
         sql`(
-          SELECT DISTINCT ${gameResults.userId} as player_id
-          FROM ${gameResults}
-          WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
-            AND ${gameResults.userId} IS NOT NULL
-        ) as all_players
-        CROSS JOIN (
-          SELECT DISTINCT ${gameResults.playedAt} as played_at
-          FROM ${gameResults}
-          WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
-        ) as all_days
-        LEFT JOIN (
-          SELECT ${gameResults.userId} as player_id, ${gameResults.playedAt} as played_at, sum(${gameResults.value})::int as daily_total
-          FROM ${gameResults}
-          WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
-          GROUP BY ${gameResults.userId}, ${gameResults.playedAt}
-        ) as actual ON actual.player_id = all_players.player_id AND actual.played_at = all_days.played_at`,
+          SELECT
+            player_id,
+            effective_value,
+            is_real,
+            row_number() OVER (
+              PARTITION BY player_id
+              ORDER BY
+                CASE WHEN is_real THEN 1 ELSE 0 END ASC,
+                effective_value ${sql.raw(worstDir)}
+            ) as worst_rank,
+            count(*) OVER (PARTITION BY player_id) as total_rows,
+            sum(CASE WHEN is_real THEN 0 ELSE 1 END) OVER (PARTITION BY player_id) as penalty_count
+          FROM (
+            SELECT
+              all_players.player_id,
+              coalesce(actual.daily_total, ${penaltyValue}) as effective_value,
+              actual.daily_total IS NOT NULL as is_real
+            FROM (
+              SELECT DISTINCT ${gameResults.userId} as player_id
+              FROM ${gameResults}
+              WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+                AND ${gameResults.userId} IS NOT NULL
+            ) as all_players
+            CROSS JOIN (
+              SELECT DISTINCT ${gameResults.playedAt} as played_at
+              FROM ${gameResults}
+              WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+            ) as all_days
+            LEFT JOIN (
+              SELECT ${gameResults.userId} as player_id, ${gameResults.playedAt} as played_at, sum(${gameResults.value})::int as daily_total
+              FROM ${gameResults}
+              WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+              GROUP BY ${gameResults.userId}, ${gameResults.playedAt}
+            ) as actual ON actual.player_id = all_players.player_id AND actual.played_at = all_days.played_at
+          ) as with_penalty
+        ) as ranked
+        WHERE is_real = true OR worst_rank > least(penalty_count, ${GRACE_DAYS})`,
       )
-      .groupBy(sql`all_players.player_id`)
+      .groupBy(sql`player_id`)
       .orderBy(
-        orderDir(sql`avg(coalesce(actual.daily_total, ${penaltyValue}))`),
-        desc(sql`count(actual.daily_total)`),
+        orderDir(sql`avg(effective_value)`),
+        desc(sql`sum(case when is_real = true then 1 else 0 end)`),
         orderDir(
           game.lowerIsBetter
-            ? sql`min(coalesce(actual.daily_total, ${penaltyValue}))`
-            : sql`max(coalesce(actual.daily_total, ${penaltyValue}))`,
+            ? sql`min(case when is_real = true then effective_value else null end)`
+            : sql`max(case when is_real = true then effective_value else null end)`,
         ),
       )
       .limit(3);
@@ -202,6 +229,8 @@ export async function GET(_req: Request, { params }: Params) {
     const leaderboard = rows.map((r, i) => {
       const user = userMap.get(r.playerId!);
       const dates = datesByUser.get(r.playerId!) ?? [];
+      const penaltyDays = totalDays - r.daysPlayed;
+      const graceDaysUsed = Math.min(penaltyDays, GRACE_DAYS);
       return {
         rank: i + 1,
         userId: r.playerId,
@@ -212,6 +241,8 @@ export async function GET(_req: Request, { params }: Params) {
         bestResult: r.bestResult,
         average: r.average,
         streak: computeCurrentStreak(dates),
+        graceDays: GRACE_DAYS,
+        graceDaysUsed,
       };
     });
 

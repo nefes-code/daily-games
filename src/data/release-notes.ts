@@ -12,6 +12,52 @@ export type ReleaseNote = {
 
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "0.6.0",
+    date: "Abril 2026",
+    title: "Explorador de estatísticas",
+    features: [
+      {
+        emoji: "📊",
+        text: "Novo explorador de estatísticas acessível na página de cada jogo",
+      },
+      {
+        emoji: "📅",
+        text: "Filtre por período: últimos 7, 10, 20, 30, 60 dias ou histórico completo",
+      },
+      {
+        emoji: "🎯",
+        text: "Escolha a métrica: média, melhor resultado, pior resultado ou total de dias jogados",
+      },
+      {
+        emoji: "👤",
+        text: "Filtre para ver apenas os dias em que um jogador específico participou",
+      },
+      {
+        emoji: "🔍",
+        text: "Consulte os resultados de um dia específico pelo seletor de data",
+      },
+    ],
+  },
+  {
+    version: "0.5.1",
+    date: "Abril 2026",
+    title: "Dias de graça",
+    features: [
+      {
+        emoji: "❄️",
+        text: "3 dias de graça por período — os piores dias de penalidade são descartados automaticamente",
+      },
+      {
+        emoji: "🛡️",
+        text: "Badge de proteção no pódio mostra quantos dias de graça você ainda tem",
+      },
+      {
+        emoji: "ℹ️",
+        text: "Regra dos dias de graça explicada no modal de informações do ranking",
+      },
+    ],
+  },
+  {
     version: "0.5.0",
     date: "Abril 2026",
     title: "Ranking de consistência",

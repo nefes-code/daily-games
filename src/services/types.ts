@@ -77,6 +77,39 @@ export type LeaderboardEntry = {
   bestResult: number;
   average: number;
   streak: number;
+  graceDays: number;
+  graceDaysUsed: number;
+};
+
+// ─── Stats Explorer ──────────────────────────────────────────────────────────
+
+export type StatsFilters = {
+  days: number | "all";
+  metric: "avg" | "best" | "worst" | "total_days";
+  playerId?: string | null;
+  date?: string | null;
+};
+
+export type StatsRow = {
+  rank: number;
+  userId: string;
+  name: string;
+  image: string | null;
+  value: number;
+  daysPlayed: number;
+};
+
+export type StatsPlayer = {
+  id: string;
+  name: string;
+  image?: string | null;
+};
+
+export type StatsResponse = {
+  filters: StatsFilters;
+  totalDays: number;
+  players: StatsPlayer[];
+  rows: StatsRow[];
 };
 
 export type UserStreak = {

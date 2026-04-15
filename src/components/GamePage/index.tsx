@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { InfoCircle } from "@solar-icons/react";
 import { LeaderboardInfoModal } from "@/components/LeaderboardInfoModal";
+import { StatsExplorerModal } from "@/components/StatsExplorerModal";
 import { useSession } from "next-auth/react";
 import { useGame, useLeaderboard } from "@/services/games/hooks";
 import { useResults } from "@/services/results/hooks";
@@ -40,6 +41,7 @@ export function GamePage({ slug }: { slug: string }) {
   const { openLogin } = useLoginModal();
   const [playOpen, setPlayOpen] = useState(false);
   const [lbInfoOpen, setLbInfoOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const addReaction = useAddReaction(game?.id ?? "");
   const removeReaction = useRemoveReaction(game?.id ?? "");
 
@@ -237,6 +239,8 @@ export function GamePage({ slug }: { slug: string }) {
               daysPlayed={top3[0].daysPlayed}
               totalDays={top3[0].totalDays}
               bestResult={formatValue(top3[0].bestResult, game)}
+              graceDays={top3[0].graceDays}
+              graceDaysUsed={top3[0].graceDaysUsed}
             />
           ) : (
             <PodiumCard rank={1} wide empty />
@@ -284,6 +288,8 @@ export function GamePage({ slug }: { slug: string }) {
                     totalDays={p.totalDays}
                     bestResult={formatValue(p.bestResult, game)}
                     streak={p.streak}
+                    graceDays={p.graceDays}
+                    graceDaysUsed={p.graceDaysUsed}
                   />
                 )}
               </Box>
@@ -296,13 +302,25 @@ export function GamePage({ slug }: { slug: string }) {
         <Text fontSize="xs" color="gray.400">
           Ranking dos últimos 30 dias
         </Text>
-        <Button
-          size={"2xs"}
-          variant={"ghost"}
-          onClick={() => setLbInfoOpen(true)}
-        >
-          Como funciona o ranking?
-        </Button>
+        <HStack gap={1}>
+          <Button
+            size={"2xs"}
+            variant={"ghost"}
+            onClick={() => setLbInfoOpen(true)}
+          >
+            Como funciona o ranking?
+          </Button>
+          <Text fontSize="2xs" color="gray.300">
+            ·
+          </Text>
+          <Button
+            size={"2xs"}
+            variant={"ghost"}
+            onClick={() => setStatsOpen(true)}
+          >
+            Explorar estatísticas
+          </Button>
+        </HStack>
       </Stack>
 
       <Separator my={8} width={"100%"} borderColor={"gray.100"} />
@@ -412,6 +430,13 @@ export function GamePage({ slug }: { slug: string }) {
           game={game}
           open={lbInfoOpen}
           onClose={() => setLbInfoOpen(false)}
+        />
+      )}
+      {game && (
+        <StatsExplorerModal
+          game={game}
+          open={statsOpen}
+          onClose={() => setStatsOpen(false)}
         />
       )}
     </VStack>

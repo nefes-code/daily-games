@@ -23,6 +23,7 @@ import {
   Fire,
   Cup,
   InfoSquare,
+  Snowflake,
 } from "@solar-icons/react";
 import type { Game } from "@/services/types";
 
@@ -31,28 +32,44 @@ function RuleCard({
   title,
   description,
   highlight,
+  variant,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
   highlight?: boolean;
+  variant?: "blue";
 }) {
   return (
     <Flex
       gap={3}
       p={4}
       borderRadius="xl"
-      bg={highlight ? "brand.solid/8" : "gray.50"}
-      borderWidth={highlight ? 1 : 0}
-      borderColor={highlight ? "brand.solid/20" : "transparent"}
+      bg={
+        variant === "blue" ? "blue.50" : highlight ? "brand.solid/8" : "gray.50"
+      }
+      borderWidth={highlight || variant === "blue" ? 1 : 0}
+      borderColor={
+        variant === "blue"
+          ? "blue.200"
+          : highlight
+            ? "brand.solid/20"
+            : "transparent"
+      }
       align="flex-start"
     >
       <Flex
         w={8}
         h={8}
         rounded="lg"
-        bg={highlight ? "brand.solid" : "gray.200"}
-        color={highlight ? "white" : "gray.500"}
+        bg={
+          variant === "blue"
+            ? "blue.400"
+            : highlight
+              ? "brand.solid"
+              : "gray.200"
+        }
+        color={highlight || variant === "blue" ? "white" : "gray.500"}
         align="center"
         justify="center"
         flexShrink={0}
@@ -162,6 +179,12 @@ export function LeaderboardInfoModal({
                     icon={<Fire size={16} weight="BoldDuotone" />}
                     title="Streak"
                     description="Quantos dias consecutivos você registrou resultado neste jogo. Manter a sequência é um sinal de dedicação."
+                  />
+                  <RuleCard
+                    icon={<Snowflake size={16} weight="BoldDuotone" />}
+                    title="Dias de graça"
+                    description="Todo jogador tem 3 dias de graça por período. Se você faltar, os 3 piores dias de penalidade são descartados da sua média automaticamente. É uma proteção contra imprevistos — mas acaba rápido se você faltar demais."
+                    variant="blue"
                   />
                   <RuleCard
                     icon={<Cup size={16} weight="BoldDuotone" />}
