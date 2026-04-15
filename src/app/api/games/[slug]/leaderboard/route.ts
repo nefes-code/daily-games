@@ -102,15 +102,18 @@ export async function GET(_req: Request, { params }: Params) {
       if (game.resultMax !== null) {
         penaltyValue = game.resultMax;
       } else {
-        // Sem resultMax definido: usa o pior resultado registrado no período
+        // Sem resultMax definido: usa o pior daily_total (soma das rodadas) do período
         const [maxRow] = await db
-          .select({ maxVal: sql<number>`max(${gameResults.value})::int` })
-          .from(gameResults)
-          .where(
-            and(
-              eq(gameResults.gameId, game.id),
-              gte(gameResults.playedAt, since),
-            ),
+          .select({
+            maxVal: sql<number>`max(daily_total)::int`,
+          })
+          .from(
+            sql`(
+              SELECT sum(${gameResults.value})::int as daily_total
+              FROM ${gameResults}
+              WHERE ${eq(gameResults.gameId, game.id)} AND ${gte(gameResults.playedAt, since)}
+              GROUP BY ${gameResults.userId}, ${gameResults.playedAt}
+            ) as dt`,
           );
         penaltyValue = maxRow?.maxVal ?? 0;
       }
