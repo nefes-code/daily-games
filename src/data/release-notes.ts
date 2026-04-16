@@ -12,6 +12,29 @@ export type ReleaseNote = {
 
 export const releaseNotes: ReleaseNote[] = [
   {
+    version: "0.6.1",
+    date: "Abril 2026",
+    title: "Modo escuro",
+    features: [
+      {
+        emoji: "🌙",
+        text: "Switch de tema claro/escuro disponível na barra lateral",
+      },
+      {
+        emoji: "🎨",
+        text: "Todos os componentes usam tokens semânticos de cor — nada hardcoded",
+      },
+      {
+        emoji: "💾",
+        text: "Preferência de tema salva automaticamente entre sessões",
+      },
+      {
+        emoji: "🖥️",
+        text: "Segue o tema do sistema operacional por padrão",
+      },
+    ],
+  },
+  {
     version: "0.6.0",
     date: "Abril 2026",
     title: "Explorador de estatísticas",
