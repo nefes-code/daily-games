@@ -27,6 +27,7 @@ import {
 } from "@/components/ReleaseNotesModal";
 import { useLoginModal } from "@/lib/login-modal-context";
 import { NefesLogo } from "@/components/NefesLogo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavItem } from "./components/NavItem";
 import { GameNavItem } from "./components/GameNavItem";
 
@@ -56,13 +57,13 @@ export function Sidebar({
       as="aside"
       w="240px"
       h="100vh"
-      bg="white"
+      bg="bg.panel"
       borderRightWidth={1}
-      borderColor="gray.100"
+      borderColor="border.muted"
       display="flex"
       flexDirection="column"
     >
-      <HStack p={5} borderBottomWidth={1}>
+      <HStack w="full" p={5} borderBottomWidth={1}>
         <Square
           borderRadius={"lg"}
           bgColor={"brand.solid"}
@@ -74,6 +75,9 @@ export function Sidebar({
         <Text fontSize={"lg"} fontWeight={"bold"}>
           Jogos diários
         </Text>
+        <Flex position={"absolute"} right={4} gap={2} align="center">
+          <ThemeToggle />
+        </Flex>
       </HStack>
       <Box flex={1} overflowY="auto" minH={0}>
         <VStack mt={4} px={2} gap={2} align="stretch" pb={2}>
@@ -94,7 +98,7 @@ export function Sidebar({
                 fontSize="xs"
                 fontWeight="800"
                 textTransform="uppercase"
-                color="gray.400"
+                color="fg.subtle"
                 mt={6}
                 px={2}
                 letterSpacing="wider"
@@ -123,7 +127,7 @@ export function Sidebar({
                 fontSize="xs"
                 fontWeight="800"
                 textTransform="uppercase"
-                color="gray.400"
+                color="fg.subtle"
                 mt={4}
                 letterSpacing="wider"
                 fontFamily={"mono"}
@@ -148,7 +152,7 @@ export function Sidebar({
           {games && games.length === 0 && (
             <Text
               fontSize="sm"
-              color="gray.400"
+              color="fg.subtle"
               px={4}
               mt={4}
               textAlign="center"
@@ -183,7 +187,7 @@ export function Sidebar({
         )}
 
         {/* User section */}
-        <Box mt={4} p={4} borderTopWidth={1} borderColor="gray.100">
+        <Box mt={4} p={4} borderTopWidth={1} borderColor="border.muted">
           {session?.user ? (
             <Flex align="center" gap={3}>
               {session.user.image ? (
@@ -210,7 +214,7 @@ export function Sidebar({
                 <Text fontSize="sm" fontWeight="700" truncate>
                   {session.user.name}
                 </Text>
-                <Text fontSize="xs" color="gray.400" truncate>
+                <Text fontSize="xs" color="fg.subtle" truncate>
                   {session.user.email}
                 </Text>
               </Box>
@@ -218,7 +222,7 @@ export function Sidebar({
               <IconButton
                 size="xs"
                 variant="ghost"
-                color="gray.400"
+                color="fg.subtle"
                 _hover={{ color: "red.500", bgColor: "red.500/10" }}
                 onClick={() => signOut()}
                 title="Sair"
@@ -227,24 +231,26 @@ export function Sidebar({
               </IconButton>
             </Flex>
           ) : (
-            <Button
-              _hover={{
-                bgColor: "brand.emphasized",
-              }}
-              borderRadius={"lg"}
-              width={"100%"}
-              variant={"solid"}
-              bgColor={"brand.solid"}
-              color="white"
-              onClick={openLogin}
-            >
-              <FaGoogle />
-              Entrar com Google
-            </Button>
+            <>
+              <Button
+                _hover={{
+                  bgColor: "brand.emphasized",
+                }}
+                borderRadius={"lg"}
+                width={"100%"}
+                variant={"solid"}
+                bgColor={"brand.solid"}
+                color="white"
+                onClick={openLogin}
+              >
+                <FaGoogle />
+                Entrar com Google
+              </Button>
+            </>
           )}
           <Text
             fontSize="2xs"
-            color="gray.400"
+            color="fg.subtle"
             textAlign="center"
             mt={3}
             cursor="pointer"

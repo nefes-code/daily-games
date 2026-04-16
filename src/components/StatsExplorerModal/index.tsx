@@ -132,13 +132,13 @@ export function StatsExplorerModal({
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor="pointer">
+            <Dialog.CloseTrigger color="fg.subtle" cursor="pointer">
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
 
@@ -155,16 +155,16 @@ export function StatsExplorerModal({
                     <ChartSquare size={32} weight="BoldDuotone" />
                   </Square>
                   <Stack gap={1}>
-                    <Text fontSize="xl" fontWeight="800" color="gray.800">
+                    <Text fontSize="xl" fontWeight="800" color="fg">
                       {game.name} - Estatísticas
                     </Text>
-                    <Text fontSize="sm" color="gray.500" fontWeight="600">
+                    <Text fontSize="sm" color="fg.muted" fontWeight="600">
                       Filtre e compare métricas entre jogadores
                     </Text>
                   </Stack>
                 </HStack>
 
-                <Separator width="100%" borderColor="gray.100" />
+                <Separator width="100%" borderColor="border.muted" />
 
                 {/* Filters row */}
                 <Stack gap={4} w="full" align="start" flexWrap="wrap">
@@ -174,7 +174,7 @@ export function StatsExplorerModal({
                       <Text
                         fontSize="xs"
                         fontWeight="700"
-                        color="gray.400"
+                        color="fg.subtle"
                         mb={1.5}
                         textTransform="uppercase"
                         letterSpacing="0.05em"
@@ -189,13 +189,13 @@ export function StatsExplorerModal({
                             rounded="full"
                             fontWeight="700"
                             fontSize="xs"
-                            bg={days === opt.value ? "brand.solid" : "gray.100"}
-                            color={days === opt.value ? "white" : "gray.600"}
+                            bg={days === opt.value ? "brand.solid" : "bg.muted"}
+                            color={days === opt.value ? "white" : "fg.muted"}
                             _hover={{
                               bg:
                                 days === opt.value
                                   ? "brand.emphasized"
-                                  : "gray.200",
+                                  : "bg.emphasized",
                             }}
                             onClick={() => setDays(opt.value)}
                           >
@@ -209,7 +209,7 @@ export function StatsExplorerModal({
                       <Text
                         fontSize="xs"
                         fontWeight="700"
-                        color="gray.400"
+                        color="fg.subtle"
                         mb={1.5}
                         textTransform="uppercase"
                         letterSpacing="0.05em"
@@ -225,14 +225,14 @@ export function StatsExplorerModal({
                             fontWeight="700"
                             fontSize="xs"
                             bg={
-                              metric === opt.value ? "brand.solid" : "gray.100"
+                              metric === opt.value ? "brand.solid" : "bg.muted"
                             }
-                            color={metric === opt.value ? "white" : "gray.600"}
+                            color={metric === opt.value ? "white" : "fg.muted"}
                             _hover={{
                               bg:
                                 metric === opt.value
                                   ? "brand.emphasized"
-                                  : "gray.200",
+                                  : "bg.emphasized",
                             }}
                             onClick={() => setMetric(opt.value)}
                           >
@@ -247,7 +247,7 @@ export function StatsExplorerModal({
                       <Text
                         fontSize="xs"
                         fontWeight="700"
-                        color="gray.400"
+                        color="fg.subtle"
                         mb={1.5}
                         textTransform="uppercase"
                         letterSpacing="0.05em"
@@ -271,9 +271,9 @@ export function StatsExplorerModal({
                             fontWeight="700"
                             fontSize="xs"
                             borderColor={
-                              hasPlayerFilter ? "purple.300" : "gray.200"
+                              hasPlayerFilter ? "purple.300" : "border"
                             }
-                            bg={hasPlayerFilter ? "purple.50" : "white"}
+                            bg={hasPlayerFilter ? "purple.50" : "bg.panel"}
                           >
                             <PlayerSelectValue />
                           </Select.Trigger>
@@ -328,7 +328,7 @@ export function StatsExplorerModal({
                       <Text
                         fontSize="xs"
                         fontWeight="700"
-                        color="gray.400"
+                        color="fg.subtle"
                         mb={1.5}
                         textTransform="uppercase"
                         letterSpacing="0.05em"
@@ -341,10 +341,8 @@ export function StatsExplorerModal({
                           size="sm"
                           rounded="xl"
                           maxW={36}
-                          borderColor={
-                            hasDateFilter ? "orange.300" : "gray.200"
-                          }
-                          bg={hasDateFilter ? "orange.50" : "white"}
+                          borderColor={hasDateFilter ? "orange.300" : "border"}
+                          bg={hasDateFilter ? "orange.50" : "bg.panel"}
                           value={date ?? ""}
                           onChange={(e) => setDate(e.target.value || null)}
                         />
@@ -375,7 +373,7 @@ export function StatsExplorerModal({
                 ) : !data || data.rows.length === 0 ? (
                   <Text
                     fontSize="xs"
-                    color="gray.400"
+                    color="fg.subtle"
                     fontWeight="600"
                     py={6}
                     textAlign="center"
@@ -392,11 +390,11 @@ export function StatsExplorerModal({
                     overflow={"hidden"}
                   >
                     <Table.Header>
-                      <Table.Row bg="gray.50">
+                      <Table.Row bg="bg.subtle">
                         <Table.ColumnHeader
                           fontSize="xs"
                           fontWeight="700"
-                          color="gray.400"
+                          color="fg.subtle"
                           textTransform="uppercase"
                           w={8}
                           px={2}
@@ -406,7 +404,7 @@ export function StatsExplorerModal({
                         <Table.ColumnHeader
                           fontSize="xs"
                           fontWeight="700"
-                          color="gray.400"
+                          color="fg.subtle"
                           textTransform="uppercase"
                           px={2}
                         >
@@ -415,7 +413,7 @@ export function StatsExplorerModal({
                         <Table.ColumnHeader
                           fontSize="xs"
                           fontWeight="700"
-                          color="gray.400"
+                          color="fg.subtle"
                           textTransform="uppercase"
                           textAlign="right"
                           px={2}
@@ -426,7 +424,7 @@ export function StatsExplorerModal({
                           <Table.ColumnHeader
                             fontSize="xs"
                             fontWeight="700"
-                            color="gray.400"
+                            color="fg.subtle"
                             textTransform="uppercase"
                             textAlign="right"
                             px={2}
@@ -446,7 +444,7 @@ export function StatsExplorerModal({
                                 fontSize="xs"
                                 fontWeight="800"
                                 fontFamily="mono"
-                                color={isFirst ? "brand.solid" : "gray.400"}
+                                color={isFirst ? "brand.solid" : "fg.subtle"}
                               >
                                 {row.rank}
                               </Text>
@@ -472,7 +470,7 @@ export function StatsExplorerModal({
                                 <Text
                                   fontSize="xs"
                                   fontWeight="700"
-                                  color="gray.800"
+                                  color="fg"
                                   lineClamp={1}
                                 >
                                   {row.name}
@@ -485,7 +483,7 @@ export function StatsExplorerModal({
                                 fontWeight="800"
                                 fontFamily="mono"
                                 letterSpacing="-0.02em"
-                                color={isFirst ? "brand.solid" : "gray.700"}
+                                color={isFirst ? "brand.solid" : "fg.muted"}
                               >
                                 {fmtValue(row.value)}
                               </Text>
@@ -495,7 +493,7 @@ export function StatsExplorerModal({
                                 <Text
                                   fontSize="xs"
                                   fontWeight="600"
-                                  color="gray.400"
+                                  color="fg.subtle"
                                 >
                                   {row.daysPlayed}/{data.totalDays}
                                 </Text>
@@ -510,7 +508,7 @@ export function StatsExplorerModal({
                 {data && data.rows.length > 0 && (
                   <Text
                     fontSize="2xs"
-                    color="gray.400"
+                    color="fg.subtle"
                     fontWeight="500"
                     lineHeight="1.5"
                   >

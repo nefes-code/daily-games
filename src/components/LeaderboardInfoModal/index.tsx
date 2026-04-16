@@ -46,7 +46,11 @@ function RuleCard({
       p={4}
       borderRadius="xl"
       bg={
-        variant === "blue" ? "blue.50" : highlight ? "brand.solid/8" : "gray.50"
+        variant === "blue"
+          ? "blue.500/10"
+          : highlight
+            ? "brand.solid/8"
+            : "bg.subtle"
       }
       borderWidth={highlight || variant === "blue" ? 1 : 0}
       borderColor={
@@ -67,9 +71,9 @@ function RuleCard({
             ? "blue.400"
             : highlight
               ? "brand.solid"
-              : "gray.200"
+              : "bg.emphasized"
         }
-        color={highlight || variant === "blue" ? "white" : "gray.500"}
+        color={highlight || variant === "blue" ? "white" : "fg.muted"}
         align="center"
         justify="center"
         flexShrink={0}
@@ -77,10 +81,10 @@ function RuleCard({
         {icon}
       </Flex>
       <Box>
-        <Text fontSize="sm" fontWeight="800" color="gray.800" mb={0.5}>
+        <Text fontSize="sm" fontWeight="800" color="fg" mb={0.5}>
           {title}
         </Text>
-        <Text fontSize="sm" color="gray.500" fontWeight="500" lineHeight="1.5">
+        <Text fontSize="sm" color="fg.muted" fontWeight="500" lineHeight="1.5">
           {description}
         </Text>
       </Box>
@@ -117,13 +121,13 @@ export function LeaderboardInfoModal({
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor="pointer">
+            <Dialog.CloseTrigger color="fg.subtle" cursor="pointer">
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
 
@@ -140,17 +144,17 @@ export function LeaderboardInfoModal({
                     <CupStar size={32} weight="BoldDuotone" />
                   </Square>
                   <Stack gap={1}>
-                    <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                    <Text fontSize="2xl" fontWeight="800" color="fg">
                       Como funciona o ranking?
                     </Text>
-                    <Text fontSize="sm" color="gray.500" fontWeight="600">
+                    <Text fontSize="sm" color="fg.muted" fontWeight="600">
                       O ranking valoriza quem joga todo dia, não só quem joga
                       bem
                     </Text>
                   </Stack>
                 </VStack>
 
-                <Separator width="100%" borderColor="gray.100" />
+                <Separator width="100%" borderColor="border.muted" />
 
                 {/* Rules */}
                 <VStack gap={2} align="stretch" w="full">

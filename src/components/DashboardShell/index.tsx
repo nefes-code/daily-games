@@ -26,9 +26,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         left={0}
         right={0}
         h="56px"
-        bg="white"
+        bg="bg.panel"
         borderBottomWidth={1}
-        borderColor="gray.100"
+        borderColor="border.muted"
         zIndex={90}
         alignItems="center"
         px={4}

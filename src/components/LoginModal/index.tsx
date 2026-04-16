@@ -54,14 +54,14 @@ export function LoginModal() {
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             maxW="400px"
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+            <Dialog.CloseTrigger color="fg.subtle" cursor={"pointer"}>
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
             <Dialog.Body px={8} py={10}>
@@ -89,10 +89,10 @@ export function LoginModal() {
                   </Square>
                 </HStack>
                 <Stack gap={2} textAlign="center">
-                  <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                  <Text fontSize="2xl" fontWeight="800" color="fg">
                     Conquiste o primeiro lugar
                   </Text>
-                  <Text fontSize="md" color="gray.500" fontWeight="600" mt={1}>
+                  <Text fontSize="md" color="fg.muted" fontWeight="600" mt={1}>
                     Faça login para registrar seus resultados e competir com os
                     membro da NeFEs!
                   </Text>
@@ -101,22 +101,22 @@ export function LoginModal() {
                 <Button
                   w="full"
                   size="xl"
-                  bg="white"
-                  color="gray.700"
+                  bg="bg.inverted"
+                  color="fg.muted"
                   borderWidth={1}
-                  borderColor="gray.100"
+                  borderColor="border.muted"
                   rounded="xl"
                   fontWeight="700"
-                  _hover={{ bg: "black", color: "white" }}
+                  _hover={{ bg: "bg.inverted/80" }}
                   onClick={handleGoogleLogin}
                 >
                   <Flex align="center" gap={3}>
                     <GoogleIcon />
-                    <Text>Continuar com Google</Text>
+                    <Text color={"bg"}>Continuar com Google</Text>
                   </Flex>
                 </Button>
 
-                <Text fontSize="xs" color="gray.400" textAlign="center">
+                <Text fontSize="xs" color="fg.subtle" textAlign="center">
                   O login é necessário apenas para registrar resultados. Só
                   salvamos seu nome e email para mostrar no ranking e nas
                   estatísticas.
@@ -129,8 +129,8 @@ export function LoginModal() {
               top={3}
               right={3}
               fontSize="lg"
-              color="gray.400"
-              _hover={{ color: "gray.600" }}
+              color="fg.subtle"
+              _hover={{ color: "fg.muted" }}
             />
           </Dialog.Content>
         </Dialog.Positioner>

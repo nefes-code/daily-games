@@ -64,7 +64,7 @@ export function GamePage({ slug }: { slug: string }) {
   if (!game) {
     return (
       <Box textAlign="center" py={20}>
-        <Text fontSize="lg" fontWeight="700" color="gray.400">
+        <Text fontSize="lg" fontWeight="700" color="fg.subtle">
           Jogo não encontrado
         </Text>
       </Box>
@@ -197,13 +197,13 @@ export function GamePage({ slug }: { slug: string }) {
                 fontSize="xl"
                 fontWeight="800"
                 letterSpacing="-0.03em"
-                color="gray.900"
+                color="fg"
                 lineHeight="1.1"
               >
                 {game.name}
               </Text>
             </Link>
-            <Text fontSize="xs" color="gray.400" fontWeight="500" mt={0.5}>
+            <Text fontSize="xs" color="fg.subtle" fontWeight="500" mt={0.5}>
               {game.type === "COOPERATIVE" ? "Cooperativo" : "Competitivo"}
               {" · "}
               {game.resultType === "TIME" ? "Tempo" : "Pontuação"}
@@ -261,7 +261,7 @@ export function GamePage({ slug }: { slug: string }) {
             justifyContent="center"
             position="absolute"
             top={{ base: -4, md: -12 }}
-            color="blackAlpha.100"
+            color="bg.inverted/05"
             display={{ base: "none", md: "flex" }}
           >
             <Text fontSize="9xl" fontWeight="extrabold">
@@ -299,7 +299,7 @@ export function GamePage({ slug }: { slug: string }) {
       )}
 
       <Stack justify="center" align="center" gap={1} mt={-4}>
-        <Text fontSize="xs" color="gray.400">
+        <Text fontSize="xs" color="fg.subtle">
           Ranking dos últimos 30 dias
         </Text>
         <HStack gap={1}>
@@ -310,7 +310,7 @@ export function GamePage({ slug }: { slug: string }) {
           >
             Como funciona o ranking?
           </Button>
-          <Text fontSize="2xs" color="gray.300">
+          <Text fontSize="2xs" color="fg.subtle">
             ·
           </Text>
           <Button
@@ -323,7 +323,7 @@ export function GamePage({ slug }: { slug: string }) {
         </HStack>
       </Stack>
 
-      <Separator my={8} width={"100%"} borderColor={"gray.100"} />
+      <Separator my={8} width={"100%"} borderColor={"border.muted"} />
 
       {/* ── Resultados de hoje ── */}
       <Box>
@@ -332,19 +332,19 @@ export function GamePage({ slug }: { slug: string }) {
             fontSize={{ base: "xl", md: "3xl" }}
             fontWeight="900"
             letterSpacing="-0.04em"
-            color="gray.900"
+            color="fg"
             lineHeight="1"
           >
             Resultados de hoje
           </Text>
-          <Text fontSize="xl" color="gray.400" fontWeight="500" mt={1}>
+          <Text fontSize="xl" color="fg.subtle" fontWeight="500" mt={1}>
             {todayLabel}
           </Text>
         </HStack>
 
         <Box
           borderWidth={1}
-          borderColor="gray.100"
+          borderColor="border.muted"
           rounded="xl"
           overflow="hidden"
         >
@@ -386,10 +386,10 @@ export function GamePage({ slug }: { slug: string }) {
               gap={3}
               borderTopWidth={sortedToday.length > 0 ? 1 : 0}
               borderStyle="dashed"
-              borderColor="gray.200"
+              borderColor="border"
               cursor="pointer"
               onClick={handlePlay}
-              _hover={{ bg: "gray.100" }}
+              _hover={{ bg: "bg.muted" }}
               transition="background 0.1s"
             >
               <HStack>

@@ -35,26 +35,26 @@ function StatBox({
       gap={1}
       p={4}
       borderRadius="xl"
-      bg={highlight ? "brand.solid" : "gray.50"}
+      bg={highlight ? "brand.solid" : "bg.subtle"}
       align="center"
     >
       <HStack>
         <Text
           fontSize="3xl"
           fontWeight="800"
-          color={highlight ? "black" : "gray.800"}
+          color={highlight ? "black" : "fg"}
           lineHeight={1}
         >
           {value}
         </Text>
-        <Box color={highlight ? "black" : "gray.400"} mb={1}>
+        <Box color={highlight ? "black" : "fg.subtle"} mb={1}>
           {icon}
         </Box>
       </HStack>
       <Text
         fontSize="sm"
         fontWeight="600"
-        color={highlight ? "blackAlpha.700" : "gray.500"}
+        color={highlight ? "blackAlpha.700" : "fg.muted"}
         textAlign="center"
       >
         {label}
@@ -87,7 +87,7 @@ export function StreakModal({
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content borderRadius="2xl">
-            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+            <Dialog.CloseTrigger color="fg.subtle" cursor={"pointer"}>
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
             <Dialog.Header pb={0}>
@@ -160,13 +160,17 @@ export function StreakModal({
                   gradientFrom={playedToday ? "transaparent" : "red.500"}
                 >
                   {!playedToday && current > 0 && (
-                    <Text>Jogue hoje para manter o streak!</Text>
+                    <Text color={"fg.muted"}>
+                      Jogue hoje para manter o streak!
+                    </Text>
                   )}
                   {!playedToday && current === 0 && (
-                    <Text>Registre um resultado hoje para começar!</Text>
+                    <Text color={"fg.muted"}>
+                      Registre um resultado hoje para começar!
+                    </Text>
                   )}
                   {playedToday && (
-                    <Text color="blackAlpha.500">Você já jogou hoje ✓</Text>
+                    <Text color={"fg.muted"}>Você já jogou hoje ✓</Text>
                   )}
                 </Center>
               </VStack>

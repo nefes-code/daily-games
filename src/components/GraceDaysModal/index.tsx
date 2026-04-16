@@ -39,17 +39,17 @@ function InfoRow({
       gap={3}
       p={4}
       borderRadius="xl"
-      bg={isWarning ? "red.500/10" : "gray.50"}
+      bg={isWarning ? "red.500/10" : "bg.subtle"}
       borderWidth={1}
-      borderColor={isWarning ? "red.200" : "gray.100"}
+      borderColor={isWarning ? "red.200" : "border.muted"}
       align="flex-start"
     >
       <Flex
         w={8}
         h={8}
         rounded="lg"
-        bg={isWarning ? "red.500" : "gray.200"}
-        color={isWarning ? "white" : "gray.500"}
+        bg={isWarning ? "red.500" : "bg.emphasized"}
+        color={isWarning ? "white" : "fg.muted"}
         align="center"
         justify="center"
         flexShrink={0}
@@ -57,10 +57,10 @@ function InfoRow({
         {icon}
       </Flex>
       <Box>
-        <Text fontSize="sm" fontWeight="800" color="gray.800" mb={0.5}>
+        <Text fontSize="sm" fontWeight="800" color="fg" mb={0.5}>
           {title}
         </Text>
-        <Text fontSize="sm" color="gray.500" fontWeight="500" lineHeight="1.5">
+        <Text fontSize="sm" color="fg.muted" fontWeight="500" lineHeight="1.5">
           {description}
         </Text>
       </Box>
@@ -92,13 +92,13 @@ export function GraceDaysModal({
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor="pointer">
+            <Dialog.CloseTrigger color="fg.subtle" cursor="pointer">
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
 
@@ -121,8 +121,8 @@ export function GraceDaysModal({
                         w={12}
                         h={12}
                         rounded="full"
-                        bg={i < remaining ? "blue.400" : "gray.200"}
-                        color={i < remaining ? "white" : "gray.400"}
+                        bg={i < remaining ? "blue.400" : "bg.emphasized"}
+                        color={i < remaining ? "white" : "fg.subtle"}
                         align="center"
                         justify="center"
                         shadow={i < remaining ? "md" : "none"}
@@ -132,16 +132,16 @@ export function GraceDaysModal({
                     ))}
                   </Flex>
                   <Stack gap={1}>
-                    <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                    <Text fontSize="2xl" fontWeight="800" color="fg">
                       Dias de graça
                     </Text>
-                    <Text fontSize="sm" color="gray.500" fontWeight="600">
+                    <Text fontSize="sm" color="fg.muted" fontWeight="600">
                       Uma proteção contra imprevistos
                     </Text>
                   </Stack>
                 </VStack>
 
-                <Separator width="100%" borderColor="gray.100" />
+                <Separator width="100%" borderColor="border.muted" />
 
                 {/* Rules */}
                 <VStack gap={2} align="stretch" w="full">

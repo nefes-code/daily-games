@@ -53,13 +53,13 @@ export function ReleaseNotesModal({
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor="pointer">
+            <Dialog.CloseTrigger color="fg.subtle" cursor="pointer">
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
 
@@ -76,16 +76,16 @@ export function ReleaseNotesModal({
                     <Rocket size={32} weight="BoldDuotone" />
                   </Square>
                   <Stack gap={1}>
-                    <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                    <Text fontSize="2xl" fontWeight="800" color="fg">
                       Novidades
                     </Text>
-                    <Text fontSize="sm" color="gray.500" fontWeight="600">
+                    <Text fontSize="sm" color="fg.muted" fontWeight="600">
                       Veja o que há de novo no hub de jogos diários
                     </Text>
                   </Stack>
                 </VStack>
 
-                <Separator width="100%" borderColor="gray.100" />
+                <Separator width="100%" borderColor="border.muted" />
 
                 {/* Release list */}
                 <VStack gap={5} w="full" align="stretch">
@@ -100,8 +100,8 @@ export function ReleaseNotesModal({
                           fontSize="xs"
                           fontWeight="800"
                           fontFamily="mono"
-                          bg={i === 0 ? "brand.solid" : "gray.100"}
-                          color={i === 0 ? "white" : "gray.500"}
+                          bg={i === 0 ? "brand.solid" : "bg.muted"}
+                          color={i === 0 ? "white" : "fg.muted"}
                           letterSpacing="0.03em"
                         >
                           v{release.version}
@@ -109,13 +109,13 @@ export function ReleaseNotesModal({
                         <Text
                           fontSize="sm"
                           fontWeight="800"
-                          color={i === 0 ? "gray.800" : "gray.600"}
+                          color={i === 0 ? "fg" : "fg.muted"}
                         >
                           {release.title}
                         </Text>
                         <Text
                           fontSize="xs"
-                          color="gray.400"
+                          color="fg.subtle"
                           fontWeight="600"
                           ml="auto"
                         >
@@ -132,7 +132,7 @@ export function ReleaseNotesModal({
                             </Text>
                             <Text
                               fontSize="sm"
-                              color="gray.600"
+                              color="fg.muted"
                               fontWeight="500"
                               lineHeight="1.6"
                             >
@@ -143,7 +143,7 @@ export function ReleaseNotesModal({
                       </VStack>
 
                       {i < releaseNotes.length - 1 && (
-                        <Separator mt={5} borderColor="gray.100" />
+                        <Separator mt={5} borderColor="border.muted" />
                       )}
                     </Box>
                   ))}

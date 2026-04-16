@@ -83,17 +83,17 @@ export function ResultRow({
       py={3}
       gap={{ base: 2, md: 3 }}
       borderBottomWidth={isLast ? 0 : 1}
-      borderColor="gray.50"
+      borderColor="border.subtle"
       transition="background 0.1s"
       position="relative"
-      bgColor={isFirst ? "white" : "transparent"}
+      bgColor={isFirst ? "bg.panel" : "transparent"}
       flexWrap="wrap"
     >
       {rank !== undefined && (
         <Text
           fontSize="xs"
           fontWeight="700"
-          color="gray.300"
+          color="fg.subtle"
           w={5}
           textAlign="center"
           fontFamily="mono"
@@ -110,7 +110,7 @@ export function ResultRow({
             size={5}
             zIndex={2}
             borderWidth={2}
-            borderColor={"white"}
+            borderColor={"bg.panel"}
             position={"absolute"}
             top={-2}
             right={-2}
@@ -124,7 +124,7 @@ export function ResultRow({
         </Avatar.Root>
       </Flex>
       <HStack gap={2} flex={1} align="start" minW={0}>
-        <Text fontSize="sm" fontWeight="600" truncate color="gray.700">
+        <Text fontSize="sm" fontWeight="600" truncate color="fg.muted">
           {name}
         </Text>
         {rounds && rounds.length > 0 && (
@@ -168,7 +168,7 @@ export function ResultRow({
                 r.userId === currentUserId ? "brand.muted" : "gray.100"
               }
               size={7}
-              bg={r.userId === currentUserId ? "brand.subtle" : "gray.100"}
+              bg={r.userId === currentUserId ? "brand.subtle" : "bg.muted"}
             >
               <Text fontSize="sm" lineHeight="1">
                 {r.emoji}
@@ -179,7 +179,7 @@ export function ResultRow({
               shape="full"
               w={4}
               borderWidth={2}
-              borderColor={"white"}
+              borderColor={"bg.panel"}
               h={4}
               position={"absolute"}
               bottom={-1}
@@ -203,11 +203,11 @@ export function ResultRow({
               rounded="full"
               borderWidth={1}
               borderStyle="dashed"
-              borderColor="gray.200"
+              borderColor="border"
               cursor="pointer"
               fontSize="sm"
-              color="gray.300"
-              _hover={{ borderColor: "gray.400", color: "gray.500" }}
+              color="fg.subtle"
+              _hover={{ borderColor: "fg.subtle", color: "fg.muted" }}
               transition="all 0.1s"
               onClick={openPicker}
             >
@@ -246,14 +246,14 @@ export function ResultRow({
       </Flex>
 
       {date && (
-        <Text fontSize="xs" color="gray.300" fontWeight="500" flexShrink={0}>
+        <Text fontSize="xs" color="fg.subtle" fontWeight="500" flexShrink={0}>
           {date}
         </Text>
       )}
       <Text
         fontSize="sm"
         fontWeight="800"
-        color="gray.600"
+        color="fg.muted"
         fontFamily="mono"
         flexShrink={0}
       >

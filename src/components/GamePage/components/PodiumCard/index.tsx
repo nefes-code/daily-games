@@ -51,12 +51,12 @@ export function PodiumCard({
   if (wide) {
     return (
       <Box
-        bg="white"
+        bg="bg.panel"
         rounded="2xl"
         overflow="hidden"
         borderWidth={4}
         shadow="xl"
-        borderColor="white"
+        borderColor="bg.panel"
       >
         <Flex flexDir={{ base: "column", md: "row" }}>
           {/* Gradient sidebar */}
@@ -91,7 +91,7 @@ export function PodiumCard({
               h={20}
               borderWidth={4}
               zIndex={2}
-              borderColor="white"
+              borderColor="bg.panel"
               shadow={"xl"}
               color={"white"}
             >
@@ -112,13 +112,13 @@ export function PodiumCard({
               <Text
                 fontSize="2xl"
                 fontWeight="900"
-                color="gray.900"
+                color="fg"
                 letterSpacing="-0.03em"
                 lineHeight="1"
               >
                 NeFEs
               </Text>
-              <Text fontSize="sm" color="gray.400" fontWeight="500" mt={1}>
+              <Text fontSize="sm" color="fg.subtle" fontWeight="500" mt={1}>
                 Resultado do time
               </Text>
             </Box>
@@ -129,7 +129,7 @@ export function PodiumCard({
                   <Text
                     fontSize="lg"
                     fontWeight="900"
-                    color="gray.900"
+                    color="fg"
                     fontFamily="mono"
                     letterSpacing="-0.04em"
                   >
@@ -137,7 +137,7 @@ export function PodiumCard({
                       ? `${daysPlayed}/${totalDays}`
                       : daysPlayed}
                   </Text>
-                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  <Text fontSize="xs" color="fg.subtle" fontWeight="500">
                     Dias jogados
                   </Text>
                 </Box>
@@ -147,13 +147,13 @@ export function PodiumCard({
                   <Text
                     fontSize="lg"
                     fontWeight="900"
-                    color="gray.900"
+                    color="fg"
                     fontFamily="mono"
                     letterSpacing="-0.04em"
                   >
                     {bestResult}
                   </Text>
-                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  <Text fontSize="xs" color="fg.subtle" fontWeight="500">
                     Melhor resultado
                   </Text>
                 </Box>
@@ -169,7 +169,7 @@ export function PodiumCard({
                   >
                     {value}
                   </Text>
-                  <Text fontSize="xs" color="gray.400" fontWeight="500">
+                  <Text fontSize="xs" color="fg.subtle" fontWeight="500">
                     Média
                   </Text>
                 </Box>
@@ -184,12 +184,12 @@ export function PodiumCard({
   if (empty) {
     return (
       <Box
-        bg="white"
+        bg="bg.panel"
         rounded="2xl"
         overflow="visible"
         borderWidth={4}
         shadow="md"
-        borderColor="white"
+        borderColor="bg.panel"
         position="relative"
         opacity={0.55}
       >
@@ -228,14 +228,14 @@ export function PodiumCard({
               h={16}
               rounded="full"
               borderWidth={3}
-              borderColor="white"
+              borderColor="bg.panel"
               borderStyle="dashed"
-              bg="gray.100"
+              bg="bg.muted"
               align="center"
               justify="center"
               style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}
             >
-              <Text fontSize="2xl" color="gray.300" fontWeight="700">
+              <Text fontSize="2xl" color="fg.subtle" fontWeight="700">
                 ?
               </Text>
             </Flex>
@@ -243,7 +243,7 @@ export function PodiumCard({
         </Box>
 
         <Box px={4} pb={4} pt={12}>
-          <Text fontSize="sm" fontWeight="600" color="gray.400" lineClamp={2}>
+          <Text fontSize="sm" fontWeight="600" color="fg.subtle" lineClamp={2}>
             O {label} lugar aparecerá aqui
           </Text>
         </Box>
@@ -253,12 +253,12 @@ export function PodiumCard({
 
   return (
     <Box
-      bg="white"
+      bg="bg.panel"
       rounded="2xl"
-      overflow="visible"
+      overflow="hidden"
       borderWidth={4}
       shadow="xl"
-      borderColor="white"
+      borderColor="bg.panel"
       position="relative"
     >
       {/* Gradient header — rounded top to compensate overflow:visible */}
@@ -300,7 +300,7 @@ export function PodiumCard({
             w={16}
             h={16}
             borderWidth={3}
-            borderColor="white"
+            borderColor="bg.panel"
             style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.18)" }}
           >
             {image && <Avatar.Image src={image} />}
@@ -334,7 +334,7 @@ export function PodiumCard({
         <Text
           fontSize={{ base: "sm", md: "xl" }}
           fontWeight="800"
-          color="gray.900"
+          color="fg"
           lineClamp={1}
           letterSpacing="-0.01em"
         >
@@ -376,10 +376,10 @@ export function PodiumCard({
           <Flex gap={4} mt={2}>
             {daysPlayed != null && (
               <Box>
-                <Text fontSize="xs" color="gray.400" fontWeight="500">
+                <Text fontSize="xs" color="fg.subtle" fontWeight="500">
                   Dias
                 </Text>
-                <Text fontSize="sm" fontWeight="700" color="gray.700">
+                <Text fontSize="sm" fontWeight="700" color="fg.muted">
                   {totalDays != null && totalDays > 0
                     ? `${daysPlayed}/${totalDays}`
                     : daysPlayed}
@@ -388,17 +388,17 @@ export function PodiumCard({
             )}
             {bestResult != null && (
               <Box>
-                <Text fontSize="xs" color="gray.400" fontWeight="500">
+                <Text fontSize="xs" color="fg.subtle" fontWeight="500">
                   Melhor
                 </Text>
-                <Text fontSize="sm" fontWeight="700" color="gray.700">
+                <Text fontSize="sm" fontWeight="700" color="fg.muted">
                   {bestResult}
                 </Text>
               </Box>
             )}
             {graceDays != null && graceDays > 0 && (
               <Box>
-                <Text fontSize="xs" color="gray.400" fontWeight="500">
+                <Text fontSize="xs" color="fg.subtle" fontWeight="500">
                   Proteção
                 </Text>
                 <HStack

@@ -90,18 +90,18 @@ export function CreateGameModal({
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+            <Dialog.CloseTrigger color="fg.subtle" cursor={"pointer"}>
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
             <Dialog.Header
               borderBottomWidth={1}
-              borderColor="gray.100"
+              borderColor="border.muted"
               px={6}
               py={4}
             >
@@ -128,7 +128,7 @@ export function CreateGameModal({
                     }}
                     rounded="lg"
                     borderWidth={1}
-                    borderColor="gray.100"
+                    borderColor="border.muted"
                     _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                   />
                 </Field.Root>
@@ -151,9 +151,11 @@ export function CreateGameModal({
                           }
                           rounded="lg"
                           borderWidth={1}
-                          borderColor={selected ? "brand.solid" : "gray.100"}
-                          bg={selected ? "brand.subtle" : "white"}
-                          color={selected ? "brand.solid" : "gray.500"}
+                          borderColor={
+                            selected ? "brand.solid" : "border.muted"
+                          }
+                          bg={selected ? "brand.subtle" : "bg.panel"}
+                          color={selected ? "brand.solid" : "fg.muted"}
                           p={2}
                           display="flex"
                           flexDir="column"
@@ -187,7 +189,7 @@ export function CreateGameModal({
                     onChange={(e) => set("url", e.target.value)}
                     rounded="lg"
                     borderWidth={1}
-                    borderColor="gray.100"
+                    borderColor="border.muted"
                     _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                   />
                 </Field.Root>
@@ -206,7 +208,7 @@ export function CreateGameModal({
                         }
                         rounded="lg"
                         borderWidth={1}
-                        borderColor="gray.100"
+                        borderColor="border.muted"
                       >
                         <option value="COMPETITIVE">Competitivo</option>
                         <option value="COOPERATIVE">Cooperativo</option>
@@ -230,7 +232,7 @@ export function CreateGameModal({
                         }
                         rounded="lg"
                         borderWidth={1}
-                        borderColor="gray.100"
+                        borderColor="border.muted"
                       >
                         <option value="SCORE">Pontuação</option>
                         <option value="TIME">Tempo</option>
@@ -252,7 +254,7 @@ export function CreateGameModal({
                       onChange={(e) => set("resultSuffix", e.target.value)}
                       rounded="lg"
                       borderWidth={1}
-                      borderColor="gray.100"
+                      borderColor="border.muted"
                       _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                     />
                   </Field.Root>
@@ -273,7 +275,7 @@ export function CreateGameModal({
                       }
                       rounded="lg"
                       borderWidth={1}
-                      borderColor="gray.100"
+                      borderColor="border.muted"
                       _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                     />
                   </Field.Root>
@@ -295,7 +297,7 @@ export function CreateGameModal({
                       }
                       rounded="lg"
                       borderWidth={1}
-                      borderColor="gray.100"
+                      borderColor="border.muted"
                       _focus={{ borderColor: "brand.solid", boxShadow: "none" }}
                     />
                   </Field.Root>
@@ -307,14 +309,14 @@ export function CreateGameModal({
                   px={4}
                   py={3}
                   borderWidth={1}
-                  borderColor="gray.100"
+                  borderColor="border.muted"
                 >
                   <Flex align="center" justify="space-between">
                     <Box>
                       <Text fontWeight="700" fontSize="sm">
                         Menor é melhor?
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="xs" color="fg.muted">
                         Ex.: Wordle (menos tentativas = melhor)
                       </Text>
                     </Box>
@@ -335,7 +337,7 @@ export function CreateGameModal({
 
             <Dialog.Footer
               borderTopWidth={1}
-              borderColor="gray.100"
+              borderColor="border.muted"
               px={6}
               py={4}
               gap={3}
@@ -345,7 +347,7 @@ export function CreateGameModal({
                   variant="ghost"
                   rounded="lg"
                   fontWeight="700"
-                  color="gray.500"
+                  color="fg.muted"
                 >
                   Cancelar
                 </Button>
@@ -370,7 +372,7 @@ export function CreateGameModal({
               top={3}
               right={3}
               fontSize="lg"
-              color="gray.400"
+              color="fg.subtle"
               _hover={{ color: "gray.600" }}
             />
           </Dialog.Content>

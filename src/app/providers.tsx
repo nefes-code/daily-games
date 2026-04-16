@@ -1,6 +1,7 @@
 "use client";
 
 import { ChakraProvider } from "@chakra-ui/react";
+import { ThemeProvider } from "next-themes";
 import { system } from "@/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -25,16 +26,23 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        <ChakraProvider value={system}>
-          <LoginModalProvider>
-            {children}
-            <LoginModal />
-          </LoginModalProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
-        </ChakraProvider>
-      </QueryClientProvider>
-    </SessionProvider>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <SessionProvider>
+        <QueryClientProvider client={queryClient}>
+          <ChakraProvider value={system}>
+            <LoginModalProvider>
+              {children}
+              <LoginModal />
+            </LoginModalProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </ChakraProvider>
+        </QueryClientProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
 }

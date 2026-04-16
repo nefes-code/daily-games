@@ -53,20 +53,20 @@ export function Leaderboard({
 }) {
   return (
     <Box
-      bg="white"
+      bg="bg.panel"
       rounded="2xl"
       borderWidth={2}
-      borderColor="gray.200"
+      borderColor="border"
       overflow="hidden"
     >
       {/* Header */}
       {title && (
         <Box textAlign="center" pt={6} pb={4} px={6}>
-          <Text fontSize="lg" fontWeight="800" color="gray.800">
+          <Text fontSize="lg" fontWeight="800" color="fg">
             {title}
           </Text>
           {subtitle && (
-            <Text fontSize="sm" color="gray.500" mt={1}>
+            <Text fontSize="sm" color="fg.muted" mt={1}>
               {subtitle}
             </Text>
           )}
@@ -87,16 +87,16 @@ export function Leaderboard({
               py={3}
               bg={isHighlighted ? "brand.subtle" : "transparent"}
               borderBottomWidth={1}
-              borderColor="gray.100"
+              borderColor="border.muted"
               transition="background 0.1s"
-              _hover={{ bg: isHighlighted ? "brand.subtle" : "gray.50" }}
+              _hover={{ bg: isHighlighted ? "brand.subtle" : "bg.subtle" }}
               _last={{ borderBottomWidth: 0 }}
             >
               {/* Rank */}
               <Text
                 fontSize="md"
                 fontWeight="800"
-                color={medal ? medal.bg : "gray.400"}
+                color={medal ? medal.bg : "fg.subtle"}
                 w="36px"
                 textAlign="center"
                 flexShrink={0}
@@ -123,7 +123,7 @@ export function Leaderboard({
               </Text>
 
               {/* Value */}
-              <Text fontWeight="800" fontSize="md" color="gray.500">
+              <Text fontWeight="800" fontSize="md" color="fg.muted">
                 {entry.value}
               </Text>
             </Flex>
@@ -135,7 +135,7 @@ export function Leaderboard({
             <Text fontSize="3xl" mb={2}>
               🏆
             </Text>
-            <Text color="gray.400" fontWeight="600">
+            <Text color="fg.subtle" fontWeight="600">
               Nenhum resultado ainda
             </Text>
           </Box>

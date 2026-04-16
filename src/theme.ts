@@ -5,8 +5,8 @@ import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 const config = defineConfig({
   globalCss: {
     "html, body": {
-      bg: "gray.50",
-      color: "gray.800",
+      bg: "bg.subtle",
+      color: "fg",
       fontFamily: "var(--font-roboto), system-ui, sans-serif",
     },
   },

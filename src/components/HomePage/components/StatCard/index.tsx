@@ -15,10 +15,10 @@ export function StatCard({
 }) {
   return (
     <Box
-      bg="white"
+      bg="bg.panel"
       rounded="2xl"
       borderWidth={2}
-      borderColor="gray.200"
+      borderColor="border"
       p={5}
       textAlign="center"
       transition="transform 0.15s"
@@ -30,7 +30,7 @@ export function StatCard({
       <Text fontSize="2xl" fontWeight="800" color={color}>
         {value}
       </Text>
-      <Text fontSize="sm" fontWeight="600" color="gray.500">
+      <Text fontSize="sm" fontWeight="600" color="fg.muted">
         {label}
       </Text>
     </Box>

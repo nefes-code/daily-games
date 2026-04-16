@@ -156,14 +156,14 @@ export function PlayGameModal({
         <Dialog.Backdrop bg="blackAlpha.600" />
         <Dialog.Positioner>
           <Dialog.Content
-            bg="white"
+            bg="bg.panel"
             rounded="2xl"
             mx={4}
             maxW="420px"
             w="full"
             boxShadow="xl"
           >
-            <Dialog.CloseTrigger color="gray.300" cursor={"pointer"}>
+            <Dialog.CloseTrigger color="fg.subtle" cursor={"pointer"}>
               <CloseCircle size={24} weight="BoldDuotone" />
             </Dialog.CloseTrigger>
 
@@ -175,10 +175,10 @@ export function PlayGameModal({
                     <StarRainbow weight="BoldDuotone" size={60} />
                   </Box>
                   <Stack gap={2}>
-                    <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                    <Text fontSize="2xl" fontWeight="800" color="fg">
                       Resultado registrado!
                     </Text>
-                    <Text fontSize="sm" color="gray.500" fontWeight="500">
+                    <Text fontSize="sm" color="fg.muted" fontWeight="500">
                       Sua participação conta no ranking de consistência.
                     </Text>
                   </Stack>
@@ -266,13 +266,13 @@ export function PlayGameModal({
 
                     {/* Title */}
                     <Stack gap={1} textAlign="center">
-                      <Text fontSize="2xl" fontWeight="800" color="gray.800">
+                      <Text fontSize="2xl" fontWeight="800" color="fg">
                         {game.name}
                       </Text>
                       <Text
                         mt={1}
                         fontSize="sm"
-                        color="gray.500"
+                        color="fg.muted"
                         fontWeight="600"
                       >
                         {game.type === "COOPERATIVE"
@@ -282,7 +282,7 @@ export function PlayGameModal({
                         {isTime ? "Tempo" : "Pontuação"}
                         {isMultiRound ? ` · ${numRounds} rodadas` : ""}
                       </Text>
-                      <Text fontSize="sm" color="gray.500" fontWeight="600">
+                      <Text fontSize="sm" color="fg.muted" fontWeight="600">
                         {game.lowerIsBetter
                           ? "Menor resultado é melhor"
                           : "Maior resultado é melhor"}
@@ -293,7 +293,7 @@ export function PlayGameModal({
                           target="_blank"
                           rel="noopener noreferrer"
                           fontSize="sm"
-                          color="gray.400"
+                          color="fg.subtle"
                           fontWeight="600"
                           display="flex"
                           alignItems="center"
@@ -305,7 +305,7 @@ export function PlayGameModal({
                         </Link>
                       </Flex>
                     </Stack>
-                    <Separator width={"100%"} borderColor={"gray.100"} />
+                    <Separator width={"100%"} borderColor={"border.muted"} />
                     {/* Rounds */}
                     {rounds.map((round, idx) => (
                       <Box key={idx} w="full">
@@ -314,7 +314,7 @@ export function PlayGameModal({
                             <Text
                               fontSize="sm"
                               fontWeight="800"
-                              color="gray.400"
+                              color="fg.subtle"
                               textTransform="uppercase"
                               letterSpacing="0.05em"
                               mb={2}
@@ -331,14 +331,14 @@ export function PlayGameModal({
                                 height={7}
                                 variant={round.won ? "solid" : "outline"}
                                 bg={round.won ? "brand.solid" : undefined}
-                                color={round.won ? "white" : "gray.500"}
+                                color={round.won ? "white" : "fg.muted"}
                                 borderColor={
-                                  round.won ? "brand.solid" : "gray.200"
+                                  round.won ? "brand.solid" : "border"
                                 }
                                 rounded="lg"
                                 fontWeight="700"
                                 _hover={{
-                                  bg: round.won ? "brand.solid" : "gray.50",
+                                  bg: round.won ? "brand.solid" : "bg.subtle",
                                 }}
                                 onClick={() => updateRound(idx, { won: true })}
                               >
@@ -348,15 +348,13 @@ export function PlayGameModal({
                                 size="xs"
                                 variant={!round.won ? "solid" : "outline"}
                                 bg={!round.won ? "red.500" : undefined}
-                                color={!round.won ? "white" : "gray.500"}
-                                borderColor={
-                                  !round.won ? "red.500" : "gray.200"
-                                }
+                                color={!round.won ? "white" : "fg.muted"}
+                                borderColor={!round.won ? "red.500" : "border"}
                                 rounded="lg"
                                 fontWeight="700"
                                 height={7}
                                 _hover={{
-                                  bg: !round.won ? "red.600" : "gray.50",
+                                  bg: !round.won ? "red.600" : "bg.subtle",
                                 }}
                                 onClick={() => updateRound(idx, { won: false })}
                               >
@@ -386,7 +384,7 @@ export function PlayGameModal({
                                     }
                                     rounded="xl"
                                     borderWidth={2}
-                                    borderColor="gray.200"
+                                    borderColor="border"
                                     textAlign="center"
                                     fontSize={isMultiRound ? "xl" : "2xl"}
                                     fontWeight="800"
@@ -400,7 +398,7 @@ export function PlayGameModal({
                                 <Text
                                   fontSize={isMultiRound ? "xl" : "2xl"}
                                   fontWeight="800"
-                                  color="gray.300"
+                                  color="fg.subtle"
                                   pb={2}
                                 >
                                   :
@@ -422,7 +420,7 @@ export function PlayGameModal({
                                     }
                                     rounded="xl"
                                     borderWidth={2}
-                                    borderColor="gray.200"
+                                    borderColor="border"
                                     textAlign="center"
                                     fontSize={isMultiRound ? "xl" : "2xl"}
                                     fontWeight="800"
@@ -456,7 +454,7 @@ export function PlayGameModal({
                                   }
                                   rounded="xl"
                                   borderWidth={2}
-                                  borderColor="gray.200"
+                                  borderColor="border"
                                   textAlign="center"
                                   fontSize={isMultiRound ? "xl" : "3xl"}
                                   fontWeight="800"
@@ -469,7 +467,7 @@ export function PlayGameModal({
                                 {game.resultMax && !isMultiRound && (
                                   <Text
                                     fontSize="xs"
-                                    color="gray.400"
+                                    color="fg.subtle"
                                     mt={1}
                                     textAlign="center"
                                   >
@@ -552,8 +550,8 @@ export function PlayGameModal({
               position="absolute"
               top={3}
               right={3}
-              color="gray.400"
-              _hover={{ color: "gray.600" }}
+              color="fg.subtle"
+              _hover={{ color: "fg.muted" }}
             />
           </Dialog.Content>
         </Dialog.Positioner>
